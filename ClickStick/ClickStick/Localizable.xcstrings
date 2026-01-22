@@ -1,0 +1,183 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld characters" : {
+
+    },
+    "Authentication key" : {
+
+    },
+    "Authentication Key" : {
+
+    },
+    "Bluetooth Unavailable" : {
+
+    },
+    "Camera Not Available" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Connect" : {
+
+    },
+    "Connecting to %@..." : {
+
+    },
+    "Demo Mode Off" : {
+
+    },
+    "Demo Mode On" : {
+
+    },
+    "Device ID" : {
+
+    },
+    "Device Information" : {
+
+    },
+    "Device Name" : {
+
+    },
+    "Device nickname" : {
+
+    },
+    "Device nickname (optional)" : {
+
+    },
+    "Devices" : {
+
+    },
+    "Disable demo mode" : {
+
+    },
+    "Disconnect" : {
+
+    },
+    "Disconnected" : {
+
+    },
+    "Dismiss" : {
+
+    },
+    "Double-tap to send" : {
+
+    },
+    "Drag to move • Two fingers to scroll • Tap to click" : {
+
+    },
+    "Drag to move cursor, two fingers to scroll, tap to click" : {
+
+    },
+    "Enable demo mode" : {
+
+    },
+    "Enter 32-character hex key" : {
+
+    },
+    "Enter text first" : {
+
+    },
+    "Enter the text you want to type on the connected device" : {
+
+    },
+    "Feature" : {
+
+    },
+    "Give your device a friendly name for easy identification." : {
+
+    },
+    "Insert %@" : {
+
+    },
+    "Keyboard Layout" : {
+
+    },
+    "Left click" : {
+
+    },
+    "Left Click" : {
+
+    },
+    "Nickname" : {
+
+    },
+    "No Device Selected" : {
+
+    },
+    "No Devices Found" : {
+
+    },
+    "Open Settings" : {
+
+    },
+    "Pull to refresh or tap the button below to scan for devices." : {
+
+    },
+    "Right click" : {
+
+    },
+    "Right Click" : {
+
+    },
+    "Scan for Devices" : {
+
+    },
+    "Scan QR code" : {
+
+    },
+    "Scan QR Code" : {
+
+    },
+    "Scan the QR code on your ClickStick or enter the 32-character hex key manually." : {
+
+    },
+    "Searching for ClickStick devices..." : {
+
+    },
+    "Select a ClickStick device from the sidebar to get started." : {
+
+    },
+    "Select keyboard layout" : {
+
+    },
+    "Send Text" : {
+
+    },
+    "Send text to device" : {
+
+    },
+    "Sending text" : {
+
+    },
+    "Sending..." : {
+
+    },
+    "Setup Device" : {
+
+    },
+    "Start Scanning" : {
+
+    },
+    "Tap Connect to start using this device." : {
+
+    },
+    "Text to send" : {
+
+    },
+    "Text to type" : {
+
+    },
+    "This device doesn't support camera scanning. Please enter the key manually." : {
+
+    },
+    "Touchpad" : {
+
+    },
+    "Touchpad area" : {
+
+    }
+  },
+  "version" : "1.1"
+}

@@ -1,11 +1,13 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+import ClickStickKit
 import SwiftUI
 
 struct DeviceDetailView: View {
     let device: DeviceModel
     @State private var selectedTab: DeviceFeatureTab = .textEntry
+    @State private var alertError: AlertError?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,23 +25,30 @@ struct DeviceDetailView: View {
                 connectionButton
             }
         }
+        .errorAlert($alertError)
+        .onReceive(NotificationCenter.default.publisher(for: .deviceDidFail)) { notification in
+            guard let error = notification.userInfo?["error"] as? CSError,
+                  let deviceID = notification.userInfo?["deviceID"] as? UUID,
+                  deviceID == device.id else { return }
+            alertError = AlertError(error: error)
+        }
     }
 
     // MARK: - Connected Content
 
     private var connectedContent: some View {
         VStack(spacing: 0) {
-            // Tab selector
-            Picker("Feature", selection: $selectedTab) {
+            Picker(String(localized: "Feature"), selection: $selectedTab) {
                 ForEach(availableTabs) { tab in
-                    Label(tab.rawValue, systemImage: tab.icon)
+                    Label(tab.localizedTitle, systemImage: tab.icon)
                         .tag(tab)
                 }
             }
             .pickerStyle(.segmented)
             .padding()
+            .accessibilityLabel("Device features")
+            .accessibilityHint("Select between text entry and touchpad modes")
 
-            // Tab content
             Group {
                 switch selectedTab {
                 case .textEntry:
@@ -49,6 +58,7 @@ struct DeviceDetailView: View {
                 }
             }
             .frame(maxHeight: .infinity)
+            .transition(.opacity)
         }
     }
 
@@ -67,13 +77,15 @@ struct DeviceDetailView: View {
         } description: {
             Text("Connecting to \(device.displayName)...")
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Connecting to \(device.displayName)")
     }
 
     // MARK: - Disconnected Content
 
     private var disconnectedContent: some View {
         ContentUnavailableView {
-            Label("Disconnected", systemImage: "cable.connector.horizontal")
+            Label(String(localized: "Disconnected", comment: "Connection status"), systemImage: "cable.connector.horizontal")
         } description: {
             if let error = device.lastError {
                 Text(error.localizedDescription)
@@ -86,6 +98,9 @@ struct DeviceDetailView: View {
             }
             .buttonStyle(.borderedProminent)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Device disconnected")
+        .accessibilityHint("Double-tap the connect button to reconnect")
     }
 
     // MARK: - Connection Button
@@ -96,16 +111,32 @@ struct DeviceDetailView: View {
                 Button("Disconnect", role: .destructive) {
                     device.disconnect()
                 }
+                .accessibilityLabel("Disconnect from device")
             } else if device.isConnecting {
                 Button("Cancel") {
                     device.disconnect()
                 }
+                .accessibilityLabel("Cancel connection")
             } else {
                 Button("Connect") {
                     device.connect()
                 }
+                .accessibilityLabel("Connect to device")
             }
         }
     }
 }
 
+// MARK: - Preview
+
+#Preview("Connected") {
+    NavigationStack {
+        DeviceDetailView(device: .preview)
+    }
+}
+
+#Preview("Disconnected") {
+    NavigationStack {
+        DeviceDetailView(device: .previewDisconnected)
+    }
+}

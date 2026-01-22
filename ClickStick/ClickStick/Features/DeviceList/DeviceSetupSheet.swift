@@ -15,6 +15,10 @@ struct DeviceSetupSheet: View {
     @State private var showingScanner: Bool = false
     @State private var validationError: String?
 
+    private var shouldAutoScan: Bool {
+        !device.isDemoDevice
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -29,18 +33,34 @@ struct DeviceSetupSheet: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityLabel("Cancel device setup")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Connect") {
                         submitAuthKey()
                     }
                     .disabled(!isValidAuthKey)
+                    .accessibilityLabel("Connect to device")
+                    .accessibilityHint(isValidAuthKey
+                        ? String(localized: "Double-tap to connect", comment: "Accessibility hint")
+                        : String(localized: "Enter a valid authentication key first", comment: "Accessibility hint"))
                 }
             }
             .sheet(isPresented: $showingScanner) {
                 QRScannerSheet { scannedKey in
                     authKeyText = scannedKey
                     showingScanner = false
+                    // Auto-submit if valid
+                    if isValidAuthKey {
+                        submitAuthKey()
+                    }
+                }
+            }
+            .onAppear {
+                deviceAlias = device.name
+                // Auto-open QR scanner for non-demo devices
+                if shouldAutoScan {
+                    showingScanner = true
                 }
             }
         }
@@ -51,7 +71,10 @@ struct DeviceSetupSheet: View {
     private var deviceInfoSection: some View {
         Section {
             LabeledContent("Device Name", value: device.name)
-            LabeledContent("Device ID", value: device.id.uuidString.prefix(8) + "...")
+                .accessibilityElement(children: .combine)
+            LabeledContent("Device ID", value: String(device.id.uuidString.prefix(8)) + "...")
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Device ID: \(device.id.uuidString)")
         } header: {
             Text("Device Information")
         }
@@ -64,7 +87,8 @@ struct DeviceSetupSheet: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .font(.system(.body, design: .monospaced))
-                    .accessibilityLabel("Authentication key")
+                    .accessibilityLabel("Authentication key input")
+                    .accessibilityHint("Enter the 32-character hex key from your ClickStick")
 
                 Button {
                     showingScanner = true
@@ -73,24 +97,27 @@ struct DeviceSetupSheet: View {
                 }
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Scan QR code")
+                .accessibilityHint("Opens camera to scan the QR code from your ClickStick")
             }
 
             if let error = validationError {
                 Text(error)
                     .font(.caption)
                     .foregroundStyle(.red)
+                    .accessibilityLabel(String(localized: "Error: \(error)", comment: "Accessibility label"))
             }
         } header: {
             Text("Authentication Key")
         } footer: {
-            Text("Scan the QR code on your ClickStick or enter the 32-character hex key manually.")
+            Text("Scan the QR code on your ClickStick's screen or enter the 32-character hex key manually.")
         }
     }
 
     private var aliasSection: some View {
         Section {
-            TextField("Device nickname (optional)", text: $deviceAlias)
+            TextField(String("Device nickname (optional)"), text: $deviceAlias)
                 .accessibilityLabel("Device nickname")
+                .accessibilityHint("Optional friendly name for this device")
         } header: {
             Text("Nickname")
         } footer: {
@@ -106,12 +133,20 @@ struct DeviceSetupSheet: View {
 
     private func submitAuthKey() {
         guard let authKey = CSAppAuthKey.fromHexString(authKeyText) else {
-            validationError = "Invalid key format. Please enter a 32-character hex string."
+            validationError = String(localized: "Invalid key format. Please enter a 32-character hex string.", comment: "Error message")
             return
         }
 
         validationError = nil
         let alias = deviceAlias.isEmpty ? nil : deviceAlias
         onComplete(authKey, alias)
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    DeviceSetupSheet(device: .preview) { authKey, alias in
+        print("Auth key: \(authKey), Alias: \(alias ?? "none")")
     }
 }

@@ -150,6 +150,11 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
         lastError = error
         connectionState = device.connectionState
         log.error("Device failed: \(error.localizedDescription)")
+        NotificationCenter.default.post(
+            name: .deviceDidFail,
+            object: nil,
+            userInfo: ["deviceID": device.uuid, "error": error]
+        )
     }
 
     func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
@@ -218,4 +223,8 @@ extension DeviceModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+}
+
+extension Notification.Name {
+    static let deviceDidFail = Notification.Name("deviceDidFail")
 }

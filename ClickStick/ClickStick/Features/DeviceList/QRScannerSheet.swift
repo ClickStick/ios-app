@@ -15,12 +15,21 @@ struct QRScannerSheet: View {
                 if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
                     DataScannerRepresentable(onScan: onScan)
                         .ignoresSafeArea()
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Camera viewfinder for scanning QR code")
+                        .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
                 } else {
                     ContentUnavailableView {
                         Label("Camera Not Available", systemImage: "camera.fill")
                     } description: {
                         Text("This device doesn't support camera scanning. Please enter the key manually.")
+                    } actions: {
+                        Button("Dismiss") {
+                            dismiss()
+                        }
+                        .buttonStyle(.bordered)
                     }
+                    .accessibilityElement(children: .combine)
                 }
             }
             .navigationTitle("Scan QR Code")
@@ -30,6 +39,7 @@ struct QRScannerSheet: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityLabel("Cancel scanning")
                 }
             }
         }
@@ -108,5 +118,13 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
             return string.replacingOccurrences(of: " ", with: "")
         }
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    QRScannerSheet { scannedKey in
+        print("Scanned: \(scannedKey)")
     }
 }

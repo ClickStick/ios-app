@@ -7,16 +7,22 @@ import SwiftUI
 struct DeviceRowView: View {
     let device: DeviceModel
 
+    private var isKnownDevice: Bool {
+        CSDeviceSettingsManager.hasSettings(for: device.id) || device.isDemoDevice
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             deviceIcon
             deviceInfo
             Spacer()
+            knownDeviceIndicator
             connectionStatus
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
+        .accessibilityHint(accessibilityHint)
     }
 
     // MARK: - Device Icon
@@ -61,11 +67,23 @@ struct DeviceRowView: View {
 
     private var signalDescription: String {
         switch device.signalStrength {
-        case .excellent: "Excellent signal"
-        case .good: "Good signal"
-        case .fair: "Fair signal"
-        case .weak: "Weak signal"
-        case .none: "No signal"
+        case .excellent: String(localized: "Excellent signal", comment: "Signal strength indicator")
+        case .good: String(localized: "Good signal", comment: "Signal strength indicator")
+        case .fair: String(localized: "Fair signal", comment: "Signal strength indicator")
+        case .weak: String(localized: "Weak signal", comment: "Signal strength indicator")
+        case .none: String(localized: "No signal", comment: "Signal strength indicator")
+        }
+    }
+
+    // MARK: - Known Device Indicator
+
+    @ViewBuilder
+    private var knownDeviceIndicator: some View {
+        if isKnownDevice && !device.isDemoDevice {
+            Image(systemName: device.isConnected ? "personalhotspot.circle.fill" : "personalhotspot.circle")
+                .foregroundStyle(device.isConnected ? .green : .secondary)
+                .font(.caption)
+                .accessibilityHidden(true)
         }
     }
 
@@ -100,20 +118,49 @@ struct DeviceRowView: View {
 
         switch device.connectionState {
         case .disconnected:
-            parts.append("Not connected")
+            parts.append(String(localized: "Not connected", comment: "Connection status"))
         case .serviceDiscovery:
-            parts.append("Connecting")
+            parts.append(String(localized: "Connecting", comment: "Connection status"))
         case .connectedUnauthorized:
-            parts.append("Requires authentication")
+            parts.append(String(localized: "Requires authentication", comment: "Connection status"))
         case .connectedAuthorized:
-            parts.append("Connected")
+            parts.append(String(localized: "Connected", comment: "Connection status"))
         }
 
         if device.isDemoDevice {
-            parts.append("Demo device")
+            parts.append(String(localized: "Demo device", comment: "Device type"))
+        } else if isKnownDevice {
+            parts.append(String(localized: "Saved device", comment: "Device type"))
         }
 
         return parts.joined(separator: ", ")
+    }
+
+    private var accessibilityHint: String {
+        switch device.connectionState {
+        case .disconnected:
+            return String(localized: "Double-tap to connect", comment: "Accessibility hint")
+        case .serviceDiscovery:
+            return String(localized: "Connection in progress", comment: "Accessibility hint")
+        case .connectedUnauthorized:
+            return String(localized: "Double-tap to authenticate", comment: "Accessibility hint")
+        case .connectedAuthorized:
+            return String(localized: "Double-tap to view device options", comment: "Accessibility hint")
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview("Connected") {
+    List {
+        DeviceRowView(device: .preview)
+    }
+}
+
+#Preview("Disconnected") {
+    List {
+        DeviceRowView(device: .previewDisconnected)
     }
 }
 

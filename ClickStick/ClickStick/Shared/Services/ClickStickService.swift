@@ -5,6 +5,7 @@ import ClickStickKit
 import Foundation
 import Observation
 import os.log
+import SwiftUI
 
 @Observable
 final class ClickStickService: CSManagerDelegate {
@@ -20,9 +21,7 @@ final class ClickStickService: CSManagerDelegate {
     var isDemoMode: Bool {
         didSet {
             manager.isDemoMode = isDemoMode
-            if isDemoMode {
-                startScanning()
-            }
+            syncDevicesFromManager()
         }
     }
 
@@ -32,15 +31,31 @@ final class ClickStickService: CSManagerDelegate {
         self.manager = manager
         self.isDemoMode = manager.isDemoMode
         self.manager.delegate = self
+        syncDevicesFromManager()
+    }
+
+    private func syncDevicesFromManager() {
+        let knownDevices = manager
+            .knownDevices()
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        let existingByID = Dictionary(uniqueKeysWithValues: devices.map { ($0.id, $0) })
+        devices = knownDevices.map { device in
+            if let existing = existingByID[device.uuid], existing.device === device {
+                return existing
+            }
+            return DeviceModel(device: device)
+        }
     }
 
     // MARK: - Public API
 
     func startScanning() {
         log.debug("Starting scan")
+        manager.delegate = self
         isScanning = true
         bluetoothError = nil
         manager.startScanning()
+        syncDevicesFromManager()
     }
 
     func stopScanning() {
@@ -57,19 +72,25 @@ final class ClickStickService: CSManagerDelegate {
 
     func didDiscover(device: CSDevice, in manager: CSManager) {
         log.debug("Discovered device: \(device.uuid)")
-
-        // Check if we already have this device
-        if devices.contains(where: { $0.id == device.uuid }) {
-            return
-        }
-
-        let deviceModel = DeviceModel(device: device)
-        devices.append(deviceModel)
+        syncDevicesFromManager()
     }
 
     func didFail(with error: CSError, in manager: CSManager) {
         log.error("Manager failed: \(error.localizedDescription)")
         bluetoothError = error
         isScanning = false
+    }
+}
+
+private struct ClickStickServiceKey: EnvironmentKey {
+    static var defaultValue: ClickStickService {
+        ClickStickService()
+    }
+}
+
+extension EnvironmentValues {
+    var clickStickService: ClickStickService {
+        get { self[ClickStickServiceKey.self] }
+        set { self[ClickStickServiceKey.self] = newValue }
     }
 }

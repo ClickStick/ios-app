@@ -11,6 +11,7 @@ struct ClickStickApp: App {
         WindowGroup {
             MainView()
                 .environment(\.clickStickService, clickStickService)
+                .environment(\.urlOpener, URLOpener())
         }
     }
 }

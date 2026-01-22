@@ -271,11 +271,14 @@ struct DeviceListView: View {
     NavigationStack {
         DeviceListView(selectedDeviceID: .constant(nil))
             .environment(\.clickStickService, ClickStickService())
+            .environment(\.urlOpener, URLOpener())
     }
 }
 
 #Preview("With Devices") {
     NavigationStack {
         DeviceListView(selectedDeviceID: .constant(nil))
+            .environment(\.clickStickService, ClickStickService())
+            .environment(\.urlOpener, URLOpener())
     }
 }

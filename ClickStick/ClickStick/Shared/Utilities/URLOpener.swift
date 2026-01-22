@@ -8,7 +8,6 @@ import SwiftUI
 import UIKit
 
 /// Service for opening external URLs and system settings
-@Observable
 @MainActor
 final class URLOpener {
     private let log = Logger(subsystem: "io.clickstick", category: "URLOpener")
@@ -66,6 +65,15 @@ final class URLOpener {
 
 // MARK: - Environment Key
 
+private struct URLOpenerKey: EnvironmentKey {
+    static var defaultValue: URLOpener {
+        URLOpener()
+    }
+}
+
 extension EnvironmentValues {
-    @Entry var urlOpener: URLOpener = URLOpener()
+    var urlOpener: URLOpener {
+        get { self[URLOpenerKey.self] }
+        set { self[URLOpenerKey.self] = newValue }
+    }
 }

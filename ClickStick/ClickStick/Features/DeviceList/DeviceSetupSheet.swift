@@ -86,6 +86,8 @@ struct DeviceSetupSheet: View {
                 TextField("Enter 32-character hex key", text: $authKeyText)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
+                    .textContentType(.oneTimeCode)
+                    .keyboardType(.asciiCapable)
                     .font(.system(.body, design: .monospaced))
                     .accessibilityLabel("Authentication key input")
                     .accessibilityHint("Enter the 32-character hex key from your ClickStick")

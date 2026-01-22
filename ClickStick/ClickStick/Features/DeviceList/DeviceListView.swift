@@ -222,6 +222,7 @@ struct DeviceListView: View {
     private func forgetDevice(_ device: DeviceModel) {
         do {
             try CSDeviceSettingsManager.deleteSettings(for: device.id)
+            device.refreshSettingsCache()
             device.disconnect()
             if selectedDeviceID == device.id {
                 selectedDeviceID = nil
@@ -240,7 +241,12 @@ struct DeviceListView: View {
                 deviceNeedingSetup = device
             }
         } else if device.needsAuthentication {
-            try? CSDeviceSettingsManager.deleteSettings(for: device.id)
+            do {
+                try CSDeviceSettingsManager.deleteSettings(for: device.id)
+            } catch {
+                alertError = AlertError(title: String(localized: "Settings Error"), error: error)
+                return
+            }
             deviceNeedingSetup = device
         } else {
             selectedDeviceID = device.id
@@ -255,14 +261,13 @@ struct DeviceListView: View {
         )
         do {
             try CSDeviceSettingsManager.saveSettings(settings)
+            device.refreshSettingsCache()
             device.connect(with: authKey)
             selectedDeviceID = device.id
             deviceNeedingSetup = nil
         } catch {
             alertError = AlertError(title: String(localized: "Settings Error"), error: error)
-            device.connect(with: authKey)
-            selectedDeviceID = device.id
-            deviceNeedingSetup = nil
+            // Don't connect - user must dismiss error and retry
         }
     }
 }

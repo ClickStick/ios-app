@@ -7,10 +7,6 @@ import SwiftUI
 struct DeviceRowView: View {
     let device: DeviceModel
 
-    private var isKnownDevice: Bool {
-        CSDeviceSettingsManager.hasSettings(for: device.id) || device.isDemoDevice
-    }
-
     var body: some View {
         HStack(spacing: 12) {
             deviceIcon
@@ -79,7 +75,7 @@ struct DeviceRowView: View {
 
     @ViewBuilder
     private var knownDeviceIndicator: some View {
-        if isKnownDevice && !device.isDemoDevice {
+        if device.isKnownDevice && !device.isDemoDevice {
             Image(systemName: device.isConnected ? "personalhotspot.circle.fill" : "personalhotspot.circle")
                 .foregroundStyle(device.isConnected ? .green : .secondary)
                 .font(.caption)
@@ -129,7 +125,7 @@ struct DeviceRowView: View {
 
         if device.isDemoDevice {
             parts.append(String(localized: "Demo device", comment: "Device type"))
-        } else if isKnownDevice {
+        } else if device.isKnownDevice {
             parts.append(String(localized: "Saved device", comment: "Device type"))
         }
 

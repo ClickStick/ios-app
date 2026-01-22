@@ -8,8 +8,9 @@ import os.log
 
 /// Observable wrapper for CSDevice to bridge ClickStickKit to SwiftUI
 @Observable
-final class DeviceModel: Identifiable, CSDeviceObserver {
+final class DeviceModel: Identifiable {
     private let log = Logger(subsystem: "io.clickstick", category: "DeviceModel")
+    private let observer: DeviceObserver
 
     // MARK: - Underlying Device
 
@@ -26,6 +27,11 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
     private(set) var isConnectable: Bool
     private(set) var isDemoDevice: Bool
 
+    // MARK: - Cached Settings (to avoid keychain I/O during render)
+
+    private(set) var cachedAlias: String?
+    private(set) var isKnownDevice: Bool
+
     // MARK: - Identifiable
 
     var id: UUID { device.uuid }
@@ -41,9 +47,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
     }
 
     var displayName: String {
-        // Check for saved alias in settings
-        if let settings = try? CSDeviceSettingsManager.loadSettings(for: device.uuid),
-           let alias = settings.deviceAlias, !alias.isEmpty {
+        if let alias = cachedAlias, !alias.isEmpty {
             return alias
         }
         return name
@@ -57,6 +61,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
 
     init(device: CSDevice) {
         self.device = device
+        self.observer = DeviceObserver()
 
         // Initialize from current device state
         self.name = device.name
@@ -68,12 +73,16 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
         self.isConnectable = device.isConnectable
         self.isDemoDevice = device.isDemoDevice
 
-        // Register as observer
-        device.addObserver(self)
+        // Initialize cached settings
+        self.cachedAlias = Self.loadCachedAlias(for: device.uuid)
+        self.isKnownDevice = Self.checkIsKnownDevice(for: device.uuid, isDemoDevice: device.isDemoDevice)
+
+        observer.owner = self
+        device.addObserver(observer)
     }
 
     deinit {
-        device.removeObserver(self)
+        device.removeObserver(observer)
     }
 
     // MARK: - Public API
@@ -127,26 +136,44 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
         device.sendMouseScroll(vertical: vertical, horizontal: horizontal, completion: completion)
     }
 
+    // MARK: - Settings Cache
+
+    func refreshSettingsCache() {
+        cachedAlias = Self.loadCachedAlias(for: device.uuid)
+        isKnownDevice = Self.checkIsKnownDevice(for: device.uuid, isDemoDevice: device.isDemoDevice)
+    }
+
+    private static func loadCachedAlias(for uuid: UUID) -> String? {
+        guard let settings = try? CSDeviceSettingsManager.loadSettings(for: uuid) else {
+            return nil
+        }
+        return settings.deviceAlias
+    }
+
+    private static func checkIsKnownDevice(for uuid: UUID, isDemoDevice: Bool) -> Bool {
+        isDemoDevice || CSDeviceSettingsManager.hasSettings(for: uuid)
+    }
+
     // MARK: - CSDeviceObserver
 
-    func deviceDidUpdateProperties(_ device: CSDevice) {
+    fileprivate func deviceDidUpdateProperties(_ device: CSDevice) {
         name = device.name
         rssi = device.rssi
         isConnectable = device.isConnectable
     }
 
-    func deviceConnectionStateUpdated(_ device: CSDevice) {
+    fileprivate func deviceConnectionStateUpdated(_ device: CSDevice) {
         connectionState = device.connectionState
         features = device.features
         lastError = device.lastError
     }
 
-    func deviceNeedsAuthentication(_ device: CSDevice) {
+    fileprivate func deviceNeedsAuthentication(_ device: CSDevice) {
         needsAuthentication = true
         connectionState = device.connectionState
     }
 
-    func deviceDidFail(_ device: CSDevice, with error: CSError) {
+    fileprivate func deviceDidFail(_ device: CSDevice, with error: CSError) {
         lastError = error
         connectionState = device.connectionState
         log.error("Device failed: \(error.localizedDescription)")
@@ -157,11 +184,45 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
         )
     }
 
-    func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
+    fileprivate func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
         connectionState = .disconnected
         features = []
         if let error {
             lastError = error
+        }
+    }
+}
+
+private final class DeviceObserver: CSDeviceObserver {
+    weak var owner: DeviceModel?
+
+    func deviceDidUpdateProperties(_ device: CSDevice) {
+        Task { @MainActor in
+            owner?.deviceDidUpdateProperties(device)
+        }
+    }
+
+    func deviceConnectionStateUpdated(_ device: CSDevice) {
+        Task { @MainActor in
+            owner?.deviceConnectionStateUpdated(device)
+        }
+    }
+
+    func deviceNeedsAuthentication(_ device: CSDevice) {
+        Task { @MainActor in
+            owner?.deviceNeedsAuthentication(device)
+        }
+    }
+
+    func deviceDidFail(_ device: CSDevice, with error: CSError) {
+        Task { @MainActor in
+            owner?.deviceDidFail(device, with: error)
+        }
+    }
+
+    func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
+        Task { @MainActor in
+            owner?.deviceDidDisconnect(device, with: error)
         }
     }
 }

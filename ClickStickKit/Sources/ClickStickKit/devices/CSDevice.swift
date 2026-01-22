@@ -117,6 +117,7 @@ public class CSDevice: NSObject {
         _features = []
         _lastError = nil
         _sessionKey = nil
+        _endConnection()
     }
 
     // MARK: - Internal API

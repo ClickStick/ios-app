@@ -1,3 +1,6 @@
+//  ClickStick Companion app
+//  Copyright © 2026 KeePassium Labs <info@keepassium.com>
+
 import SwiftUI
 
 struct AnnouncementBannerView: View {

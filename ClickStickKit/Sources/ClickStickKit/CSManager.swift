@@ -70,6 +70,7 @@ extension CSManager {
         let state = centralManager.state
         guard state == .poweredOn else {
             log.error("Cannot scan, BLE is not powered on")
+            notifyFailure(makeBluetoothError(for: state))
             return
         }
 
@@ -123,6 +124,21 @@ extension CSManager {
     /// Provider access to `centralManager` from `CSRealDevice`.
     internal func withCentralManager(_ closure: (CBCentralManager) -> Void) {
         closure(centralManager)
+    }
+
+    private func makeBluetoothError(for state: CBManagerState) -> CSError {
+        switch state {
+        case .poweredOff:
+            return .bluetoothUnavailable(reason: .poweredOff)
+        case .unauthorized:
+            return .bluetoothUnavailable(reason: .permissionDenied)
+        case .unsupported:
+            return .bluetoothUnavailable(reason: .unsupported)
+        case .unknown, .resetting, .poweredOn:
+            return .bluetoothUnavailable(reason: .unknown)
+        @unknown default:
+            return .bluetoothUnavailable(reason: .unknown)
+        }
     }
 
     private func includeDemoDevices(_ include: Bool) {

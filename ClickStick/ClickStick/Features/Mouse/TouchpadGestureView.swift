@@ -82,6 +82,11 @@ class TouchpadView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        sendTimer?.invalidate()
+        sendTimer = nil
+    }
+
     private func setupView() {
         backgroundColor = .secondarySystemBackground
         layer.cornerRadius = 16

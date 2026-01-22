@@ -95,8 +95,7 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
             if case .barcode(let barcode) = item,
                let payload = barcode.payloadStringValue {
-                let hexKey = extractHexKey(from: payload)
-                if !hexKey.isEmpty {
+                if let hexKey = extractHexKey(from: payload) {
                     hasScanned = true
                     scanner.stopScanning()
                     onScan(hexKey)
@@ -104,7 +103,7 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             }
         }
 
-        private func extractHexKey(from string: String) -> String {
+        private func extractHexKey(from string: String) -> String? {
             let cleaned = string
                 .replacingOccurrences(of: "clickstick://", with: "")
                 .replacingOccurrences(of: "key=", with: "")
@@ -112,11 +111,11 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
             let hexCharacters = CharacterSet(charactersIn: "0123456789ABCDEFabcdef")
-            if cleaned.unicodeScalars.allSatisfy({ hexCharacters.contains($0) }) {
-                return cleaned
+            guard cleaned.unicodeScalars.allSatisfy({ hexCharacters.contains($0) }),
+                  !cleaned.isEmpty else {
+                return nil
             }
-
-            return string.replacingOccurrences(of: " ", with: "")
+            return cleaned
         }
     }
 }

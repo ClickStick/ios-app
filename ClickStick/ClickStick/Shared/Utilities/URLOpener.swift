@@ -66,9 +66,7 @@ final class URLOpener {
 // MARK: - Environment Key
 
 private struct URLOpenerKey: EnvironmentKey {
-    static var defaultValue: URLOpener {
-        URLOpener()
-    }
+    static let defaultValue = URLOpener()
 }
 
 extension EnvironmentValues {

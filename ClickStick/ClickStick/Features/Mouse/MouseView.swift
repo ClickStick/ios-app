@@ -75,7 +75,7 @@ struct MouseView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .accessibilityLabel("Right click button",)
+            .accessibilityLabel("Right click button")
             .accessibilityHint("Double-tap to perform a right click")
         }
     }

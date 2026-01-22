@@ -1,183 +1,1335 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "%lld characters" : {
-
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld characters": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld znakov"
+          }
+        }
+      }
     },
-    "Authentication key" : {
-
+    "An unknown error occurred.": {
+      "comment": "Default error message",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyskytla sa neznáma chyba."
+          }
+        }
+      }
     },
-    "Authentication Key" : {
-
+    "Authentication Key": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autentifikačný kľúč"
+          }
+        }
+      }
     },
-    "Bluetooth Unavailable" : {
-
+    "Authentication key input": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadanie autentifikačného kľúča"
+          }
+        }
+      }
     },
-    "Camera Not Available" : {
-
+    "Camera Not Available": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera nie je k dispozícii"
+          }
+        }
+      }
     },
-    "Cancel" : {
-
+    "Camera viewfinder for scanning QR code": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hľadáčik kamery na skenovanie QR kódu"
+          }
+        }
+      }
     },
-    "Connect" : {
-
+    "Cancel": {
+      "comment": "Button title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušiť"
+          }
+        }
+      }
     },
-    "Connecting to %@..." : {
-
+    "Cancel connection": {
+      "comment": "Accessibility label for cancel button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušiť pripojenie"
+          }
+        }
+      }
     },
-    "Demo Mode Off" : {
-
+    "Cancel device setup": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušiť nastavenie zariadenia"
+          }
+        }
+      }
     },
-    "Demo Mode On" : {
-
+    "Cancel scanning": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zrušiť skenovanie"
+          }
+        }
+      }
     },
-    "Device ID" : {
-
+    "Choose the keyboard layout of the target computer": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte rozloženie klávesnice cieľového počítača"
+          }
+        }
+      }
     },
-    "Device Information" : {
-
+    "Clear": {
+      "comment": "Clear text button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vymazať"
+          }
+        }
+      }
     },
-    "Device Name" : {
-
+    "Clear text": {
+      "comment": "Accessibility label for clear button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vymazať text"
+          }
+        }
+      }
     },
-    "Device nickname" : {
-
+    "Connect": {
+      "comment": "Button title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripojiť"
+          }
+        }
+      }
     },
-    "Device nickname (optional)" : {
-
+    "Connect to device": {
+      "comment": "Accessibility label\nAccessibility label for connect button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripojiť k zariadeniu"
+          }
+        }
+      }
     },
-    "Devices" : {
-
+    "Connected": {
+      "comment": "Connection status",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripojené"
+          }
+        }
+      }
     },
-    "Disable demo mode" : {
-
+    "Connecting": {
+      "comment": "Connection status",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripája sa"
+          }
+        }
+      }
     },
-    "Disconnect" : {
-
+    "Connecting to %@": {
+      "comment": "Accessibility label for connecting state",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripájanie k %@"
+          }
+        }
+      }
     },
-    "Disconnected" : {
-
+    "Connecting to %@...": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripájanie k %@..."
+          }
+        }
+      }
     },
-    "Dismiss" : {
-
+    "Connection in progress": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripájanie prebieha"
+          }
+        }
+      }
     },
-    "Double-tap to send" : {
-
+    "Demo device": {
+      "comment": "Device type",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demo zariadenie"
+          }
+        }
+      }
     },
-    "Drag to move • Two fingers to scroll • Tap to click" : {
-
+    "Device disconnected": {
+      "comment": "Accessibility label for disconnected state",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zariadenie odpojené"
+          }
+        }
+      }
     },
-    "Drag to move cursor, two fingers to scroll, tap to click" : {
-
+    "Device features": {
+      "comment": "Accessibility label for feature picker",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funkcie zariadenia"
+          }
+        }
+      }
     },
-    "Enable demo mode" : {
-
+    "Device ID": {
+      "comment": "Label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID zariadenia"
+          }
+        }
+      }
     },
-    "Enter 32-character hex key" : {
-
+    "Device ID: %@": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID zariadenia: %@"
+          }
+        }
+      }
     },
-    "Enter text first" : {
-
+    "Device Information": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informácie o zariadení"
+          }
+        }
+      }
     },
-    "Enter the text you want to type on the connected device" : {
-
+    "Device Name": {
+      "comment": "Label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Názov zariadenia"
+          }
+        }
+      }
     },
-    "Feature" : {
-
+    "Device nickname": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prezývka zariadenia"
+          }
+        }
+      }
     },
-    "Give your device a friendly name for easy identification." : {
-
+    "Device not connected": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zariadenie nie je pripojené"
+          }
+        }
+      }
     },
-    "Insert %@" : {
-
+    "Devices": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zariadenia"
+          }
+        }
+      }
     },
-    "Keyboard Layout" : {
-
+    "Disconnect": {
+      "comment": "Button title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpojiť"
+          }
+        }
+      }
     },
-    "Left click" : {
-
+    "Disconnect from device": {
+      "comment": "Accessibility label for disconnect button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpojiť od zariadenia"
+          }
+        }
+      }
     },
-    "Left Click" : {
-
+    "Disconnected": {
+      "comment": "Connection status",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpojené"
+          }
+        }
+      }
     },
-    "Nickname" : {
-
+    "Dismiss": {
+      "comment": "Button title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zavrieť"
+          }
+        }
+      }
     },
-    "No Device Selected" : {
-
+    "Double-tap the connect button to reconnect": {
+      "comment": "Accessibility hint for disconnected state",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím na tlačidlo Pripojiť znova pripojíte"
+          }
+        }
+      }
     },
-    "No Devices Found" : {
-
+    "Double-tap to authenticate": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím overte"
+          }
+        }
+      }
     },
-    "Open Settings" : {
-
+    "Double-tap to connect": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím sa pripojte"
+          }
+        }
+      }
     },
-    "Pull to refresh or tap the button below to scan for devices." : {
-
+    "Double-tap to perform a left click": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím vykonáte ľavé kliknutie"
+          }
+        }
+      }
     },
-    "Right click" : {
-
+    "Double-tap to perform a right click": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím vykonáte pravé kliknutie"
+          }
+        }
+      }
     },
-    "Right Click" : {
-
+    "Double-tap to send %lld characters": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím odošlete %lld znakov"
+          }
+        }
+      }
     },
-    "Scan for Devices" : {
-
+    "Double-tap to view device options": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dvojitým klepnutím zobrazíte možnosti zariadenia"
+          }
+        }
+      }
     },
-    "Scan QR code" : {
-
+    "Drag to move • Two fingers to scroll • Tap to click": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ťahom presuniete • Dvoma prstami posúvate • Klepnutím kliknete"
+          }
+        }
+      }
     },
-    "Scan QR Code" : {
-
+    "Drag with one finger to move cursor, two fingers to scroll, tap to click, two-finger tap for right click": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ťahaním jedným prstom pohnete kurzorom, dvoma prstami posúvate, klepnutím kliknete, dvojprstovým klepnutím pravé kliknutie"
+          }
+        }
+      }
     },
-    "Scan the QR code on your ClickStick or enter the 32-character hex key manually." : {
-
+    "Empty": {
+      "comment": "Empty text field value",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prázdne"
+          }
+        }
+      }
     },
-    "Searching for ClickStick devices..." : {
-
+    "Enter 32-character hex key": {
+      "comment": "Placeholder",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadajte 32-znakový hex kľúč"
+          }
+        }
+      }
     },
-    "Select a ClickStick device from the sidebar to get started." : {
-
+    "Enter a valid authentication key first": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najprv zadajte platný autentifikačný kľúč"
+          }
+        }
+      }
     },
-    "Select keyboard layout" : {
-
+    "Enter text first": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najprv zadajte text"
+          }
+        }
+      }
     },
-    "Send Text" : {
-
+    "Enter the 32-character hex key from your ClickStick": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadajte 32-znakový hex kľúč z ClickSticku"
+          }
+        }
+      }
     },
-    "Send text to device" : {
-
+    "Enter the text you want to type on the connected device": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadajte text, ktorý chcete napísať na pripojenom zariadení"
+          }
+        }
+      }
     },
-    "Sending text" : {
-
+    "Error": {
+      "comment": "Alert title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chyba"
+          }
+        }
+      }
     },
-    "Sending..." : {
-
+    "Error: %@": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chyba: %@"
+          }
+        }
+      }
     },
-    "Setup Device" : {
-
+    "Excellent signal": {
+      "comment": "Signal strength indicator",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Výborný signál"
+          }
+        }
+      }
     },
-    "Start Scanning" : {
-
+    "Fair signal": {
+      "comment": "Signal strength indicator",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priemerný signál"
+          }
+        }
+      }
     },
-    "Tap Connect to start using this device." : {
-
+    "Feature": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funkcia"
+          }
+        }
+      }
     },
-    "Text to send" : {
-
+    "Forget Device": {
+      "comment": "Context menu action",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zabudnúť zariadenie"
+          }
+        }
+      }
     },
-    "Text to type" : {
-
+    "Getting Started": {
+      "comment": "Getting started button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Začíname"
+          }
+        }
+      }
     },
-    "This device doesn't support camera scanning. Please enter the key manually." : {
-
+    "Give your device a friendly name for easy identification.": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dajte zariadeniu priateľské meno pre jednoduchú identifikáciu."
+          }
+        }
+      }
     },
-    "Touchpad" : {
-
+    "Good signal": {
+      "comment": "Signal strength indicator",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobrý signál"
+          }
+        }
+      }
     },
-    "Touchpad area" : {
-
+    "Hello World": {
+      "comment": "Text preset name",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahoj svet"
+          }
+        }
+      }
+    },
+    "Insert %@": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vložiť %@"
+          }
+        }
+      }
+    },
+    "Instructions: Drag to move cursor, use two fingers to scroll, tap to click": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokyny: Ťahaním pohnete kurzorom, dvoma prstami posúvate, klepnutím kliknete"
+          }
+        }
+      }
+    },
+    "Invalid key format. Please enter a 32-character hex string.": {
+      "comment": "Error message",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neplatný formát kľúča. Zadajte 32-znakový hex reťazec."
+          }
+        }
+      }
+    },
+    "Just looking around?": {
+      "comment": "Demo mode prompt",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Len si to prezeráte?"
+          }
+        }
+      }
+    },
+    "Keyboard Layout": {
+      "comment": "Picker label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozloženie klávesnice"
+          }
+        }
+      }
+    },
+    "Left Click": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ľavé kliknutie"
+          }
+        }
+      }
+    },
+    "Left click button": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tlačidlo ľavého kliknutia"
+          }
+        }
+      }
+    },
+    "Lorem Ipsum": {
+      "comment": "Text preset name",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorem Ipsum"
+          }
+        }
+      }
+    },
+    "Nickname": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prezývka"
+          }
+        }
+      }
+    },
+    "No device selected": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie je vybrané žiadne zariadenie"
+          }
+        }
+      }
+    },
+    "No Device Selected": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie je vybrané žiadne zariadenie"
+          }
+        }
+      }
+    },
+    "No Devices Found": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenašli sa žiadne zariadenia"
+          }
+        }
+      }
+    },
+    "No signal": {
+      "comment": "Signal strength indicator",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Žiadny signál"
+          }
+        }
+      }
+    },
+    "Not connected": {
+      "comment": "Connection status",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nepripojené"
+          }
+        }
+      }
+    },
+    "OK": {
+      "comment": "Button title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvoriť nastavenia"
+          }
+        }
+      }
+    },
+    "Opens camera to scan the QR code from your ClickStick": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvorí kameru na skenovanie QR kódu z ClickSticku"
+          }
+        }
+      }
+    },
+    "Optional friendly name for this device": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voliteľné priateľské meno pre toto zariadenie"
+          }
+        }
+      }
+    },
+    "Please wait": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Počkajte, prosím"
+          }
+        }
+      }
+    },
+    "Plug in your ClickStick to get started.": {
+      "comment": "Welcome announcement body",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na začiatok pripojte ClickStick."
+          }
+        }
+      }
+    },
+    "Point the camera at the QR code on your ClickStick's screen": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Namierte kameru na QR kód na obrazovke ClickSticku"
+          }
+        }
+      }
+    },
+    "Pull to refresh or tap the scan button to search for devices.": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potiahnite na obnovenie alebo klepnite na tlačidlo skenovania a vyhľadajte zariadenia."
+          }
+        }
+      }
+    },
+    "Quick Presets": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rýchle predvoľby"
+          }
+        }
+      }
+    },
+    "Replaces current text": {
+      "comment": "Accessibility hint for preset button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nahradí aktuálny text"
+          }
+        }
+      }
+    },
+    "Requires authentication": {
+      "comment": "Connection status",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyžaduje overenie"
+          }
+        }
+      }
+    },
+    "Right Click": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pravé kliknutie"
+          }
+        }
+      }
+    },
+    "Right click button": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tlačidlo pravého kliknutia"
+          }
+        }
+      }
+    },
+    "Sample Email": {
+      "comment": "Text preset name",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vzorový email"
+          }
+        }
+      }
+    },
+    "Saved device": {
+      "comment": "Device type",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uložené zariadenie"
+          }
+        }
+      }
+    },
+    "Scan": {
+      "comment": "Scan button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovať"
+          }
+        }
+      }
+    },
+    "Scan for devices": {
+      "comment": "Accessibility label for scan button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovať zariadenia"
+          }
+        }
+      }
+    },
+    "Scan for Devices": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovať zariadenia"
+          }
+        }
+      }
+    },
+    "Scan QR code": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovať QR kód"
+          }
+        }
+      }
+    },
+    "Scan QR Code": {
+      "comment": "Navigation title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovanie QR kódu"
+          }
+        }
+      }
+    },
+    "Scan the QR code on your ClickStick's screen or enter the 32-character hex key manually.": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naskenujte QR kód na obrazovke ClickSticku alebo zadajte 32-znakový hex kľúč ručne."
+          }
+        }
+      }
+    },
+    "Scanning": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovanie"
+          }
+        }
+      }
+    },
+    "Scanning for devices...": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skenovanie zariadení..."
+          }
+        }
+      }
+    },
+    "Searching for ClickStick devices...": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyhľadávanie zariadení ClickStick..."
+          }
+        }
+      }
+    },
+    "Select a ClickStick device from the sidebar to get started.": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ak chcete začať, vyberte zariadenie ClickStick v bočnom paneli."
+          }
+        }
+      }
+    },
+    "Select a device from the sidebar": {
+      "comment": "Accessibility hint",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte zariadenie z bočného panela"
+          }
+        }
+      }
+    },
+    "Select between text entry and touchpad modes": {
+      "comment": "Accessibility hint for feature picker",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte medzi režimom zadávania textu a touchpadom"
+          }
+        }
+      }
+    },
+    "Select keyboard layout": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte rozloženie klávesnice"
+          }
+        }
+      }
+    },
+    "Select the keyboard layout of the target computer": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte rozloženie klávesnice cieľového počítača"
+          }
+        }
+      }
+    },
+    "Send Text": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odoslať text"
+          }
+        }
+      }
+    },
+    "Send text to device": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odoslať text do zariadenia"
+          }
+        }
+      }
+    },
+    "Sending text": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odosielanie textu"
+          }
+        }
+      }
+    },
+    "Sending...": {
+      "comment": "Sending in progress",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odosiela sa..."
+          }
+        }
+      }
+    },
+    "Settings Error": {
+      "comment": "Error title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chyba nastavení"
+          }
+        }
+      }
+    },
+    "Setup Device": {
+      "comment": "Navigation title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nastaviť zariadenie"
+          }
+        }
+      }
+    },
+    "Start Scanning": {
+      "comment": "Button title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spustiť skenovanie"
+          }
+        }
+      }
+    },
+    "Stop scanning": {
+      "comment": "Accessibility label for stop scanning",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zastaviť skenovanie"
+          }
+        }
+      }
+    },
+    "Tap Connect to start using this device.": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klepnite na Pripojiť a začnite používať toto zariadenie."
+          }
+        }
+      }
+    },
+    "Test Password": {
+      "comment": "Text preset name",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testovacie heslo"
+          }
+        }
+      }
+    },
+    "Text Entry": {
+      "comment": "Tab title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadávanie textu"
+          }
+        }
+      }
+    },
+    "Text Entry mode": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Režim zadávania textu"
+          }
+        }
+      }
+    },
+    "Text to send": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text na odoslanie"
+          }
+        }
+      }
+    },
+    "Text to type": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text na napísanie"
+          }
+        }
+      }
+    },
+    "This device doesn't support camera scanning. Please enter the key manually.": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toto zariadenie nepodporuje skenovanie kamerou. Zadajte kľúč ručne."
+          }
+        }
+      }
+    },
+    "Tip: Use two-finger tap on the touchpad for right click": {
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tip: Na touchpade použite dvojprstové klepnutie pre pravé kliknutie"
+          }
+        }
+      }
+    },
+    "Touchpad": {
+      "comment": "Tab title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchpad"
+          }
+        }
+      }
+    },
+    "Touchpad area": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oblasť touchpadu"
+          }
+        }
+      }
+    },
+    "Touchpad mode": {
+      "comment": "Accessibility label",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Režim touchpadu"
+          }
+        }
+      }
+    },
+    "Try in Demo Mode": {
+      "comment": "Demo mode button",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyskúšať v demo režime"
+          }
+        }
+      }
+    },
+    "Weak signal": {
+      "comment": "Signal strength indicator",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slabý signál"
+          }
+        }
+      }
+    },
+    "Welcome!": {
+      "comment": "Welcome announcement title",
+      "localizations": {
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitajte!"
+          }
+        }
+      }
     }
   },
-  "version" : "1.1"
+  "version": "1.1"
 }

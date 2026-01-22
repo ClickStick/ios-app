@@ -1,7 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import Foundation
+import SwiftUI
 
 enum TextPreset: String, CaseIterable, Identifiable {
     case hello = "hello"
@@ -13,10 +13,10 @@ enum TextPreset: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .hello: "Hello World"
-        case .email: "Sample Email"
-        case .password: "Test Password"
-        case .lorem: "Lorem Ipsum"
+        case .hello: String(localized: "Hello World", comment: "Text preset name")
+        case .email: String(localized: "Sample Email", comment: "Text preset name")
+        case .password: String(localized: "Test Password", comment: "Text preset name")
+        case .lorem: String(localized: "Lorem Ipsum", comment: "Text preset name")
         }
     }
 

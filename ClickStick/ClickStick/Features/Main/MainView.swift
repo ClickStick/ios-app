@@ -16,17 +16,7 @@ struct MainView: View {
                let device = service.device(for: deviceID) {
                 DeviceDetailView(device: device)
             } else {
-                ContentUnavailableView {
-                    Label("No Device Selected", systemImage: "cable.connector.horizontal")
-                } description: {
-                    Text("Select a ClickStick device from the sidebar to get started.")
-                } actions: {
-                    if service.devices.isEmpty {
-                        Button("Start Scanning") {
-                            service.startScanning()
-                        }
-                    }
-                }
+                placeholderView
             }
         }
         .navigationSplitViewStyle(.balanced)
@@ -34,5 +24,39 @@ struct MainView: View {
             service.startScanning()
         }
     }
+
+    // MARK: - Placeholder View
+
+    private var placeholderView: some View {
+        ContentUnavailableView {
+            Label("No Device Selected", systemImage: "cable.connector.horizontal")
+        } description: {
+            Text("Select a ClickStick device from the sidebar to get started.")
+        } actions: {
+            if service.devices.isEmpty && !service.isScanning {
+                Button("Start Scanning") {
+                    service.startScanning()
+                }
+                .buttonStyle(.borderedProminent)
+            } else if service.isScanning {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Scanning for devices...")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No device selected")
+        .accessibilityHint("Select a device from the sidebar")
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    MainView()
+        .environment(\.clickStickService, ClickStickService())
 }
 

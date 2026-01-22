@@ -57,6 +57,10 @@ class TouchpadView: UIView {
     private var scrollThresholdReached = false
     private let scrollHapticThreshold: CGFloat = 20
 
+    // Crosshair visualization
+    private let crosshairLayer = CAShapeLayer()
+    private var crosshairPosition: CGPoint = .zero
+
     init(
         onMove: @escaping (Int8, Int8) -> Void,
         onScroll: @escaping (Int8, Int8) -> Void,
@@ -70,6 +74,7 @@ class TouchpadView: UIView {
 
         super.init(frame: .zero)
         setupView()
+        setupCrosshair()
         setupGestureRecognizers()
     }
 
@@ -85,6 +90,30 @@ class TouchpadView: UIView {
 
         isMultipleTouchEnabled = true
         feedbackGenerator.prepare()
+
+        // Accessibility
+        isAccessibilityElement = true
+        accessibilityLabel = "Touchpad"
+        accessibilityTraits = .allowsDirectInteraction
+        accessibilityHint = "Drag with one finger to move cursor, two fingers to scroll"
+
+        // Register for trait changes (iOS 17+)
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, _: UITraitCollection) in
+            self.updateColors()
+        }
+    }
+
+    private func updateColors() {
+        layer.borderColor = UIColor.separator.cgColor
+        crosshairLayer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.6).cgColor
+    }
+
+    private func setupCrosshair() {
+        crosshairLayer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.6).cgColor
+        crosshairLayer.fillColor = UIColor.clear.cgColor
+        crosshairLayer.lineWidth = 1.5
+        crosshairLayer.opacity = 0
+        layer.addSublayer(crosshairLayer)
     }
 
     private func setupGestureRecognizers() {
@@ -111,6 +140,54 @@ class TouchpadView: UIView {
         scrollGesture.minimumNumberOfTouches = 2
         scrollGesture.maximumNumberOfTouches = 2
         addGestureRecognizer(scrollGesture)
+
+        // Make single tap wait for two-finger tap to fail
+        tapGesture.require(toFail: twoFingerTap)
+    }
+
+    // MARK: - Crosshair
+
+    private func showCrosshair(at point: CGPoint) {
+        crosshairPosition = point
+        updateCrosshairPath()
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        crosshairLayer.opacity = 1
+        CATransaction.commit()
+    }
+
+    private func hideCrosshair() {
+        let fadeOut = CABasicAnimation(keyPath: "opacity")
+        fadeOut.fromValue = crosshairLayer.opacity
+        fadeOut.toValue = 0
+        fadeOut.duration = 0.2
+        crosshairLayer.add(fadeOut, forKey: "fadeOut")
+        crosshairLayer.opacity = 0
+    }
+
+    private func updateCrosshairPath() {
+        let path = UIBezierPath()
+        let crossSize: CGFloat = 20
+
+        // Horizontal line
+        path.move(to: CGPoint(x: crosshairPosition.x - crossSize, y: crosshairPosition.y))
+        path.addLine(to: CGPoint(x: crosshairPosition.x + crossSize, y: crosshairPosition.y))
+
+        // Vertical line
+        path.move(to: CGPoint(x: crosshairPosition.x, y: crosshairPosition.y - crossSize))
+        path.addLine(to: CGPoint(x: crosshairPosition.x, y: crosshairPosition.y + crossSize))
+
+        // Center circle
+        let circleRect = CGRect(
+            x: crosshairPosition.x - 4,
+            y: crosshairPosition.y - 4,
+            width: 8,
+            height: 8
+        )
+        path.append(UIBezierPath(ovalIn: circleRect))
+
+        crosshairLayer.path = path.cgPath
     }
 
     // MARK: - Gesture Handlers
@@ -129,14 +206,20 @@ class TouchpadView: UIView {
         switch gesture.state {
         case .began:
             startSendTimer()
+            let location = gesture.location(in: self)
+            showCrosshair(at: location)
         case .changed:
             let translation = gesture.translation(in: self)
             accumulatedDX += translation.x * movementSensitivity
             accumulatedDY += translation.y * movementSensitivity
             gesture.setTranslation(.zero, in: self)
+
+            let location = gesture.location(in: self)
+            showCrosshair(at: location)
         case .ended, .cancelled:
             flushAccumulatedMovement()
             stopSendTimer()
+            hideCrosshair()
         default:
             break
         }
@@ -216,6 +299,15 @@ class TouchpadView: UIView {
         let clamped = max(-127, min(127, Int(value)))
         return Int8(clamped)
     }
+
+    // MARK: - Layout
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        crosshairLayer.frame = bounds
+    }
+
+
 }
 
 #Preview {

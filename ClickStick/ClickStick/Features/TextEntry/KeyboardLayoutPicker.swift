@@ -11,6 +11,7 @@ struct KeyboardLayoutPicker: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Keyboard Layout")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
             Picker("Keyboard Layout", selection: $selection) {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
@@ -20,6 +21,12 @@ struct KeyboardLayoutPicker: View {
             }
             .pickerStyle(.segmented)
             .accessibilityLabel("Select keyboard layout")
+            .accessibilityHint("Choose the keyboard layout of the target computer")
+            .accessibilityValue(selection.description)
+
+            Text("Select the keyboard layout of the target computer")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }

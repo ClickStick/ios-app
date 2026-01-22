@@ -7,7 +7,7 @@ import SwiftUI
 struct MouseView: View {
     let device: DeviceModel
 
-    @State private var lastError: String?
+    @State private var alertError: AlertError?
 
     var body: some View {
         VStack(spacing: 20) {
@@ -21,18 +21,19 @@ struct MouseView: View {
             )
             .frame(maxWidth: .infinity)
             .frame(height: 300)
+            .accessibilityElement(children: .ignore)
             .accessibilityLabel("Touchpad area")
-            .accessibilityHint("Drag to move cursor, two fingers to scroll, tap to click")
+            .accessibilityHint("Drag with one finger to move cursor, two fingers to scroll, tap to click, two-finger tap for right click")
+            .accessibilityAddTraits(.allowsDirectInteraction)
 
             clickButtons
 
-            if let error = lastError {
-                errorBanner(error)
-            }
+            hintText
 
             Spacer()
         }
         .padding()
+        .errorAlert($alertError)
     }
 
     // MARK: - Instructions Header
@@ -41,11 +42,13 @@ struct MouseView: View {
         VStack(spacing: 4) {
             Text("Touchpad")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
-            Text("Drag to move \u{2022} Two fingers to scroll \u{2022} Tap to click")
+            Text("Drag to move • Two fingers to scroll • Tap to click")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .accessibilityLabel("Instructions: Drag to move cursor, use two fingers to scroll, tap to click")
         }
     }
 
@@ -61,7 +64,8 @@ struct MouseView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .accessibilityLabel("Left click")
+            .accessibilityLabel("Left click button")
+            .accessibilityHint("Double-tap to perform a left click")
 
             Button {
                 handleRightClick()
@@ -71,27 +75,19 @@ struct MouseView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .accessibilityLabel("Right click")
+            .accessibilityLabel("Right click button",)
+            .accessibilityHint("Double-tap to perform a right click")
         }
     }
 
-    // MARK: - Error Banner
+    // MARK: - Hint Text
 
-    private func errorBanner(_ message: String) -> some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.yellow)
-            Text(message)
-                .font(.caption)
-            Spacer()
-            Button("Dismiss") {
-                lastError = nil
-            }
-            .font(.caption)
-        }
-        .padding()
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+    private var hintText: some View {
+        Text("Tip: Use two-finger tap on the touchpad for right click")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal)
     }
 
     // MARK: - Gesture Handlers
@@ -100,7 +96,7 @@ struct MouseView: View {
         guard device.isConnected else { return }
         device.sendMouseMove(dx: dx, dy: dy) { result in
             if case .failure(let error) = result {
-                lastError = error.localizedDescription
+                alertError = AlertError(error: error)
             }
         }
     }
@@ -109,7 +105,7 @@ struct MouseView: View {
         guard device.isConnected else { return }
         device.sendMouseScroll(vertical: vertical, horizontal: horizontal) { result in
             if case .failure(let error) = result {
-                lastError = error.localizedDescription
+                alertError = AlertError(error: error)
             }
         }
     }
@@ -122,7 +118,7 @@ struct MouseView: View {
         guard device.isConnected else { return }
         device.sendMouseClick(button: .left) { result in
             if case .failure(let error) = result {
-                lastError = error.localizedDescription
+                alertError = AlertError(error: error)
             }
         }
     }
@@ -131,9 +127,15 @@ struct MouseView: View {
         guard device.isConnected else { return }
         device.sendMouseClick(button: .right) { result in
             if case .failure(let error) = result {
-                lastError = error.localizedDescription
+                alertError = AlertError(error: error)
             }
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    MouseView(device: .preview)
 }
 

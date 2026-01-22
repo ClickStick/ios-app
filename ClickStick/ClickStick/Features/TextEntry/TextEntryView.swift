@@ -10,7 +10,7 @@ struct TextEntryView: View {
     @State private var text: String = ""
     @State private var selectedLayout: CSKeyboardLayout = .usQWERTY
     @State private var isSending: Bool = false
-    @State private var lastError: String?
+    @State private var alertError: AlertError?
 
     @FocusState private var isTextFieldFocused: Bool
 
@@ -21,16 +21,13 @@ struct TextEntryView: View {
             presetButtons
             sendButton
 
-            if let error = lastError {
-                errorBanner(error)
-            }
-
             Spacer()
         }
         .padding()
         .onAppear {
-            selectedLayout = detectSystemLayout()
+            selectedLayout = CSKeyboardLayout.fromSystemLocale()
         }
+        .errorAlert($alertError)
     }
 
     // MARK: - Keyboard Layout Picker
@@ -45,10 +42,14 @@ struct TextEntryView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Text to type")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
             TextEditor(text: $text)
                 .font(.system(.body, design: .monospaced))
                 .frame(minHeight: 120, maxHeight: 200)
+                .scrollContentBackground(.hidden)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
@@ -56,27 +57,53 @@ struct TextEntryView: View {
                 .focused($isTextFieldFocused)
                 .accessibilityLabel("Text to send")
                 .accessibilityHint("Enter the text you want to type on the connected device")
+                .accessibilityValue(text.isEmpty
+                    ? String(localized: "Empty", comment: "Empty text field value")
+                    : String(localized: "\(text.count) characters"))
 
-            Text("\(text.count) characters")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            HStack {
+                Text("\(text.count) characters")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if !text.isEmpty {
+                    Button("Clear") {
+                        withAnimation {
+                            text = ""
+                        }
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Clear text")
+                }
+            }
         }
     }
 
     // MARK: - Preset Buttons
 
     private var presetButtons: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(TextPreset.allCases) { preset in
-                    Button {
-                        text = preset.text
-                    } label: {
-                        Text(preset.title)
-                            .font(.caption)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Quick Presets")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(TextPreset.allCases) { preset in
+                        Button {
+                            text = preset.text
+                        } label: {
+                            Text(preset.title)
+                                .font(.caption)
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Insert \(preset.title)")
+                        .accessibilityHint("Replaces current text")
                     }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Insert \(preset.title)")
                 }
             }
         }
@@ -92,37 +119,35 @@ struct TextEntryView: View {
                 if isSending {
                     ProgressView()
                         .controlSize(.small)
+                        .tint(.white)
                 } else {
                     Image(systemName: "paperplane.fill")
                 }
-                Text(isSending ? "Sending..." : "Send Text")
+                Text(isSending
+                    ? String(localized: "Sending...", comment: "Sending in progress")
+                    : String(localized: "Send Text"))
             }
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.large)
         .disabled(text.isEmpty || isSending || !device.isConnected)
-        .accessibilityLabel(isSending ? "Sending text" : "Send text to device")
-        .accessibilityHint(text.isEmpty ? "Enter text first" : "Double-tap to send")
+        .accessibilityLabel(isSending
+            ? String(localized: "Sending text")
+            : String(localized: "Send text to device"))
+        .accessibilityHint(buttonAccessibilityHint)
     }
 
-    // MARK: - Error Banner
-
-    private func errorBanner(_ message: String) -> some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.yellow)
-            Text(message)
-                .font(.caption)
-            Spacer()
-            Button("Dismiss") {
-                lastError = nil
-            }
-            .font(.caption)
+    private var buttonAccessibilityHint: String {
+        if text.isEmpty {
+            return String(localized: "Enter text first")
+        } else if !device.isConnected {
+            return String(localized: "Device not connected", comment: "Accessibility hint")
+        } else if isSending {
+            return String(localized: "Please wait", comment: "Accessibility hint")
+        } else {
+            return String(localized: "Double-tap to send \(text.count) characters", comment: "Accessibility hint")
         }
-        .padding()
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
     }
 
     // MARK: - Actions
@@ -131,34 +156,24 @@ struct TextEntryView: View {
         guard !text.isEmpty, device.isConnected else { return }
 
         isSending = true
-        lastError = nil
         isTextFieldFocused = false
 
         device.sendText(text, layout: selectedLayout) { result in
             isSending = false
             switch result {
             case .success:
-                // Optionally clear text after successful send
+                // Text sent successfully
                 break
             case .failure(let error):
-                lastError = error.localizedDescription
+                alertError = AlertError(error: error)
             }
         }
     }
+}
 
-    private func detectSystemLayout() -> CSKeyboardLayout {
-        guard let languageCode = Locale.current.language.languageCode?.identifier else {
-            return .usQWERTY
-        }
+// MARK: - Preview
 
-        switch languageCode {
-        case "de":
-            return .deQWERTZ
-        case "fr":
-            return .frAZERTY_Classic
-        default:
-            return .usQWERTY
-        }
-    }
+#Preview {
+    TextEntryView(device: .preview)
 }
 

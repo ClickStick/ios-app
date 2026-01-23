@@ -53,6 +53,10 @@ final class DeviceModel: Identifiable {
         return name
     }
 
+    /// Returns true if the device was seen recently (within 3 seconds)
+    var isFresh: Bool {
+        guard let lastSeen = device.lastSeen else { return false }
+        return Date.now.timeIntervalSince(lastSeen) < 3.0
     }
 
     // MARK: - Initialization
@@ -169,6 +173,11 @@ final class DeviceModel: Identifiable {
     fileprivate func deviceNeedsAuthentication(_ device: CSDevice) {
         needsAuthentication = true
         connectionState = device.connectionState
+        NotificationCenter.default.post(
+            name: .deviceNeedsAuthentication,
+            object: nil,
+            userInfo: ["deviceID": device.uuid]
+        )
     }
 
     fileprivate func deviceDidFail(_ device: CSDevice, with error: CSError) {
@@ -239,4 +248,5 @@ extension DeviceModel: Hashable {
 
 extension Notification.Name {
     static let deviceDidFail = Notification.Name("deviceDidFail")
+    static let deviceNeedsAuthentication = Notification.Name("deviceNeedsAuthentication")
 }

@@ -17,15 +17,24 @@ struct DeviceListView: View {
 
     var body: some View {
         List(selection: $selectedDeviceID) {
-            announcementsSection
-            devicesSection
+            if hasAnnouncements {
+                announcementsSection
+            }
+            if !service.devices.isEmpty {
+                devicesSection
+            }
+        }
+        .overlay {
+            if isEmpty {
+                emptyStateContent
+            }
         }
         .refreshable {
             service.startScanning()
         }
         .navigationTitle("Devices")
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItem(placement: .bottomBar) {
                 scanButton
             }
         }
@@ -34,42 +43,48 @@ struct DeviceListView: View {
                 saveDeviceSettings(device: device, authKey: authKey, alias: alias)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .deviceNeedsAuthentication)) { notification in
+            guard let deviceID = notification.userInfo?["deviceID"] as? UUID,
+                  let device = service.device(for: deviceID) else { return }
+            // Clear old settings and show setup
+            try? CSDeviceSettingsManager.deleteSettings(for: device.id)
+            device.refreshSettingsCache()
+            deviceNeedingSetup = device
+        }
         .errorAlert($alertError)
+    }
+
+    /// Returns true if there's nothing to show (no announcements and no devices)
+    private var isEmpty: Bool {
+        !hasAnnouncements && service.devices.isEmpty
+    }
+
+    private var hasAnnouncements: Bool {
+        service.bluetoothError != nil || !hasShownWelcome || showDemoPrompt
+    }
+
+    private var showDemoPrompt: Bool {
+        !hasDismissedDemoPrompt && !service.isDemoMode
     }
 
     @ViewBuilder
     private var announcementsSection: some View {
-        if hasAnnouncements {
-            Section {
-                VStack(spacing: 8) {
-                    if let error = service.bluetoothError {
-                        bluetoothErrorBanner(error)
-                    }
-                    if !hasShownWelcome {
-                        welcomeBanner
-                    }
-                    if !hasDismissedDemoPrompt && !service.isDemoMode && service.devices.isEmpty {
-                        demoModeBanner
-                    }
+        Section {
+            VStack(spacing: 8) {
+                if let error = service.bluetoothError {
+                    bluetoothErrorBanner(error)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                if !hasShownWelcome {
+                    welcomeBanner
+                }
+                if showDemoPrompt {
+                    demoModeBanner
+                }
             }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         }
-    }
-
-    private var hasAnnouncements: Bool {
-        if service.bluetoothError != nil {
-            return true
-        }
-        if !hasShownWelcome {
-            return true
-        }
-        if !hasDismissedDemoPrompt && !service.isDemoMode && service.devices.isEmpty {
-            return true
-        }
-        return false
     }
 
     private func bluetoothErrorBanner(_ error: CSError) -> some View {
@@ -116,6 +131,7 @@ struct DeviceListView: View {
             actionTitle: String(localized: "Try in Demo Mode"),
             onAction: {
                 service.isDemoMode = true
+                withAnimation { hasDismissedDemoPrompt = true }
             },
             onDismiss: {
                 withAnimation { hasDismissedDemoPrompt = true }
@@ -125,55 +141,41 @@ struct DeviceListView: View {
 
     @ViewBuilder
     private var devicesSection: some View {
-        if service.devices.isEmpty {
-            Section {
-                emptyStateContent
-                    .frame(maxWidth: .infinity)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
+        Section {
+            ForEach(service.devices) { device in
+                DeviceRowView(device: device)
+                    .tag(device.id)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        handleDeviceTap(device)
+                    }
+                    .contextMenu {
+                        deviceContextMenu(for: device)
+                    }
             }
-        } else {
-            Section {
-                ForEach(service.devices) { device in
-                    DeviceRowView(device: device)
-                        .tag(device.id)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            handleDeviceTap(device)
-                        }
-                        .contextMenu {
-                            deviceContextMenu(for: device)
-                        }
-                }
-            } header: {
-            //    if !buildAnnouncements().isEmpty {
-                    Text("Devices")
-              //  }
-            }
+        } header: {
+            Text("Devices")
         }
     }
 
     private var emptyStateContent: some View {
         ContentUnavailableView {
-            Label(String(localized: "No Devices Found"), systemImage: "magnifyingglass")
+            Label(String(localized: "Welcome"), systemImage: "book")
         } description: {
-            if service.isScanning {
-                Text("Searching for ClickStick devices...")
-            } else {
-                Text("Pull to refresh or tap the scan button to search for devices.")
-            }
+            Text("Plug in your ClickStick to get started.")
         } actions: {
-            if service.isScanning {
-                ProgressView()
-            } else {
-                Button(String(localized: "Scan for Devices")) {
-                    service.startScanning()
-                }
-                .buttonStyle(.borderedProminent)
+            Button {
+                urlOpener.openGettingStartedPage()
+            } label: {
+                Label(String(localized: "Getting Started"), systemImage: "hand.wave")
             }
+            .buttonStyle(.borderedProminent)
+
+            Button(String(localized: "Try in Demo Mode")) {
+                service.isDemoMode = true
+            }
+            .buttonStyle(.bordered)
         }
-        .padding(.vertical, 60)
     }
 
     private var scanButton: some View {
@@ -184,16 +186,18 @@ struct DeviceListView: View {
                 service.startScanning()
             }
         } label: {
-            if service.isScanning {
-                HStack(spacing: 6) {
+            HStack(spacing: 8) {
+                if service.isScanning {
                     ProgressView()
                         .controlSize(.small)
                     Text("Scanning")
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                    Text("Scan")
                 }
-            } else {
-                Label(String(localized: "Scan"), systemImage: "arrow.clockwise")
             }
         }
+        .animation(.default, value: service.isScanning)
         .accessibilityLabel(service.isScanning
             ? String(localized: "Stop scanning")
             : String(localized: "Scan for devices"))
@@ -201,14 +205,12 @@ struct DeviceListView: View {
 
     @ViewBuilder
     private func deviceContextMenu(for device: DeviceModel) -> some View {
-        let hasSettings = CSDeviceSettingsManager.hasSettings(for: device.id)
-
         Button(role: .destructive) {
             forgetDevice(device)
         } label: {
             Label(String(localized: "Forget Device"), systemImage: "trash")
         }
-        .disabled(!hasSettings)
+        .disabled(!device.isKnownDevice || device.isDemoDevice)
 
         if device.isConnected {
             Button {
@@ -233,22 +235,12 @@ struct DeviceListView: View {
     }
 
     private func handleDeviceTap(_ device: DeviceModel) {
-        if device.connectionState == .disconnected {
-            if CSDeviceSettingsManager.hasSettings(for: device.id) || device.isDemoDevice {
-                device.connect()
-                selectedDeviceID = device.id
-            } else {
-                deviceNeedingSetup = device
-            }
-        } else if device.needsAuthentication {
-            do {
-                try CSDeviceSettingsManager.deleteSettings(for: device.id)
-            } catch {
-                alertError = AlertError(title: String(localized: "Settings Error"), error: error)
-                return
-            }
-            deviceNeedingSetup = device
-        } else {
+        switch device.connectionState {
+        case .disconnected:
+            // Try to connect - if auth key is missing or wrong, deviceNeedsAuthentication will be triggered
+            device.connect()
+        case .serviceDiscovery, .connectedAuthorized, .connectedUnauthorized:
+            // Already connecting or connected - show details
             selectedDeviceID = device.id
         }
     }
@@ -262,9 +254,9 @@ struct DeviceListView: View {
         do {
             try CSDeviceSettingsManager.saveSettings(settings)
             device.refreshSettingsCache()
-            device.connect(with: authKey)
-            selectedDeviceID = device.id
             deviceNeedingSetup = nil
+            // Connect after dismissing the sheet
+            device.connect(with: authKey)
         } catch {
             alertError = AlertError(title: String(localized: "Settings Error"), error: error)
             // Don't connect - user must dismiss error and retry

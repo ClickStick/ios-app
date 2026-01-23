@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F3F4ACA32F22143F00158155 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3F4ACA22F22143F00158155 /* ClickStickKit */; };
+		F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F3DBABAD2F238C88009D1CC2 /* ClickStickKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ClickStickKit; sourceTree = "<group>"; };
 		F3F4AC672F21670600158155 /* ClickStick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClickStick.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3F4AC752F21672100158155 /* ClickStickKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ClickStickKit; path = ../ClickStickKit; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -28,7 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F3F4ACA32F22143F00158155 /* ClickStickKit in Frameworks */,
+				F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,7 +38,7 @@
 		F3F4AC5E2F21670600158155 = {
 			isa = PBXGroup;
 			children = (
-				F3F4AC752F21672100158155 /* ClickStickKit */,
+				F3DBABAD2F238C88009D1CC2 /* ClickStickKit */,
 				F3F4AC692F21670600158155 /* ClickStick */,
 				F3F4ACA12F22143F00158155 /* Frameworks */,
 				F3F4AC682F21670600158155 /* Products */,
@@ -80,7 +80,7 @@
 			);
 			name = ClickStick;
 			packageProductDependencies = (
-				F3F4ACA22F22143F00158155 /* ClickStickKit */,
+				F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */,
 			);
 			productName = ClickStick;
 			productReference = F3F4AC672F21670600158155 /* ClickStick.app */;
@@ -368,7 +368,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F3F4ACA22F22143F00158155 /* ClickStickKit */ = {
+		F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ClickStickKit;
 		};

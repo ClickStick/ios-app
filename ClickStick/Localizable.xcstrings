@@ -1,1335 +1,1351 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "%lld characters": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld znakov"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld characters" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld znakov"
           }
         }
       }
     },
-    "An unknown error occurred.": {
-      "comment": "Default error message",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyskytla sa neznáma chyba."
+    "An unknown error occurred." : {
+      "comment" : "Default error message",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyskytla sa neznáma chyba."
           }
         }
       }
     },
-    "Authentication Key": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Autentifikačný kľúč"
+    "Authentication Key" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autentifikačný kľúč"
           }
         }
       }
     },
-    "Authentication key input": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zadanie autentifikačného kľúča"
+    "Authentication key input" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadanie autentifikačného kľúča"
           }
         }
       }
     },
-    "Camera Not Available": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kamera nie je k dispozícii"
+    "Camera Not Available" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera nie je k dispozícii"
           }
         }
       }
     },
-    "Camera viewfinder for scanning QR code": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hľadáčik kamery na skenovanie QR kódu"
+    "Camera viewfinder for scanning QR code" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hľadáčik kamery na skenovanie QR kódu"
           }
         }
       }
     },
-    "Cancel": {
-      "comment": "Button title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zrušiť"
+    "Cancel" : {
+      "comment" : "Button title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrušiť"
           }
         }
       }
     },
-    "Cancel connection": {
-      "comment": "Accessibility label for cancel button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zrušiť pripojenie"
+    "Cancel connection" : {
+      "comment" : "Accessibility label for cancel button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrušiť pripojenie"
           }
         }
       }
     },
-    "Cancel device setup": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zrušiť nastavenie zariadenia"
+    "Cancel device setup" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrušiť nastavenie zariadenia"
           }
         }
       }
     },
-    "Cancel scanning": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zrušiť skenovanie"
+    "Cancel scanning" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrušiť skenovanie"
           }
         }
       }
     },
-    "Choose the keyboard layout of the target computer": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyberte rozloženie klávesnice cieľového počítača"
+    "Choose the keyboard layout of the target computer" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte rozloženie klávesnice cieľového počítača"
           }
         }
       }
     },
-    "Clear": {
-      "comment": "Clear text button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vymazať"
+    "Clear" : {
+      "comment" : "Clear text button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vymazať"
           }
         }
       }
     },
-    "Clear text": {
-      "comment": "Accessibility label for clear button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vymazať text"
+    "Clear text" : {
+      "comment" : "Accessibility label for clear button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vymazať text"
           }
         }
       }
     },
-    "Connect": {
-      "comment": "Button title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripojiť"
+    "Connect" : {
+      "comment" : "Button title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripojiť"
           }
         }
       }
     },
-    "Connect to device": {
-      "comment": "Accessibility label\nAccessibility label for connect button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripojiť k zariadeniu"
+    "Connect to device" : {
+      "comment" : "Accessibility label\nAccessibility label for connect button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripojiť k zariadeniu"
           }
         }
       }
     },
-    "Connected": {
-      "comment": "Connection status",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripojené"
+    "Connected" : {
+      "comment" : "Connection status",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripojené"
           }
         }
       }
     },
-    "Connecting": {
-      "comment": "Connection status",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripája sa"
+    "Connecting" : {
+      "comment" : "Connection status",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripája sa"
           }
         }
       }
     },
-    "Connecting to %@": {
-      "comment": "Accessibility label for connecting state",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripájanie k %@"
+    "Connecting to %@" : {
+      "comment" : "Accessibility label for connecting state",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripájanie k %@"
           }
         }
       }
     },
-    "Connecting to %@...": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripájanie k %@..."
+    "Connecting to %@..." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripájanie k %@..."
           }
         }
       }
     },
-    "Connection in progress": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pripájanie prebieha"
+    "Connection in progress" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripájanie prebieha"
           }
         }
       }
     },
-    "Demo device": {
-      "comment": "Device type",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Demo zariadenie"
+    "Demo device" : {
+      "comment" : "Device type",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo zariadenie"
           }
         }
       }
     },
-    "Device disconnected": {
-      "comment": "Accessibility label for disconnected state",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zariadenie odpojené"
+    "Device disconnected" : {
+      "comment" : "Accessibility label for disconnected state",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zariadenie odpojené"
           }
         }
       }
     },
-    "Device features": {
-      "comment": "Accessibility label for feature picker",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Funkcie zariadenia"
+    "Device features" : {
+      "comment" : "Accessibility label for feature picker",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcie zariadenia"
           }
         }
       }
     },
-    "Device ID": {
-      "comment": "Label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID zariadenia"
+    "Device ID" : {
+      "comment" : "Label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID zariadenia"
           }
         }
       }
     },
-    "Device ID: %@": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID zariadenia: %@"
+    "Device ID: %@" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID zariadenia: %@"
           }
         }
       }
     },
-    "Device Information": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Informácie o zariadení"
+    "Device Information" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informácie o zariadení"
           }
         }
       }
     },
-    "Device Name": {
-      "comment": "Label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Názov zariadenia"
+    "Device Name" : {
+      "comment" : "Label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Názov zariadenia"
           }
         }
       }
     },
-    "Device nickname": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prezývka zariadenia"
+    "Device nickname" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prezývka zariadenia"
           }
         }
       }
     },
-    "Device not connected": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zariadenie nie je pripojené"
+    "Device not connected" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zariadenie nie je pripojené"
           }
         }
       }
     },
-    "Devices": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zariadenia"
+    "Devices" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zariadenia"
           }
         }
       }
     },
-    "Disconnect": {
-      "comment": "Button title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odpojiť"
+    "Disconnect" : {
+      "comment" : "Button title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpojiť"
           }
         }
       }
     },
-    "Disconnect from device": {
-      "comment": "Accessibility label for disconnect button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odpojiť od zariadenia"
+    "Disconnect from device" : {
+      "comment" : "Accessibility label for disconnect button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpojiť od zariadenia"
           }
         }
       }
     },
-    "Disconnected": {
-      "comment": "Connection status",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odpojené"
+    "Disconnected" : {
+      "comment" : "Connection status",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpojené"
           }
         }
       }
     },
-    "Dismiss": {
-      "comment": "Button title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zavrieť"
+    "Dismiss" : {
+      "comment" : "Button title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zavrieť"
           }
         }
       }
     },
-    "Double-tap the connect button to reconnect": {
-      "comment": "Accessibility hint for disconnected state",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím na tlačidlo Pripojiť znova pripojíte"
+    "Double-tap the connect button to reconnect" : {
+      "comment" : "Accessibility hint for disconnected state",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím na tlačidlo Pripojiť znova pripojíte"
           }
         }
       }
     },
-    "Double-tap to authenticate": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím overte"
+    "Double-tap to authenticate" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím overte"
           }
         }
       }
     },
-    "Double-tap to connect": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím sa pripojte"
+    "Double-tap to connect" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím sa pripojte"
           }
         }
       }
     },
-    "Double-tap to perform a left click": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím vykonáte ľavé kliknutie"
+    "Double-tap to perform a left click" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím vykonáte ľavé kliknutie"
           }
         }
       }
     },
-    "Double-tap to perform a right click": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím vykonáte pravé kliknutie"
+    "Double-tap to perform a right click" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím vykonáte pravé kliknutie"
           }
         }
       }
     },
-    "Double-tap to send %lld characters": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím odošlete %lld znakov"
+    "Double-tap to send %lld characters" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím odošlete %lld znakov"
           }
         }
       }
     },
-    "Double-tap to view device options": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím zobrazíte možnosti zariadenia"
+    "Double-tap to view device options" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím zobrazíte možnosti zariadenia"
           }
         }
       }
     },
-    "Drag to move • Two fingers to scroll • Tap to click": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ťahom presuniete • Dvoma prstami posúvate • Klepnutím kliknete"
+    "Drag to move • Two fingers to scroll • Tap to click" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ťahom presuniete • Dvoma prstami posúvate • Klepnutím kliknete"
           }
         }
       }
     },
-    "Drag with one finger to move cursor, two fingers to scroll, tap to click, two-finger tap for right click": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ťahaním jedným prstom pohnete kurzorom, dvoma prstami posúvate, klepnutím kliknete, dvojprstovým klepnutím pravé kliknutie"
+    "Drag with one finger to move cursor, two fingers to scroll, tap to click, two-finger tap for right click" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ťahaním jedným prstom pohnete kurzorom, dvoma prstami posúvate, klepnutím kliknete, dvojprstovým klepnutím pravé kliknutie"
           }
         }
       }
     },
-    "Empty": {
-      "comment": "Empty text field value",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prázdne"
+    "Empty" : {
+      "comment" : "Empty text field value",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prázdne"
           }
         }
       }
     },
-    "Enter 32-character hex key": {
-      "comment": "Placeholder",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zadajte 32-znakový hex kľúč"
+    "Enter 32-character hex key" : {
+      "comment" : "Placeholder",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadajte 32-znakový hex kľúč"
           }
         }
       }
     },
-    "Enter a valid authentication key first": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Najprv zadajte platný autentifikačný kľúč"
+    "Enter a valid authentication key first" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najprv zadajte platný autentifikačný kľúč"
           }
         }
       }
     },
-    "Enter text first": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Najprv zadajte text"
+    "Enter text first" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najprv zadajte text"
           }
         }
       }
     },
-    "Enter the 32-character hex key from your ClickStick": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zadajte 32-znakový hex kľúč z ClickSticku"
+    "Enter the 32-character hex key from your ClickStick" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadajte 32-znakový hex kľúč z ClickSticku"
           }
         }
       }
     },
-    "Enter the text you want to type on the connected device": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zadajte text, ktorý chcete napísať na pripojenom zariadení"
+    "Enter the text you want to type on the connected device" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadajte text, ktorý chcete napísať na pripojenom zariadení"
           }
         }
       }
     },
-    "Error": {
-      "comment": "Alert title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chyba"
+    "Error" : {
+      "comment" : "Alert title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba"
           }
         }
       }
     },
-    "Error: %@": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chyba: %@"
+    "Error: %@" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba: %@"
           }
         }
       }
     },
-    "Excellent signal": {
-      "comment": "Signal strength indicator",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Výborný signál"
+    "Excellent signal" : {
+      "comment" : "Signal strength indicator",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výborný signál"
           }
         }
       }
     },
-    "Fair signal": {
-      "comment": "Signal strength indicator",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Priemerný signál"
+    "Fair signal" : {
+      "comment" : "Signal strength indicator",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priemerný signál"
           }
         }
       }
     },
-    "Feature": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Funkcia"
+    "Feature" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcia"
           }
         }
       }
     },
-    "Forget Device": {
-      "comment": "Context menu action",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zabudnúť zariadenie"
+    "Forget Device" : {
+      "comment" : "Context menu action",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zabudnúť zariadenie"
           }
         }
       }
     },
-    "Getting Started": {
-      "comment": "Getting started button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Začíname"
+    "Getting Started" : {
+      "comment" : "Getting started button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Začíname"
           }
         }
       }
     },
-    "Give your device a friendly name for easy identification.": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dajte zariadeniu priateľské meno pre jednoduchú identifikáciu."
+    "Give your device a friendly name for easy identification." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dajte zariadeniu priateľské meno pre jednoduchú identifikáciu."
           }
         }
       }
     },
-    "Good signal": {
-      "comment": "Signal strength indicator",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dobrý signál"
+    "Good signal" : {
+      "comment" : "Signal strength indicator",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dobrý signál"
           }
         }
       }
     },
-    "Hello World": {
-      "comment": "Text preset name",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ahoj svet"
+    "Hello World" : {
+      "comment" : "Text preset name",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahoj svet"
           }
         }
       }
     },
-    "Insert %@": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vložiť %@"
+    "Insert %@" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vložiť %@"
           }
         }
       }
     },
-    "Instructions: Drag to move cursor, use two fingers to scroll, tap to click": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pokyny: Ťahaním pohnete kurzorom, dvoma prstami posúvate, klepnutím kliknete"
+    "Instructions: Drag to move cursor, use two fingers to scroll, tap to click" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokyny: Ťahaním pohnete kurzorom, dvoma prstami posúvate, klepnutím kliknete"
           }
         }
       }
     },
-    "Invalid key format. Please enter a 32-character hex string.": {
-      "comment": "Error message",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neplatný formát kľúča. Zadajte 32-znakový hex reťazec."
+    "Invalid key format. Please enter a 32-character hex string." : {
+      "comment" : "Error message",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neplatný formát kľúča. Zadajte 32-znakový hex reťazec."
           }
         }
       }
     },
-    "Just looking around?": {
-      "comment": "Demo mode prompt",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Len si to prezeráte?"
+    "Just looking around?" : {
+      "comment" : "Demo mode prompt",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Len si to prezeráte?"
           }
         }
       }
     },
-    "Keyboard Layout": {
-      "comment": "Picker label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rozloženie klávesnice"
+    "Keyboard Layout" : {
+      "comment" : "Picker label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozloženie klávesnice"
           }
         }
       }
     },
-    "Left Click": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ľavé kliknutie"
+    "Left Click" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ľavé kliknutie"
           }
         }
       }
     },
-    "Left click button": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tlačidlo ľavého kliknutia"
+    "Left click button" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tlačidlo ľavého kliknutia"
           }
         }
       }
     },
-    "Lorem Ipsum": {
-      "comment": "Text preset name",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lorem Ipsum"
+    "Lorem Ipsum" : {
+      "comment" : "Text preset name",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorem Ipsum"
           }
         }
       }
     },
-    "Nickname": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prezývka"
+    "Nickname" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prezývka"
           }
         }
       }
     },
-    "No device selected": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nie je vybrané žiadne zariadenie"
+    "No device selected" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie je vybrané žiadne zariadenie"
           }
         }
       }
     },
-    "No Device Selected": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nie je vybrané žiadne zariadenie"
+    "No Device Selected" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie je vybrané žiadne zariadenie"
           }
         }
       }
     },
-    "No Devices Found": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nenašli sa žiadne zariadenia"
+    "No Devices Found" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenašli sa žiadne zariadenia"
           }
         }
       }
     },
-    "No signal": {
-      "comment": "Signal strength indicator",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Žiadny signál"
+    "No signal" : {
+      "comment" : "Signal strength indicator",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Žiadny signál"
           }
         }
       }
     },
-    "Not connected": {
-      "comment": "Connection status",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nepripojené"
+    "Not connected" : {
+      "comment" : "Connection status",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nepripojené"
           }
         }
       }
     },
-    "OK": {
-      "comment": "Button title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
+    "OK" : {
+      "comment" : "Button title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
           }
         }
       }
     },
-    "Open Settings": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otvoriť nastavenia"
+    "Open Settings" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otvoriť nastavenia"
           }
         }
       }
     },
-    "Opens camera to scan the QR code from your ClickStick": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otvorí kameru na skenovanie QR kódu z ClickSticku"
+    "Opens camera to scan the QR code from your ClickStick" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otvorí kameru na skenovanie QR kódu z ClickSticku"
           }
         }
       }
     },
-    "Optional friendly name for this device": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voliteľné priateľské meno pre toto zariadenie"
+    "Optional friendly name for this device" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voliteľné priateľské meno pre toto zariadenie"
           }
         }
       }
     },
-    "Please wait": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Počkajte, prosím"
+    "Please wait" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počkajte, prosím"
           }
         }
       }
     },
-    "Plug in your ClickStick to get started.": {
-      "comment": "Welcome announcement body",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Na začiatok pripojte ClickStick."
+    "Plug in your ClickStick to get started." : {
+      "comment" : "Welcome announcement body",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na začiatok pripojte ClickStick."
           }
         }
       }
     },
-    "Point the camera at the QR code on your ClickStick's screen": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Namierte kameru na QR kód na obrazovke ClickSticku"
+    "Point the camera at the QR code on your ClickStick's screen" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Namierte kameru na QR kód na obrazovke ClickSticku"
           }
         }
       }
     },
-    "Pull to refresh or tap the scan button to search for devices.": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Potiahnite na obnovenie alebo klepnite na tlačidlo skenovania a vyhľadajte zariadenia."
+    "Pull to refresh or tap the scan button to search for devices." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potiahnite na obnovenie alebo klepnite na tlačidlo skenovania a vyhľadajte zariadenia."
           }
         }
       }
     },
-    "Quick Presets": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rýchle predvoľby"
+    "Quick Presets" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rýchle predvoľby"
           }
         }
       }
     },
-    "Replaces current text": {
-      "comment": "Accessibility hint for preset button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nahradí aktuálny text"
+    "Replaces current text" : {
+      "comment" : "Accessibility hint for preset button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nahradí aktuálny text"
           }
         }
       }
     },
-    "Requires authentication": {
-      "comment": "Connection status",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyžaduje overenie"
+    "Requires authentication" : {
+      "comment" : "Connection status",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyžaduje overenie"
           }
         }
       }
     },
-    "Right Click": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pravé kliknutie"
+    "Right Click" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pravé kliknutie"
           }
         }
       }
     },
-    "Right click button": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tlačidlo pravého kliknutia"
+    "Right click button" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tlačidlo pravého kliknutia"
           }
         }
       }
     },
-    "Sample Email": {
-      "comment": "Text preset name",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vzorový email"
+    "Sample Email" : {
+      "comment" : "Text preset name",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vzorový email"
           }
         }
       }
     },
-    "Saved device": {
-      "comment": "Device type",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uložené zariadenie"
+    "Saved device" : {
+      "comment" : "Device type",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uložené zariadenie"
           }
         }
       }
     },
-    "Scan": {
-      "comment": "Scan button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovať"
+    "Scan" : {
+      "comment" : "Scan button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovať"
           }
         }
       }
     },
-    "Scan for devices": {
-      "comment": "Accessibility label for scan button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovať zariadenia"
+    "Scan for devices" : {
+      "comment" : "Accessibility label for scan button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovať zariadenia"
           }
         }
       }
     },
-    "Scan for Devices": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovať zariadenia"
+    "Scan for Devices" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovať zariadenia"
           }
         }
       }
     },
-    "Scan QR code": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovať QR kód"
+    "Scan QR code" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovať QR kód"
           }
         }
       }
     },
-    "Scan QR Code": {
-      "comment": "Navigation title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovanie QR kódu"
+    "Scan QR Code" : {
+      "comment" : "Navigation title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovanie QR kódu"
           }
         }
       }
     },
-    "Scan the QR code on your ClickStick's screen or enter the 32-character hex key manually.": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Naskenujte QR kód na obrazovke ClickSticku alebo zadajte 32-znakový hex kľúč ručne."
+    "Scan the QR code on your ClickStick's screen or enter the 32-character hex key manually." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naskenujte QR kód na obrazovke ClickSticku alebo zadajte 32-znakový hex kľúč ručne."
           }
         }
       }
     },
-    "Scanning": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovanie"
+    "Scanning" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovanie"
           }
         }
       }
     },
-    "Scanning for devices...": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skenovanie zariadení..."
+    "Scanning for devices..." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skenovanie zariadení..."
           }
         }
       }
     },
-    "Searching for ClickStick devices...": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyhľadávanie zariadení ClickStick..."
+    "Searching for ClickStick devices..." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyhľadávanie zariadení ClickStick..."
           }
         }
       }
     },
-    "Select a ClickStick device from the sidebar to get started.": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ak chcete začať, vyberte zariadenie ClickStick v bočnom paneli."
+    "Select a ClickStick device from the sidebar to get started." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ak chcete začať, vyberte zariadenie ClickStick v bočnom paneli."
           }
         }
       }
     },
-    "Select a device from the sidebar": {
-      "comment": "Accessibility hint",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyberte zariadenie z bočného panela"
+    "Select a device from the sidebar" : {
+      "comment" : "Accessibility hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte zariadenie z bočného panela"
           }
         }
       }
     },
-    "Select between text entry and touchpad modes": {
-      "comment": "Accessibility hint for feature picker",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyberte medzi režimom zadávania textu a touchpadom"
+    "Select between text entry and touchpad modes" : {
+      "comment" : "Accessibility hint for feature picker",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte medzi režimom zadávania textu a touchpadom"
           }
         }
       }
     },
-    "Select keyboard layout": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyberte rozloženie klávesnice"
+    "Select keyboard layout" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte rozloženie klávesnice"
           }
         }
       }
     },
-    "Select the keyboard layout of the target computer": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyberte rozloženie klávesnice cieľového počítača"
+    "Select the keyboard layout of the target computer" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte rozloženie klávesnice cieľového počítača"
           }
         }
       }
     },
-    "Send Text": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odoslať text"
+    "Send Text" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odoslať text"
           }
         }
       }
     },
-    "Send text to device": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odoslať text do zariadenia"
+    "Send text to device" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odoslať text do zariadenia"
           }
         }
       }
     },
-    "Sending text": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odosielanie textu"
+    "Sending text" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odosielanie textu"
           }
         }
       }
     },
-    "Sending...": {
-      "comment": "Sending in progress",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odosiela sa..."
+    "Sending..." : {
+      "comment" : "Sending in progress",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odosiela sa..."
           }
         }
       }
     },
-    "Settings Error": {
-      "comment": "Error title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chyba nastavení"
+    "Settings Error" : {
+      "comment" : "Error title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba nastavení"
           }
         }
       }
     },
-    "Setup Device": {
-      "comment": "Navigation title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nastaviť zariadenie"
+    "Setup Device" : {
+      "comment" : "Navigation title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastaviť zariadenie"
           }
         }
       }
     },
-    "Start Scanning": {
-      "comment": "Button title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spustiť skenovanie"
+    "Start Scanning" : {
+      "comment" : "Button title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spustiť skenovanie"
           }
         }
       }
     },
-    "Stop scanning": {
-      "comment": "Accessibility label for stop scanning",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zastaviť skenovanie"
+    "Stop scanning" : {
+      "comment" : "Accessibility label for stop scanning",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastaviť skenovanie"
           }
         }
       }
     },
-    "Tap Connect to start using this device.": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klepnite na Pripojiť a začnite používať toto zariadenie."
+    "Tap Connect to start using this device." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klepnite na Pripojiť a začnite používať toto zariadenie."
           }
         }
       }
     },
-    "Test Password": {
-      "comment": "Text preset name",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Testovacie heslo"
+    "Test Password" : {
+      "comment" : "Text preset name",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Testovacie heslo"
           }
         }
       }
     },
-    "Text Entry": {
-      "comment": "Tab title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zadávanie textu"
+    "Text Entry" : {
+      "comment" : "Tab title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadávanie textu"
           }
         }
       }
     },
-    "Text Entry mode": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Režim zadávania textu"
+    "Text Entry mode" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Režim zadávania textu"
           }
         }
       }
     },
-    "Text to send": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text na odoslanie"
+    "Text to send" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text na odoslanie"
           }
         }
       }
     },
-    "Text to type": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text na napísanie"
+    "Text to type" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text na napísanie"
           }
         }
       }
     },
-    "This device doesn't support camera scanning. Please enter the key manually.": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toto zariadenie nepodporuje skenovanie kamerou. Zadajte kľúč ručne."
+    "This device doesn't support camera scanning. Please enter the key manually." : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toto zariadenie nepodporuje skenovanie kamerou. Zadajte kľúč ručne."
           }
         }
       }
     },
-    "Tip: Use two-finger tap on the touchpad for right click": {
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tip: Na touchpade použite dvojprstové klepnutie pre pravé kliknutie"
+    "Tip: Use two-finger tap on the touchpad for right click" : {
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip: Na touchpade použite dvojprstové klepnutie pre pravé kliknutie"
           }
         }
       }
     },
-    "Touchpad": {
-      "comment": "Tab title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Touchpad"
+    "Touchpad" : {
+      "comment" : "Tab title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchpad"
           }
         }
       }
     },
-    "Touchpad area": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oblasť touchpadu"
+    "Touchpad area" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oblasť touchpadu"
           }
         }
       }
     },
-    "Touchpad mode": {
-      "comment": "Accessibility label",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Režim touchpadu"
+    "Touchpad mode" : {
+      "comment" : "Accessibility label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Režim touchpadu"
           }
         }
       }
     },
-    "Try in Demo Mode": {
-      "comment": "Demo mode button",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vyskúšať v demo režime"
+    "Try in Demo Mode" : {
+      "comment" : "Demo mode button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyskúšať v demo režime"
           }
         }
       }
     },
-    "Weak signal": {
-      "comment": "Signal strength indicator",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Slabý signál"
+    "Weak signal" : {
+      "comment" : "Signal strength indicator",
+      "extractionState" : "stale",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slabý signál"
           }
         }
       }
     },
-    "Welcome!": {
-      "comment": "Welcome announcement title",
-      "localizations": {
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vitajte!"
+    "Welcome" : {
+
+    },
+    "Welcome!" : {
+      "comment" : "Welcome announcement title",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vitajte!"
           }
         }
       }
     }
   },
-  "version": "1.1"
+  "version" : "1.1"
 }

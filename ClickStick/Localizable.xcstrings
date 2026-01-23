@@ -199,6 +199,7 @@
       }
     },
     "Connecting to %@..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -207,6 +208,9 @@
           }
         }
       }
+    },
+    "Connecting..." : {
+
     },
     "Connection in progress" : {
       "comment" : "Accessibility hint",
@@ -452,6 +456,7 @@
       }
     },
     "Drag to move • Two fingers to scroll • Tap to click" : {
+      "extractionState" : "stale",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -583,6 +588,7 @@
       }
     },
     "Feature" : {
+      "extractionState" : "stale",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -659,6 +665,7 @@
     },
     "Instructions: Drag to move cursor, use two fingers to scroll, tap to click" : {
       "comment" : "Accessibility label",
+      "extractionState" : "stale",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1270,6 +1277,7 @@
       }
     },
     "Tip: Use two-finger tap on the touchpad for right click" : {
+      "extractionState" : "stale",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1322,6 +1330,9 @@
           }
         }
       }
+    },
+    "Two-finger tap on touchpad = right click" : {
+
     },
     "Weak signal" : {
       "comment" : "Signal strength indicator",

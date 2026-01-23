@@ -8,14 +8,13 @@ struct DeviceRowView: View {
     let device: DeviceModel
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             deviceIcon
             deviceInfo
             Spacer()
-            knownDeviceIndicator
-            connectionStatus
+            connectionStatusBadge
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Spacing.xs)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityHint(accessibilityHint)
@@ -24,25 +23,72 @@ struct DeviceRowView: View {
     // MARK: - Device Icon
 
     private var deviceIcon: some View {
-        Image(systemName: device.isDemoDevice ? "testtube.2" : "cable.connector.horizontal")
-            .font(.title2)
-            .foregroundStyle(device.isConnected ? .green : .secondary)
-            .frame(width: 32)
-            .accessibilityHidden(true)
+        ZStack {
+            Circle()
+                .fill(iconBackgroundColor.opacity(0.15))
+                .frame(width: 44, height: 44)
+            
+            Image(systemName: device.isDemoDevice ? "testtube.2" : "cable.connector.horizontal")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(iconColor)
+        }
+        .overlay(
+            Circle()
+                .stroke(iconColor.opacity(device.isConnected ? 0.3 : 0), lineWidth: 2)
+                .scaleEffect(device.isConnecting ? 1.3 : 1.0)
+                .opacity(device.isConnecting ? 0 : 1)
+                .animation(
+                    device.isConnecting
+                        ? .easeInOut(duration: 1.0).repeatForever(autoreverses: false)
+                        : .default,
+                    value: device.isConnecting
+                )
+        )
+        .accessibilityHidden(true)
+    }
+    
+    private var iconColor: Color {
+        if device.isConnected {
+            return .clickStickGreen
+        } else if device.isConnecting {
+            return .clickStickBlue
+        } else {
+            return .secondary
+        }
+    }
+    
+    private var iconBackgroundColor: Color {
+        if device.isConnected {
+            return .clickStickGreen
+        } else if device.isConnecting {
+            return .clickStickBlue
+        } else if device.isKnownDevice {
+            return .clickStickBlue
+        } else {
+            return .secondary
+        }
     }
 
     // MARK: - Device Info
 
     private var deviceInfo: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(device.displayName)
-                .font(.headline)
-                .lineLimit(1)
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            HStack(spacing: Spacing.xs) {
+                Text(device.displayName)
+                    .font(.headline)
+                    .lineLimit(1)
+                
+                if device.isKnownDevice && !device.isDemoDevice {
+                    Image(systemName: "star.fill")
+                        .font(.caption2)
+                        .foregroundStyle(Color.clickStickOrange)
+                }
+            }
 
             Text(statusDescription)
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundStyle(device.lastError != nil ? .red : .secondary)
-                .lineLimit(2)
+                .lineLimit(1)
         }
     }
 
@@ -60,38 +106,50 @@ struct DeviceRowView: View {
         return parts.joined(separator: " • ")
     }
 
-    // MARK: - Known Device Indicator
+    // MARK: - Connection Status Badge
 
-    @ViewBuilder
-    private var knownDeviceIndicator: some View {
-        if device.isKnownDevice && !device.isDemoDevice {
-            Image(systemName: device.isConnected ? "personalhotspot.circle.fill" : "personalhotspot.circle")
-                .foregroundStyle(device.isConnected ? .green : .secondary)
-                .font(.caption)
-                .accessibilityHidden(true)
-        }
-    }
-
-    // MARK: - Connection Status
-
-    private var connectionStatus: some View {
+    private var connectionStatusBadge: some View {
         Group {
             switch device.connectionState {
             case .disconnected:
-                Image(systemName: "circle")
-                    .foregroundStyle(.secondary)
+                statusChip(icon: "circle", color: .secondary, text: nil)
             case .serviceDiscovery:
-                ProgressView()
-                    .controlSize(.small)
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(.clickStickBlue)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(Color.clickStickBlue.opacity(0.1))
+                )
             case .connectedUnauthorized:
-                Image(systemName: "lock.fill")
-                    .foregroundStyle(.orange)
+                statusChip(icon: "lock.fill", color: .clickStickOrange, text: nil)
             case .connectedAuthorized:
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
+                statusChip(icon: "checkmark", color: .clickStickGreen, text: nil)
             }
         }
         .accessibilityHidden(true)
+    }
+    
+    private func statusChip(icon: String, color: Color, text: String?) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption.weight(.semibold))
+            if let text {
+                Text(text)
+                    .font(.caption.weight(.medium))
+            }
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            Capsule()
+                .fill(color.opacity(0.12))
+        )
     }
 
     // MARK: - Accessibility

@@ -88,10 +88,26 @@ class TouchpadView: UIView {
     }
 
     private func setupView() {
-        backgroundColor = .secondarySystemBackground
-        layer.cornerRadius = 16
-        layer.borderWidth = 1
-        layer.borderColor = UIColor.separator.cgColor
+        // Gradient background
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [
+            UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
+            UIColor.secondarySystemBackground.cgColor
+        ]
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
+        layer.insertSublayer(gradientLayer, at: 0)
+        self.gradientLayer = gradientLayer
+        
+        layer.cornerRadius = 20
+        layer.borderWidth = 1.5
+        layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
+        
+        // Inner shadow effect
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 2)
+        layer.shadowOpacity = 0.08
+        layer.shadowRadius = 8
 
         isMultipleTouchEnabled = true
         feedbackGenerator.prepare()
@@ -107,16 +123,34 @@ class TouchpadView: UIView {
             self.updateColors()
         }
     }
+    
+    private var gradientLayer: CAGradientLayer?
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer?.frame = bounds
+        gradientLayer?.cornerRadius = layer.cornerRadius
+        crosshairLayer.frame = bounds
+    }
 
     private func updateColors() {
-        layer.borderColor = UIColor.separator.cgColor
-        crosshairLayer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.6).cgColor
+        layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
+        crosshairLayer.strokeColor = brandBlue.withAlphaComponent(0.7).cgColor
+        gradientLayer?.colors = [
+            UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
+            UIColor.secondarySystemBackground.cgColor
+        ]
+    }
+    
+    // Brand color matching Theme.swift
+    private var brandBlue: UIColor {
+        UIColor(red: 0.24, green: 0.51, blue: 0.87, alpha: 1.0)
     }
 
     private func setupCrosshair() {
-        crosshairLayer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.6).cgColor
+        crosshairLayer.strokeColor = brandBlue.withAlphaComponent(0.7).cgColor
         crosshairLayer.fillColor = UIColor.clear.cgColor
-        crosshairLayer.lineWidth = 1.5
+        crosshairLayer.lineWidth = 2
         crosshairLayer.opacity = 0
         layer.addSublayer(crosshairLayer)
     }
@@ -304,15 +338,6 @@ class TouchpadView: UIView {
         let clamped = max(-127, min(127, Int(value)))
         return Int8(clamped)
     }
-
-    // MARK: - Layout
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        crosshairLayer.frame = bounds
-    }
-
-
 }
 
 #Preview {

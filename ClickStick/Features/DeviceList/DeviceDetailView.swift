@@ -38,14 +38,39 @@ struct DeviceDetailView: View {
 
     private var connectedContent: some View {
         VStack(spacing: 0) {
-            Picker(String(localized: "Feature"), selection: $selectedTab) {
+            // Custom segmented control with brand styling
+            HStack(spacing: Spacing.xs) {
                 ForEach(availableTabs) { tab in
-                    Label(tab.localizedTitle, systemImage: tab.icon)
-                        .tag(tab)
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedTab = tab
+                        }
+                    } label: {
+                        HStack(spacing: Spacing.xs) {
+                            Image(systemName: tab.icon)
+                                .font(.subheadline.weight(.medium))
+                            Text(tab.localizedTitle)
+                                .font(.subheadline.weight(.medium))
+                        }
+                        .foregroundStyle(selectedTab == tab ? .white : .primary)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.sm)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: CornerRadius.small)
+                                .fill(selectedTab == tab ? Color.clickStickBlue : Color.clear)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .pickerStyle(.segmented)
-            .padding()
+            .padding(Spacing.xxs)
+            .background(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .fill(Color.secondary.opacity(0.1))
+            )
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .accessibilityLabel("Device features")
             .accessibilityHint("Select between text entry and touchpad modes")
 
@@ -71,11 +96,34 @@ struct DeviceDetailView: View {
     // MARK: - Connecting Content
 
     private var connectingContent: some View {
-        ContentUnavailableView {
-            ProgressView()
-                .controlSize(.large)
-        } description: {
-            Text("Connecting to \(device.displayName)...")
+        VStack(spacing: Spacing.lg) {
+            ZStack {
+                Circle()
+                    .stroke(Color.clickStickBlue.opacity(0.2), lineWidth: 4)
+                    .frame(width: 80, height: 80)
+                
+                Circle()
+                    .trim(from: 0, to: 0.7)
+                    .stroke(
+                        LinearGradient.brandGradient,
+                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                    )
+                    .frame(width: 80, height: 80)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: UUID())
+                
+                Image(systemName: "cable.connector.horizontal")
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundStyle(Color.clickStickBlue)
+            }
+            
+            VStack(spacing: Spacing.xs) {
+                Text("Connecting...")
+                    .font(.headline)
+                Text(device.displayName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Connecting to \(device.displayName)")
@@ -84,20 +132,47 @@ struct DeviceDetailView: View {
     // MARK: - Disconnected Content
 
     private var disconnectedContent: some View {
-        ContentUnavailableView {
-            Label(String(localized: "Disconnected", comment: "Connection status"), systemImage: "cable.connector.horizontal")
-        } description: {
-            if let error = device.lastError {
-                Text(error.localizedDescription)
-            } else {
-                Text("Tap Connect to start using this device.")
+        VStack(spacing: Spacing.xl) {
+            // Icon with gradient
+            ZStack {
+                Circle()
+                    .fill(Color.secondary.opacity(0.1))
+                    .frame(width: 100, height: 100)
+                
+                Image(systemName: "cable.connector.horizontal")
+                    .font(.system(size: 40, weight: .medium))
+                    .foregroundStyle(.secondary)
             }
-        } actions: {
-            Button("Connect") {
+            
+            VStack(spacing: Spacing.xs) {
+                Text("Disconnected")
+                    .font(.title2.weight(.semibold))
+                
+                if let error = device.lastError {
+                    Text(error.localizedDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                } else {
+                    Text("Tap Connect to start using this device.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            
+            Button {
                 device.connect()
+            } label: {
+                HStack(spacing: Spacing.xs) {
+                    Image(systemName: "bolt.fill")
+                    Text("Connect")
+                }
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.primary)
+            .frame(width: 200)
         }
+        .padding(Spacing.xl)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Device disconnected")
         .accessibilityHint("Double-tap the connect button to reconnect")

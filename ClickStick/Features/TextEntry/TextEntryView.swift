@@ -15,14 +15,14 @@ struct TextEntryView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: Spacing.md) {
                     keyboardLayoutPicker
                     textEditor
                     presetButtons
                     sendButton
                         .id("sendButton")
                 }
-                .padding()
+                .padding(Spacing.md)
             }
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: isTextFieldFocused) { _, isFocused in
@@ -56,22 +56,33 @@ struct TextEntryView: View {
     // MARK: - Text Editor
 
     private var textEditor: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Text to type")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(spacing: Spacing.xs) {
+                Image(systemName: "keyboard")
+                    .foregroundStyle(Color.clickStickBlue)
+                Text("Text to type")
+                    .font(.headline)
+            }
+            .accessibilityAddTraits(.isHeader)
 
             TextEditor(text: $viewModel.text)
                 .font(.system(.body, design: .monospaced))
-                .frame(minHeight: 120, maxHeight: 200)
+                .frame(minHeight: 140, maxHeight: 220)
                 .scrollContentBackground(.hidden)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .fill(Color.secondary.opacity(0.08))
+                )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .stroke(
+                            isTextFieldFocused ? Color.clickStickBlue : Color.secondary.opacity(0.2),
+                            lineWidth: isTextFieldFocused ? 2 : 1
+                        )
                 )
                 .focused($isTextFieldFocused)
+                .animation(.easeInOut(duration: 0.2), value: isTextFieldFocused)
                 .accessibilityLabel("Text to send")
                 .accessibilityHint("Enter the text you want to type on the connected device")
                 .accessibilityValue(viewModel.isEmpty
@@ -79,20 +90,29 @@ struct TextEntryView: View {
                     : String(localized: "\(viewModel.characterCount) characters"))
 
             HStack {
-                Text("\(viewModel.characterCount) characters")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: Spacing.xxs) {
+                    Image(systemName: "character.cursor.ibeam")
+                        .font(.caption2)
+                    Text("\(viewModel.characterCount) characters")
+                        .font(.caption)
+                }
+                .foregroundStyle(.secondary)
 
                 Spacer()
 
                 if !viewModel.isEmpty {
-                    Button("Clear") {
+                    Button {
                         withAnimation {
                             viewModel.clearText()
                         }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "xmark.circle.fill")
+                            Text("Clear")
+                        }
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
                     }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
                     .accessibilityLabel("Clear text")
                 }
             }
@@ -102,22 +122,27 @@ struct TextEntryView: View {
     // MARK: - Preset Buttons
 
     private var presetButtons: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Quick Presets")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(spacing: Spacing.xxs) {
+                Image(systemName: "sparkles")
+                    .font(.caption)
+                    .foregroundStyle(Color.clickStickOrange)
+                Text("Quick Presets")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
+            .accessibilityAddTraits(.isHeader)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: Spacing.xs) {
                     ForEach(TextPreset.allCases) { preset in
                         Button {
                             viewModel.setPreset(preset)
                         } label: {
                             Text(preset.title)
-                                .font(.caption)
+                                .font(.subheadline.weight(.medium))
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.secondary)
                         .accessibilityLabel("Insert \(preset.title)")
                         .accessibilityHint("Replaces current text")
                     }
@@ -133,7 +158,7 @@ struct TextEntryView: View {
             isTextFieldFocused = false
             viewModel.sendText()
         } label: {
-            HStack {
+            HStack(spacing: Spacing.xs) {
                 if viewModel.isSending {
                     ProgressView()
                         .controlSize(.small)
@@ -143,10 +168,8 @@ struct TextEntryView: View {
                 }
                 Text(viewModel.sendButtonTitle)
             }
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
+        .buttonStyle(.primary)
         .disabled(!viewModel.canSend)
         .accessibilityLabel(viewModel.isSending
             ? String(localized: "Sending text")
@@ -160,4 +183,3 @@ struct TextEntryView: View {
 #Preview {
     TextEntryView(device: .preview)
 }
-

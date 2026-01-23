@@ -8,18 +8,42 @@ struct KeyboardLayoutPicker: View {
     @Binding var selection: CSKeyboardLayout
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Keyboard Layout")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(spacing: Spacing.xs) {
+                Image(systemName: "globe")
+                    .foregroundStyle(Color.clickStickTeal)
+                Text("Keyboard Layout")
+                    .font(.headline)
+            }
+            .accessibilityAddTraits(.isHeader)
 
-            Picker("Keyboard Layout", selection: $selection) {
+            // Custom styled picker
+            HStack(spacing: Spacing.xxs) {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
-                    Text(layout.description)
-                        .tag(layout)
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selection = layout
+                        }
+                    } label: {
+                        Text(layout.description)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(selection == layout ? .white : .primary)
+                            .padding(.horizontal, Spacing.md)
+                            .padding(.vertical, Spacing.sm)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: CornerRadius.small)
+                                    .fill(selection == layout ? Color.clickStickTeal : Color.clear)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .pickerStyle(.segmented)
+            .padding(Spacing.xxs)
+            .background(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .fill(Color.secondary.opacity(0.1))
+            )
             .accessibilityLabel("Select keyboard layout")
             .accessibilityHint("Choose the keyboard layout of the target computer")
             .accessibilityValue(selection.description)

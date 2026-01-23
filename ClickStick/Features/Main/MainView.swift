@@ -5,14 +5,22 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(\.clickStickService) private var service
-    @State private var selectedDeviceID: UUID?
+    @Environment(\.urlOpener) private var urlOpener
+    @State private var deviceListViewModel: DeviceListViewModel?
     @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            DeviceListView(selectedDeviceID: $selectedDeviceID)
+            if let viewModel = deviceListViewModel {
+                DeviceListView(viewModel: viewModel)
+            } else {
+                ProgressView()
+                    .onAppear {
+                        deviceListViewModel = DeviceListViewModel(service: service, urlOpener: urlOpener)
+                    }
+            }
         } detail: {
-            if let deviceID = selectedDeviceID,
+            if let deviceID = deviceListViewModel?.selectedDeviceID,
                let device = service.device(for: deviceID) {
                 DeviceDetailView(device: device)
             } else {

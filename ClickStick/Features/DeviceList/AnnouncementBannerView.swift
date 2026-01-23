@@ -4,35 +4,38 @@
 import SwiftUI
 
 struct AnnouncementBannerView: View {
-    let title: String?
-    let message: String?
-    let image: Image
-    let actionTitle: String?
+    struct Configuration {
+        let title: String?
+        let message: String?
+        let image: Image
+        let actionTitle: String?
+    }
+    let configuration: Configuration
     let onAction: (() -> Void)?
     let onDismiss: (() -> Void)?
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            image
+            configuration.image
                 .font(.title2)
                 .foregroundStyle(.primary)
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 6) {
-                if let title {
+                if let title = configuration.title {
                     Text(title)
                         .font(.headline)
                         .foregroundStyle(.primary)
                 }
 
-                if let message {
+                if let message = configuration.message {
                     Text(message)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                if let actionTitle, let onAction {
+                if let actionTitle = configuration.actionTitle, let onAction {
                     Button {
                         onAction()
                     } label: {
@@ -73,15 +76,14 @@ struct AnnouncementBannerView: View {
 
 #Preview {
     VStack {
-        AnnouncementBannerView(
-            title: "Title",
-            message: "Message",
-            image: Image(.bluetooth),
-            actionTitle: "Click me",
-            onAction: nil,
-            onDismiss: nil
-        )
-        .padding(24)
+        ForEach([AnnouncementBannerView.Configuration.welcome, .demo], id: \.title ) { config in
+            AnnouncementBannerView(
+                configuration: .welcome,
+                onAction: nil,
+                onDismiss: nil
+            )
+            .padding(24)
+        }
         Spacer()
     }
 }

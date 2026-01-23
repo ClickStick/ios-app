@@ -371,6 +371,9 @@
         }
       }
     },
+    "Done" : {
+
+    },
     "Double-tap the connect button to reconnect" : {
       "comment" : "Accessibility hint for disconnected state",
       "localizations" : {

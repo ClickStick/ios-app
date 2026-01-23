@@ -5,14 +5,12 @@ import ClickStickKit
 import SwiftUI
 
 struct TextEntryView: View {
-    let device: DeviceModel
-
-    @State private var text: String = ""
-    @State private var selectedLayout: CSKeyboardLayout = .usQWERTY
-    @State private var isSending: Bool = false
-    @State private var alertError: AlertError?
-
+    @Bindable var viewModel: TextEntryViewModel
     @FocusState private var isTextFieldFocused: Bool
+
+    init(device: DeviceModel) {
+        self._viewModel = Bindable(wrappedValue: TextEntryViewModel(device: device))
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -38,16 +36,21 @@ struct TextEntryView: View {
                 }
             }
         }
-        .onAppear {
-            selectedLayout = CSKeyboardLayout.fromSystemLocale()
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    isTextFieldFocused = false
+                }
+            }
         }
-        .errorAlert($alertError)
+        .errorAlert($viewModel.alertError)
     }
 
     // MARK: - Keyboard Layout Picker
 
     private var keyboardLayoutPicker: some View {
-        KeyboardLayoutPicker(selection: $selectedLayout)
+        KeyboardLayoutPicker(selection: $viewModel.selectedLayout)
     }
 
     // MARK: - Text Editor
@@ -58,7 +61,7 @@ struct TextEntryView: View {
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
 
-            TextEditor(text: $text)
+            TextEditor(text: $viewModel.text)
                 .font(.system(.body, design: .monospaced))
                 .frame(minHeight: 120, maxHeight: 200)
                 .scrollContentBackground(.hidden)
@@ -71,21 +74,21 @@ struct TextEntryView: View {
                 .focused($isTextFieldFocused)
                 .accessibilityLabel("Text to send")
                 .accessibilityHint("Enter the text you want to type on the connected device")
-                .accessibilityValue(text.isEmpty
+                .accessibilityValue(viewModel.isEmpty
                     ? String(localized: "Empty", comment: "Empty text field value")
-                    : String(localized: "\(text.count) characters"))
+                    : String(localized: "\(viewModel.characterCount) characters"))
 
             HStack {
-                Text("\(text.count) characters")
+                Text("\(viewModel.characterCount) characters")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
-                if !text.isEmpty {
+                if !viewModel.isEmpty {
                     Button("Clear") {
                         withAnimation {
-                            text = ""
+                            viewModel.clearText()
                         }
                     }
                     .font(.caption)
@@ -109,7 +112,7 @@ struct TextEntryView: View {
                 HStack(spacing: 8) {
                     ForEach(TextPreset.allCases) { preset in
                         Button {
-                            text = preset.text
+                            viewModel.setPreset(preset)
                         } label: {
                             Text(preset.title)
                                 .font(.caption)
@@ -127,61 +130,28 @@ struct TextEntryView: View {
 
     private var sendButton: some View {
         Button {
-            sendText()
+            isTextFieldFocused = false
+            viewModel.sendText()
         } label: {
             HStack {
-                if isSending {
+                if viewModel.isSending {
                     ProgressView()
                         .controlSize(.small)
                         .tint(.white)
                 } else {
                     Image(systemName: "paperplane.fill")
                 }
-                Text(isSending
-                    ? String(localized: "Sending...", comment: "Sending in progress")
-                    : String(localized: "Send Text"))
+                Text(viewModel.sendButtonTitle)
             }
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.large)
-        .disabled(text.isEmpty || isSending || !device.isConnected)
-        .accessibilityLabel(isSending
+        .disabled(!viewModel.canSend)
+        .accessibilityLabel(viewModel.isSending
             ? String(localized: "Sending text")
             : String(localized: "Send text to device"))
-        .accessibilityHint(buttonAccessibilityHint)
-    }
-
-    private var buttonAccessibilityHint: String {
-        if text.isEmpty {
-            return String(localized: "Enter text first")
-        } else if !device.isConnected {
-            return String(localized: "Device not connected", comment: "Accessibility hint")
-        } else if isSending {
-            return String(localized: "Please wait", comment: "Accessibility hint")
-        } else {
-            return String(localized: "Double-tap to send \(text.count) characters", comment: "Accessibility hint")
-        }
-    }
-
-    // MARK: - Actions
-
-    private func sendText() {
-        guard !text.isEmpty, device.isConnected else { return }
-
-        isSending = true
-        isTextFieldFocused = false
-
-        device.sendText(text, layout: selectedLayout) { result in
-            isSending = false
-            switch result {
-            case .success:
-                // Text sent successfully
-                break
-            case .failure(let error):
-                alertError = AlertError(error: error)
-            }
-        }
+        .accessibilityHint(viewModel.buttonAccessibilityHint)
     }
 }
 

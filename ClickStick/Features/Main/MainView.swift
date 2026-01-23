@@ -57,6 +57,5 @@ struct MainView: View {
 
 #Preview {
     MainView()
-        .environment(\.clickStickService, ClickStickService())
 }
 

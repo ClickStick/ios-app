@@ -176,8 +176,9 @@ extension CSManager: CBCentralManagerDelegate {
             // TODO: Might need to pause scans or reconnects if they were ongoing.
             log.debug("Central manager state: resetting — temporary loss of BLE. Waiting for recovery...")
         case .unknown:
-            log.warning("Central manager state: unknown")
-            notifyFailure(.bluetoothUnavailable(reason: .unknown))
+            // This is a transient state during app launch while the system determines BLE availability.
+            // Don't report as an error - wait for the actual state to be determined.
+            log.debug("Central manager state: unknown — waiting for actual state...")
         @unknown default:
             let description = String(describing: central.state)
             log.warning("Unexpected central manager state: \(description)")

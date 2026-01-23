@@ -15,15 +15,29 @@ struct TextEntryView: View {
     @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
-        VStack(spacing: 16) {
-            keyboardLayoutPicker
-            textEditor
-            presetButtons
-            sendButton
-
-            Spacer()
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 16) {
+                    keyboardLayoutPicker
+                    textEditor
+                    presetButtons
+                    sendButton
+                        .id("sendButton")
+                }
+                .padding()
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .onChange(of: isTextFieldFocused) { _, isFocused in
+                if isFocused {
+                    // Scroll to send button when keyboard appears
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        withAnimation {
+                            proxy.scrollTo("sendButton", anchor: .bottom)
+                        }
+                    }
+                }
+            }
         }
-        .padding()
         .onAppear {
             selectedLayout = CSKeyboardLayout.fromSystemLocale()
         }

@@ -39,36 +39,25 @@ struct DeviceRowView: View {
                 .font(.headline)
                 .lineLimit(1)
 
-            HStack(spacing: 4) {
-                signalIndicator
-                Text(signalDescription)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text(statusDescription)
+                .font(.caption)
+                .foregroundStyle(device.lastError != nil ? .red : .secondary)
+                .lineLimit(2)
         }
     }
 
-    // MARK: - Signal Indicator
-
-    private var signalIndicator: some View {
-        HStack(spacing: 1) {
-            ForEach(1...4, id: \.self) { bar in
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(bar <= device.signalStrength.barsCount ? Color.primary : Color.secondary.opacity(0.3))
-                    .frame(width: 3, height: CGFloat(bar * 3 + 3))
-            }
+    /// Status description matching the demo app: error message, or connection state + RSSI
+    private var statusDescription: String {
+        if let error = device.lastError {
+            return error.localizedDescription
         }
-        .accessibilityHidden(true)
-    }
 
-    private var signalDescription: String {
-        switch device.signalStrength {
-        case .excellent: String(localized: "Excellent signal", comment: "Signal strength indicator")
-        case .good: String(localized: "Good signal", comment: "Signal strength indicator")
-        case .fair: String(localized: "Fair signal", comment: "Signal strength indicator")
-        case .weak: String(localized: "Weak signal", comment: "Signal strength indicator")
-        case .none: String(localized: "No signal", comment: "Signal strength indicator")
+        var parts: [String] = []
+        parts.append(device.connectionState.description)
+        if device.isFresh {
+            parts.append("RSSI: \(device.rssi)")
         }
+        return parts.joined(separator: " • ")
     }
 
     // MARK: - Known Device Indicator
@@ -110,18 +99,7 @@ struct DeviceRowView: View {
     private var accessibilityDescription: String {
         var parts: [String] = []
         parts.append(device.displayName)
-        parts.append(signalDescription)
-
-        switch device.connectionState {
-        case .disconnected:
-            parts.append(String(localized: "Not connected", comment: "Connection status"))
-        case .serviceDiscovery:
-            parts.append(String(localized: "Connecting", comment: "Connection status"))
-        case .connectedUnauthorized:
-            parts.append(String(localized: "Requires authentication", comment: "Connection status"))
-        case .connectedAuthorized:
-            parts.append(String(localized: "Connected", comment: "Connection status"))
-        }
+        parts.append(statusDescription)
 
         if device.isDemoDevice {
             parts.append(String(localized: "Demo device", comment: "Device type"))
@@ -148,15 +126,9 @@ struct DeviceRowView: View {
 
 // MARK: - Preview
 
-#Preview("Connected") {
+#Preview {
     List {
         DeviceRowView(device: .preview)
-    }
-}
-
-#Preview("Disconnected") {
-    List {
         DeviceRowView(device: .previewDisconnected)
     }
 }
-

@@ -53,8 +53,6 @@ final class DeviceModel: Identifiable {
         return name
     }
 
-    var signalStrength: SignalStrength {
-        SignalStrength(rssi: rssi)
     }
 
     // MARK: - Initialization
@@ -223,53 +221,6 @@ private final class DeviceObserver: CSDeviceObserver {
     func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
         Task { @MainActor in
             owner?.deviceDidDisconnect(device, with: error)
-        }
-    }
-}
-
-// MARK: - Signal Strength
-
-extension DeviceModel {
-    enum SignalStrength: Int, CaseIterable {
-        case excellent
-        case good
-        case fair
-        case weak
-        case none
-
-        init(rssi: Int) {
-            switch rssi {
-            case -50...0:
-                self = .excellent
-            case -60..<(-50):
-                self = .good
-            case -70..<(-60):
-                self = .fair
-            case -80..<(-70):
-                self = .weak
-            default:
-                self = .none
-            }
-        }
-
-        var iconName: String {
-            switch self {
-            case .excellent: "wifi"
-            case .good: "wifi"
-            case .fair: "wifi"
-            case .weak: "wifi.exclamationmark"
-            case .none: "wifi.slash"
-            }
-        }
-
-        var barsCount: Int {
-            switch self {
-            case .excellent: 4
-            case .good: 3
-            case .fair: 2
-            case .weak: 1
-            case .none: 0
-            }
         }
     }
 }

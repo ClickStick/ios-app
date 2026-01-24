@@ -89,14 +89,3 @@ final class ClickStickService: CSManagerDelegate {
         isScanning = false
     }
 }
-
-private struct ClickStickServiceKey: EnvironmentKey {
-    static let defaultValue = ClickStickService()
-}
-
-extension EnvironmentValues {
-    var clickStickService: ClickStickService {
-        get { self[ClickStickServiceKey.self] }
-        set { self[ClickStickServiceKey.self] = newValue }
-    }
-}

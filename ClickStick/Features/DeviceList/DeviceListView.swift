@@ -104,21 +104,28 @@ struct DeviceListView: View {
 
     private var emptyStateContent: some View {
         ContentUnavailableView {
-            Label(String(localized: "Welcome"), systemImage: "book")
+            VStack(spacing: Spacing.md) {
+                BrandedIcon(systemName: "antenna.radiowaves.left.and.right")
+                Text("Welcome")
+                    .font(.title2.weight(.semibold))
+            }
         } description: {
             Text("Plug in your ClickStick to get started.")
         } actions: {
-            Button {
-                viewModel.openGettingStarted()
-            } label: {
-                Label(String(localized: "Getting Started"), systemImage: "hand.wave")
-            }
-            .buttonStyle(.borderedProminent)
+            VStack(spacing: Spacing.sm) {
+                Button {
+                    viewModel.openGettingStarted()
+                } label: {
+                    Label(String(localized: "Getting Started"), systemImage: "hand.wave")
+                }
+                .buttonStyle(.primary)
 
-            Button(String(localized: "Try in Demo Mode")) {
-                viewModel.enableDemoMode()
+                Button(String(localized: "Try in Demo Mode")) {
+                    viewModel.enableDemoMode()
+                }
+                .buttonStyle(.secondary)
             }
-            .buttonStyle(.bordered)
+            .padding(.horizontal, Spacing.xxl)
         }
     }
 

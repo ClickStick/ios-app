@@ -20,14 +20,19 @@ struct QRScannerSheet: View {
                         .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
                 } else {
                     ContentUnavailableView {
-                        Label("Camera Not Available", systemImage: "camera.fill")
+                        VStack(spacing: Spacing.md) {
+                            BrandedIcon(systemName: "camera.fill")
+                            Text("Camera Not Available")
+                                .font(.title2.weight(.semibold))
+                        }
                     } description: {
                         Text("This device doesn't support camera scanning. Please enter the key manually.")
                     } actions: {
                         Button("Dismiss") {
                             dismiss()
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.primary)
+                        .padding(.horizontal, Spacing.xxl)
                     }
                     .accessibilityElement(children: .combine)
                 }

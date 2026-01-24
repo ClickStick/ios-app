@@ -9,45 +9,20 @@ struct NoDeviceSelectedView: View {
     let onStartScanning: () -> Void
 
     var body: some View {
-        VStack(spacing: Spacing.xl) {
-            icon
-            message
+        ContentUnavailableView {
+            VStack(spacing: Spacing.md) {
+                BrandedIcon(systemName: "cable.connector.horizontal")
+                Text("No Device Selected")
+                    .font(.title2.weight(.semibold))
+            }
+        } description: {
+            Text("Select a ClickStick device from the sidebar to get started.")
+        } actions: {
             actionContent
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No device selected")
         .accessibilityHint("Select a device from the sidebar")
-    }
-
-    private var icon: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [Color.clickStickBlue.opacity(0.15), Color.clickStickTeal.opacity(0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 120, height: 120)
-
-            Image(systemName: "cable.connector.horizontal")
-                .font(.system(size: 48, weight: .medium))
-                .foregroundStyle(LinearGradient.brandGradient)
-        }
-    }
-
-    private var message: some View {
-        VStack(spacing: Spacing.sm) {
-            Text("No Device Selected")
-                .font(.title2.weight(.semibold))
-
-            Text("Select a ClickStick device from the sidebar to get started.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 280)
-        }
     }
 
     @ViewBuilder
@@ -62,7 +37,7 @@ struct NoDeviceSelectedView: View {
                 }
             }
             .buttonStyle(.primary)
-            .frame(width: 200)
+            .padding(.horizontal, Spacing.xxl)
         } else if isScanning {
             HStack(spacing: Spacing.sm) {
                 ProgressView()

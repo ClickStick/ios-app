@@ -5,11 +5,11 @@ import ClickStickKit
 import SwiftUI
 
 struct TextEntryView: View {
-    @Bindable var viewModel: TextEntryViewModel
+    @State private var viewModel: TextEntryViewModel
     @FocusState private var isTextFieldFocused: Bool
 
     init(device: DeviceModel) {
-        self._viewModel = Bindable(wrappedValue: TextEntryViewModel(device: device))
+        self._viewModel = State(wrappedValue: TextEntryViewModel(device: device))
     }
 
     var body: some View {

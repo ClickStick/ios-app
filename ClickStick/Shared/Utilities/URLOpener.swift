@@ -14,8 +14,7 @@ final class URLOpener {
 
     // MARK: - URLs
 
-    private let blePermissionsURL = URL(string: UIApplication.openSettingsURLString)!
-    private let cameraPermissionsURL = URL(string: UIApplication.openSettingsURLString)!
+    private let appSettingsURL = URL(string: UIApplication.openSettingsURLString)!
     private let gettingStartedURL = URL(string: "https://clickstick.io/")!
 
     // MARK: - Initialization
@@ -26,14 +25,14 @@ final class URLOpener {
 
     /// Opens system settings page for granting Bluetooth permission to the app.
     func openBLEPermissions() {
-        open(blePermissionsURL) { [weak self] success in
+        open(appSettingsURL) { [weak self] success in
             self?.log.debug("BLE permissions page opened: \(success)")
         }
     }
 
     /// Opens system settings page for granting Camera permission to the app.
     func openCameraPermissions() {
-        open(cameraPermissionsURL) { [weak self] success in
+        open(appSettingsURL) { [weak self] success in
             self?.log.debug("Camera permissions page opened: \(success)")
         }
     }
@@ -47,10 +46,8 @@ final class URLOpener {
 
     /// Opens the app's settings page in system Settings app.
     func openAppSettings() {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            open(url) { [weak self] success in
-                self?.log.debug("App settings opened: \(success)")
-            }
+        open(appSettingsURL) { [weak self] success in
+            self?.log.debug("App settings opened: \(success)")
         }
     }
 

@@ -8,6 +8,7 @@ struct DeviceDetailView: View {
     let device: DeviceModel
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var alertError: AlertError?
+    @State private var rotationAngle: Double = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -100,7 +101,7 @@ struct DeviceDetailView: View {
                 Circle()
                     .stroke(Color.clickStickBlue.opacity(0.2), lineWidth: 4)
                     .frame(width: 80, height: 80)
-                
+
                 Circle()
                     .trim(from: 0, to: 0.7)
                     .stroke(
@@ -108,20 +109,24 @@ struct DeviceDetailView: View {
                         style: StrokeStyle(lineWidth: 4, lineCap: .round)
                     )
                     .frame(width: 80, height: 80)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: UUID())
-                
-                Image(systemName: "cable.connector.horizontal")
-                    .font(.system(size: 28, weight: .medium))
-                    .foregroundStyle(Color.clickStickBlue)
+                    .rotationEffect(.degrees(rotationAngle - 90))
             }
-            
+
+            Image(systemName: "cable.connector.horizontal")
+                .font(.system(size: 28, weight: .medium))
+                .foregroundStyle(Color.clickStickBlue)
+
             VStack(spacing: Spacing.xs) {
                 Text("Connecting...")
                     .font(.headline)
                 Text(device.displayName)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            }
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
+                rotationAngle = 360
             }
         }
         .accessibilityElement(children: .combine)

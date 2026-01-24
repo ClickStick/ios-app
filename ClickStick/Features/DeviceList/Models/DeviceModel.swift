@@ -8,9 +8,8 @@ import os.log
 
 /// Observable wrapper for CSDevice to bridge ClickStickKit to SwiftUI
 @Observable
-final class DeviceModel: Identifiable {
+final class DeviceModel: Identifiable, CSDeviceObserver {
     private let log = Logger(subsystem: "io.clickstick", category: "DeviceModel")
-    private let observer: DeviceObserver
 
     // MARK: - Underlying Device
 
@@ -24,6 +23,7 @@ final class DeviceModel: Identifiable {
     private(set) var features: [CSDeviceFeature]
     private(set) var needsAuthentication: Bool
     private(set) var lastError: CSError?
+    private(set) var lastErrorTimestamp: Date?
     private(set) var isConnectable: Bool
     private(set) var isDemoDevice: Bool
 
@@ -63,7 +63,6 @@ final class DeviceModel: Identifiable {
 
     init(device: CSDevice) {
         self.device = device
-        self.observer = DeviceObserver()
 
         // Initialize from current device state
         self.name = device.name
@@ -79,12 +78,11 @@ final class DeviceModel: Identifiable {
         self.cachedAlias = Self.loadCachedAlias(for: device.uuid)
         self.isKnownDevice = Self.checkIsKnownDevice(for: device.uuid, isDemoDevice: device.isDemoDevice)
 
-        observer.owner = self
-        device.addObserver(observer)
+        device.addObserver(self)
     }
 
     deinit {
-        device.removeObserver(observer)
+        device.removeObserver(self)
     }
 
     // MARK: - Public API
@@ -158,78 +156,35 @@ final class DeviceModel: Identifiable {
 
     // MARK: - CSDeviceObserver
 
-    fileprivate func deviceDidUpdateProperties(_ device: CSDevice) {
+    func deviceDidUpdateProperties(_ device: CSDevice) {
         name = device.name
         rssi = device.rssi
         isConnectable = device.isConnectable
     }
 
-    fileprivate func deviceConnectionStateUpdated(_ device: CSDevice) {
+    func deviceConnectionStateUpdated(_ device: CSDevice) {
         connectionState = device.connectionState
         features = device.features
         lastError = device.lastError
     }
 
-    fileprivate func deviceNeedsAuthentication(_ device: CSDevice) {
+    func deviceNeedsAuthentication(_ device: CSDevice) {
         needsAuthentication = true
         connectionState = device.connectionState
-        NotificationCenter.default.post(
-            name: .deviceNeedsAuthentication,
-            object: nil,
-            userInfo: ["deviceID": device.uuid]
-        )
     }
 
-    fileprivate func deviceDidFail(_ device: CSDevice, with error: CSError) {
+    func deviceDidFail(_ device: CSDevice, with error: CSError) {
         lastError = error
+        lastErrorTimestamp = Date()
         connectionState = device.connectionState
         log.error("Device failed: \(error.localizedDescription)")
-        NotificationCenter.default.post(
-            name: .deviceDidFail,
-            object: nil,
-            userInfo: ["deviceID": device.uuid, "error": error]
-        )
     }
 
-    fileprivate func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
+    func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
         connectionState = .disconnected
         features = []
         if let error {
             lastError = error
-        }
-    }
-}
-
-private final class DeviceObserver: CSDeviceObserver {
-    weak var owner: DeviceModel?
-
-    func deviceDidUpdateProperties(_ device: CSDevice) {
-        Task { @MainActor in
-            owner?.deviceDidUpdateProperties(device)
-        }
-    }
-
-    func deviceConnectionStateUpdated(_ device: CSDevice) {
-        Task { @MainActor in
-            owner?.deviceConnectionStateUpdated(device)
-        }
-    }
-
-    func deviceNeedsAuthentication(_ device: CSDevice) {
-        Task { @MainActor in
-            owner?.deviceNeedsAuthentication(device)
-        }
-    }
-
-    func deviceDidFail(_ device: CSDevice, with error: CSError) {
-        Task { @MainActor in
-            owner?.deviceDidFail(device, with: error)
-        }
-    }
-
-    func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
-        Task { @MainActor in
-            owner?.deviceDidDisconnect(device, with: error)
         }
     }
 }
@@ -246,7 +201,3 @@ extension DeviceModel: Hashable {
     }
 }
 
-extension Notification.Name {
-    static let deviceDidFail = Notification.Name("deviceDidFail")
-    static let deviceNeedsAuthentication = Notification.Name("deviceNeedsAuthentication")
-}

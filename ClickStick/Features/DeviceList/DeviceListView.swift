@@ -6,9 +6,13 @@ import SwiftUI
 
 struct DeviceListView: View {
     @Bindable var viewModel: DeviceListViewModel
+    @Environment(\.appRouter) private var router
 
     var body: some View {
-        List(selection: $viewModel.selectedDeviceID) {
+        List(selection: Binding(
+            get: { router.selectedDeviceID },
+            set: { router.selectedDeviceID = $0 }
+        )) {
             if viewModel.hasAnnouncements {
                 announcementsSection
             }
@@ -30,9 +34,10 @@ struct DeviceListView: View {
                 scanButton
             }
         }
-        .sheet(item: $viewModel.deviceNeedingSetup) { device in
-            DeviceSetupSheet(device: device) { authKey, alias in
-                viewModel.saveDeviceSettings(device: device, authKey: authKey, alias: alias)
+        .onChange(of: viewModel.deviceRequiringAuthentication) { _, device in
+            if let device, router.presentedSheet == nil {
+                viewModel.prepareDeviceForSetup(device)
+                router.showDeviceSetup(for: device)
             }
         }
         .errorAlert($viewModel.alertError)
@@ -82,7 +87,9 @@ struct DeviceListView: View {
                     .tag(device.id)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        viewModel.handleDeviceTap(device)
+                        if viewModel.connectDevice(device) {
+                            router.selectDevice(device)
+                        }
                     }
                     .contextMenu {
                         deviceContextMenu(for: device)
@@ -143,7 +150,9 @@ struct DeviceListView: View {
     @ViewBuilder
     private func deviceContextMenu(for device: DeviceModel) -> some View {
         Button(role: .destructive) {
-            viewModel.forgetDevice(device)
+            if viewModel.forgetDevice(device, selectedDeviceID: router.selectedDeviceID) {
+                router.deselectDevice()
+            }
         } label: {
             Label(String(localized: "Forget Device"), systemImage: "trash")
         }
@@ -161,12 +170,18 @@ struct DeviceListView: View {
 
 #Preview("With Announcements") {
     NavigationStack {
-        DeviceListView(viewModel: DeviceListViewModel(service: ClickStickService(), urlOpener: URLOpener()))
+        DeviceListView(viewModel: DeviceListViewModel(
+            service: ClickStickService(),
+            urlOpener: URLOpener()
+        ))
     }
 }
 
 #Preview("With Devices") {
     NavigationStack {
-        DeviceListView(viewModel: DeviceListViewModel(service: ClickStickService(), urlOpener: URLOpener()))
+        DeviceListView(viewModel: DeviceListViewModel(
+            service: ClickStickService(),
+            urlOpener: URLOpener()
+        ))
     }
 }

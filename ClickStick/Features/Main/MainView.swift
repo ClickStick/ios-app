@@ -4,24 +4,16 @@
 import SwiftUI
 
 struct MainView: View {
-    @Environment(\.clickStickService) private var service
-    @Environment(\.urlOpener) private var urlOpener
-    @State private var deviceListViewModel: DeviceListViewModel?
+    @Bindable var viewModel: DeviceListViewModel
+    @Environment(\.appRouter) private var router
     @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            if let viewModel = deviceListViewModel {
-                DeviceListView(viewModel: viewModel)
-            } else {
-                ProgressView()
-                    .onAppear {
-                        deviceListViewModel = DeviceListViewModel(service: service, urlOpener: urlOpener)
-                    }
-            }
+            DeviceListView(viewModel: viewModel)
         } detail: {
-            if let deviceID = deviceListViewModel?.selectedDeviceID,
-               let device = service.device(for: deviceID) {
+            if let deviceID = router.selectedDeviceID,
+               let device = viewModel.device(for: deviceID) {
                 DeviceDetailView(device: device)
             } else {
                 placeholderView
@@ -29,8 +21,26 @@ struct MainView: View {
         }
         .navigationSplitViewStyle(.balanced)
         .tint(.clickStickBlue)
+        .sheet(item: Binding(
+            get: { router.presentedSheet },
+            set: { router.presentedSheet = $0 }
+        )) { sheet in
+            sheetContent(for: sheet)
+        }
         .onAppear {
-            service.startScanning()
+            viewModel.startScanning()
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(for sheet: AppRouter.Sheet) -> some View {
+        switch sheet {
+        case .deviceSetup(let device):
+            DeviceSetupSheet(device: device) { authKey, alias in
+                if viewModel.saveDeviceSettings(device: device, authKey: authKey, alias: alias) {
+                    router.dismissSheet()
+                }
+            }
         }
     }
 
@@ -38,7 +48,6 @@ struct MainView: View {
 
     private var placeholderView: some View {
         VStack(spacing: Spacing.xl) {
-            // Animated device icon
             ZStack {
                 Circle()
                     .fill(
@@ -49,28 +58,26 @@ struct MainView: View {
                         )
                     )
                     .frame(width: 120, height: 120)
-                
+
                 Image(systemName: "cable.connector.horizontal")
                     .font(.system(size: 48, weight: .medium))
-                    .foregroundStyle(
-                        LinearGradient.brandGradient
-                    )
+                    .foregroundStyle(LinearGradient.brandGradient)
             }
-            
+
             VStack(spacing: Spacing.sm) {
                 Text("No Device Selected")
                     .font(.title2.weight(.semibold))
-                
+
                 Text("Select a ClickStick device from the sidebar to get started.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 280)
             }
-            
-            if service.devices.isEmpty && !service.isScanning {
+
+            if viewModel.devices.isEmpty && !viewModel.isScanning {
                 Button {
-                    service.startScanning()
+                    viewModel.startScanning()
                 } label: {
                     HStack(spacing: Spacing.xs) {
                         Image(systemName: "antenna.radiowaves.left.and.right")
@@ -79,7 +86,7 @@ struct MainView: View {
                 }
                 .buttonStyle(.primary)
                 .frame(width: 200)
-            } else if service.isScanning {
+            } else if viewModel.isScanning {
                 HStack(spacing: Spacing.sm) {
                     ProgressView()
                         .controlSize(.small)
@@ -104,5 +111,8 @@ struct MainView: View {
 // MARK: - Preview
 
 #Preview {
-    MainView()
+    MainView(viewModel: DeviceListViewModel(
+        service: ClickStickService(),
+        urlOpener: URLOpener()
+    ))
 }

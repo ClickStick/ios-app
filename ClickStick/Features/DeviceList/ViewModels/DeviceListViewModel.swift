@@ -2,7 +2,6 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
-import Combine
 import Foundation
 import Observation
 import SwiftUI
@@ -17,12 +16,9 @@ final class DeviceListViewModel {
 
     private let service: ClickStickService
     private let urlOpener: URLOpener
-    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - State
 
-    var selectedDeviceID: UUID?
-    var deviceNeedingSetup: DeviceModel?
     var alertError: AlertError?
 
     // Stored properties that sync with UserDefaults
@@ -56,6 +52,11 @@ final class DeviceListViewModel {
         !hasDismissedDemoPrompt && !service.isDemoMode
     }
 
+    /// Returns the first device that needs authentication setup (single source of truth)
+    var deviceRequiringAuthentication: DeviceModel? {
+        devices.first { $0.needsAuthentication }
+    }
+
     // MARK: - Initialization
 
     init(service: ClickStickService, urlOpener: URLOpener) {
@@ -64,25 +65,13 @@ final class DeviceListViewModel {
         // Load persisted values from UserDefaults
         self.hasShownWelcome = UserDefaults.standard.bool(forKey: Self.hasShownWelcome)
         self.hasDismissedDemoPrompt = UserDefaults.standard.bool(forKey: Self.hasDismissedDemoPrompt)
-        setupNotifications()
     }
 
-    private func setupNotifications() {
-        NotificationCenter.default.publisher(for: .deviceNeedsAuthentication)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] notification in
-                self?.handleDeviceNeedsAuthentication(notification)
-            }
-            .store(in: &cancellables)
-    }
-
-    private func handleDeviceNeedsAuthentication(_ notification: Notification) {
-        guard let deviceID = notification.userInfo?["deviceID"] as? UUID,
-              let device = service.device(for: deviceID) else { return }
-        // Clear old settings and show setup
+    /// Prepares a device for authentication setup. Returns the device if setup should be shown.
+    func prepareDeviceForSetup(_ device: DeviceModel) {
+        // Clear old settings before showing setup
         try? CSDeviceSettingsManager.deleteSettings(for: device.id)
         device.refreshSettingsCache()
-        deviceNeedingSetup = device
     }
 
     // MARK: - Actions
@@ -130,31 +119,34 @@ final class DeviceListViewModel {
         urlOpener.openBLEPermissions()
     }
 
-    func handleDeviceTap(_ device: DeviceModel) {
+    /// Connects a device if disconnected. Returns true if the View should navigate to device detail.
+    func connectDevice(_ device: DeviceModel) -> Bool {
         switch device.connectionState {
         case .disconnected:
-            // Try to connect - if auth key is missing or wrong, deviceNeedsAuthentication will be triggered
             device.connect()
+            // Navigate immediately if device is already paired (shows connecting state)
+            return device.isKnownDevice
         case .serviceDiscovery, .connectedAuthorized, .connectedUnauthorized:
-            // Already connecting or connected - show details
-            selectedDeviceID = device.id
+            // Already connecting or connected - should show details
+            return true
         }
     }
 
-    func forgetDevice(_ device: DeviceModel) {
+    /// Forgets a device. Returns true if the device was the currently selected one.
+    func forgetDevice(_ device: DeviceModel, selectedDeviceID: UUID?) -> Bool {
         do {
             try CSDeviceSettingsManager.deleteSettings(for: device.id)
             device.refreshSettingsCache()
             device.disconnect()
-            if selectedDeviceID == device.id {
-                selectedDeviceID = nil
-            }
+            return selectedDeviceID == device.id
         } catch {
             alertError = AlertError(title: String(localized: "Error"), error: error)
+            return false
         }
     }
 
-    func saveDeviceSettings(device: DeviceModel, authKey: CSAppAuthKey, alias: String?) {
+    /// Saves device settings. Returns true if successful (View should dismiss sheet).
+    func saveDeviceSettings(device: DeviceModel, authKey: CSAppAuthKey, alias: String?) -> Bool {
         let settings = CSDeviceSettings(
             deviceUUID: device.id,
             appAuthKey: authKey,
@@ -163,11 +155,11 @@ final class DeviceListViewModel {
         do {
             try CSDeviceSettingsManager.saveSettings(settings)
             device.refreshSettingsCache()
-            deviceNeedingSetup = nil
-            // Connect after dismissing the sheet
             device.connect(with: authKey)
+            return true
         } catch {
             alertError = AlertError(title: String(localized: "Settings Error"), error: error)
+            return false
         }
     }
 

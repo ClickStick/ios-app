@@ -26,11 +26,10 @@ struct DeviceDetailView: View {
             }
         }
         .errorAlert($alertError)
-        .onReceive(NotificationCenter.default.publisher(for: .deviceDidFail)) { notification in
-            guard let error = notification.userInfo?["error"] as? CSError,
-                  let deviceID = notification.userInfo?["deviceID"] as? UUID,
-                  deviceID == device.id else { return }
-            alertError = AlertError(error: error)
+        .onChange(of: device.lastErrorTimestamp) { _, _ in
+            if let error = device.lastError {
+                alertError = AlertError(error: error)
+            }
         }
     }
 

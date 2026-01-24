@@ -104,16 +104,22 @@ final class DeviceListViewModel {
     }
 
     func dismissWelcome() {
-        hasShownWelcome = true
+        withAnimation(.easeInOut(duration: 0.25)) {
+            hasShownWelcome = true
+        }
     }
 
     func dismissDemoPrompt() {
-        hasDismissedDemoPrompt = true
+        withAnimation(.easeInOut(duration: 0.25)) {
+            hasDismissedDemoPrompt = true
+        }
     }
 
     func enableDemoMode() {
-        service.isDemoMode = true
-        dismissDemoPrompt()
+        withAnimation(.easeInOut(duration: 0.25)) {
+            service.isDemoMode = true
+            hasDismissedDemoPrompt = true
+        }
     }
 
     func openGettingStarted() {

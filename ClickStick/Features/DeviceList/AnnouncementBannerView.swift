@@ -128,6 +128,24 @@ struct AnnouncementBannerView: View {
     }
 }
 
+// MARK: - List Row Modifier
+
+extension View {
+    func announcementRow(id: String) -> some View {
+        self
+            .id("announcement-\(id)")
+            .transition(
+                .asymmetric(
+                    insertion: .opacity.combined(with: .move(edge: .top)),
+                    removal: .opacity.combined(with: .scale(scale: 0.95, anchor: .top))
+                )
+            )
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: Spacing.xs, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+    }
+}
+
 #Preview {
     VStack(spacing: 16) {
         AnnouncementBannerView(

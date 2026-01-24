@@ -43,42 +43,32 @@ struct DeviceListView: View {
     @ViewBuilder
     private var announcementsSection: some View {
         Section {
-            VStack(spacing: 8) {
-                if let error = viewModel.bluetoothError {
-                    AnnouncementBannerView(
-                        configuration: .bluetoothError(error: error),
-                        onAction: {
-                            viewModel.openBLESettings()
-                        },
-                        onDismiss: nil
-                    )
-                }
-                if !viewModel.hasShownWelcome {
-                    AnnouncementBannerView(
-                        configuration: .welcome,
-                        onAction: {
-                            viewModel.openGettingStarted()
-                        },
-                        onDismiss: {
-                            withAnimation { viewModel.dismissWelcome() }
-                        }
-                    )
-                }
-                if viewModel.showDemoPrompt {
-                    AnnouncementBannerView(
-                        configuration: .demo,
-                        onAction: {
-                            withAnimation { viewModel.enableDemoMode() }
-                        },
-                        onDismiss: {
-                            withAnimation { viewModel.dismissDemoPrompt() }
-                        }
-                    )
-                }
+            if let error = viewModel.bluetoothError {
+                AnnouncementBannerView(
+                    configuration: .bluetoothError(error: error),
+                    onAction: { viewModel.openBLESettings() },
+                    onDismiss: nil
+                )
+                .announcementRow(id: "bluetooth-error")
             }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
+
+            if !viewModel.hasShownWelcome {
+                AnnouncementBannerView(
+                    configuration: .welcome,
+                    onAction: { viewModel.openGettingStarted() },
+                    onDismiss: { viewModel.dismissWelcome() }
+                )
+                .announcementRow(id: "welcome")
+            }
+
+            if viewModel.showDemoPrompt {
+                AnnouncementBannerView(
+                    configuration: .demo,
+                    onAction: { viewModel.enableDemoMode() },
+                    onDismiss: { viewModel.dismissDemoPrompt() }
+                )
+                .announcementRow(id: "demo")
+            }
         }
     }
 

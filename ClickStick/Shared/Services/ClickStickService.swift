@@ -8,6 +8,7 @@ import os.log
 import SwiftUI
 
 @Observable
+@MainActor
 final class ClickStickService: CSManagerDelegate {
     private let log = Logger(subsystem: "io.clickstick", category: "ClickStickService")
     private let manager: CSManager

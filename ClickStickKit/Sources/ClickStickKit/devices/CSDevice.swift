@@ -265,7 +265,10 @@ public class CSDevice: NSObject {
 
         guard let remotePublicKey = CSDeviceSession.parse(sessionData: sessionData, appAuthKey: _appAuthKey)
         else {
-            log.error("Failed to parse session data, cancelling")
+            log.error("Failed to parse session data (likely wrong auth key), requesting re-authentication")
+            // Clear invalid key and request authentication
+            self._appAuthKey = nil
+            _notifyObservers { $0.deviceNeedsAuthentication(self) }
             return
         }
 

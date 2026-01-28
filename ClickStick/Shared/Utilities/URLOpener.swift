@@ -7,9 +7,14 @@ import os.log
 import SwiftUI
 import UIKit
 
+/// Protocol for opening URLs (mockable for testing)
+protocol URLOpening: Sendable {
+    @MainActor func open(_ url: URL, completion: ((Bool) -> Void)?)
+}
+
 /// Service for opening external URLs and system settings
 @MainActor
-final class URLOpener {
+final class URLOpener: URLOpening {
     private let log = Logger(subsystem: "io.clickstick", category: "URLOpener")
 
     // MARK: - URLs
@@ -22,6 +27,13 @@ final class URLOpener {
     init() {}
 
     // MARK: - Public Methods
+
+    /// Opens any URL
+    func open(_ url: URL, completion: ((Bool) -> Void)? = nil) {
+        UIApplication.shared.open(url, options: [:]) { success in
+            completion?(success)
+        }
+    }
 
     /// Opens system settings page for granting Bluetooth permission to the app.
     func openBLEPermissions() {
@@ -48,14 +60,6 @@ final class URLOpener {
     func openAppSettings() {
         open(appSettingsURL) { [weak self] success in
             self?.log.debug("App settings opened: \(success)")
-        }
-    }
-
-    // MARK: - Private Methods
-
-    private func open(_ url: URL, completion: ((Bool) -> Void)? = nil) {
-        UIApplication.shared.open(url, options: [:]) { success in
-            completion?(success)
         }
     }
 }

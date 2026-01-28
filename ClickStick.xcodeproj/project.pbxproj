@@ -15,9 +15,22 @@
 		F3F4AC672F21670600158155 /* ClickStick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClickStick.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F32AF7752F2A4FC400766586 /* Exceptions for "ClickStick" folder in "ClickStick" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F3F4AC662F21670600158155 /* ClickStick */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F3F4AC692F21670600158155 /* ClickStick */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F32AF7752F2A4FC400766586 /* Exceptions for "ClickStick" folder in "ClickStick" target */,
+			);
 			path = ClickStick;
 			sourceTree = "<group>";
 		};
@@ -274,6 +287,7 @@
 				DEVELOPMENT_TEAM = 84W4PHXS24;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ClickStick/Info.plist;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "The app uses Bluetooth to communicate with ClickStick devices.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The app needs camera to scan QR codes for pairing with your ClickStick.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "The app needs permission to scan pairing QR codes from Photo Library.";
@@ -314,6 +328,7 @@
 				DEVELOPMENT_TEAM = 84W4PHXS24;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ClickStick/Info.plist;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "The app uses Bluetooth to communicate with ClickStick devices.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The app needs camera to scan QR codes for pairing with your ClickStick.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "The app needs permission to scan pairing QR codes from Photo Library.";

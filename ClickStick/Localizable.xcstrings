@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ wants to type:" : {
+
+    },
     "%lld characters" : {
       "localizations" : {
         "sk" : {
@@ -10,6 +13,9 @@
           }
         }
       }
+    },
+    "%lld characters (hidden)" : {
+
     },
     "An unknown error occurred." : {
       "comment" : "Default error message",
@@ -21,6 +27,9 @@
           }
         }
       }
+    },
+    "Another app" : {
+      "comment" : "Unknown source app"
     },
     "Authentication Key" : {
       "localizations" : {
@@ -42,6 +51,9 @@
           }
         }
       }
+    },
+    "Authorizing..." : {
+      "comment" : "Device status"
     },
     "Camera Not Available" : {
       "localizations" : {
@@ -152,6 +164,9 @@
         }
       }
     },
+    "Connect Device" : {
+
+    },
     "Connect to device" : {
       "comment" : "Accessibility label\nAccessibility label for connect button",
       "localizations" : {
@@ -164,8 +179,7 @@
       }
     },
     "Connected" : {
-      "comment" : "Connection status",
-      "extractionState" : "stale",
+      "comment" : "Device status",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -177,7 +191,6 @@
     },
     "Connecting" : {
       "comment" : "Connection status",
-      "extractionState" : "stale",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -210,7 +223,7 @@
       }
     },
     "Connecting..." : {
-
+      "comment" : "Device status"
     },
     "Connection in progress" : {
       "comment" : "Accessibility hint",
@@ -223,6 +236,12 @@
         }
       }
     },
+    "Could not decode text" : {
+      "comment" : "Deep link error"
+    },
+    "Deep Link Error" : {
+
+    },
     "Demo device" : {
       "comment" : "Device type",
       "localizations" : {
@@ -233,6 +252,9 @@
           }
         }
       }
+    },
+    "Device" : {
+
     },
     "Device disconnected" : {
       "comment" : "Accessibility label for disconnected state",
@@ -311,7 +333,7 @@
       }
     },
     "Device not connected" : {
-      "comment" : "Accessibility hint",
+      "comment" : "Accessibility hint\nDeep link error",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -575,6 +597,9 @@
         }
       }
     },
+    "Failed to send text" : {
+      "comment" : "Deep link error"
+    },
     "Fair signal" : {
       "comment" : "Signal strength indicator",
       "extractionState" : "stale",
@@ -653,6 +678,9 @@
         }
       }
     },
+    "Hide" : {
+
+    },
     "Insert %@" : {
       "localizations" : {
         "sk" : {
@@ -685,6 +713,9 @@
           }
         }
       }
+    },
+    "Invalid request URL" : {
+      "comment" : "Deep link error"
     },
     "Just looking around?" : {
       "comment" : "Demo mode prompt",
@@ -750,8 +781,11 @@
         }
       }
     },
+    "No ClickStick devices found" : {
+      "comment" : "Deep link error"
+    },
     "No device selected" : {
-      "comment" : "Accessibility label",
+      "comment" : "Device status",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -782,6 +816,9 @@
         }
       }
     },
+    "No paired devices found" : {
+
+    },
     "No signal" : {
       "comment" : "Signal strength indicator",
       "extractionState" : "stale",
@@ -794,9 +831,11 @@
         }
       }
     },
+    "No text to type" : {
+      "comment" : "Deep link error"
+    },
     "Not connected" : {
-      "comment" : "Connection status",
-      "extractionState" : "stale",
+      "comment" : "Device status",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1181,6 +1220,12 @@
         }
       }
     },
+    "Show" : {
+
+    },
+    "Specified device not found" : {
+      "comment" : "Deep link error"
+    },
     "Start Scanning" : {
       "comment" : "Button title",
       "localizations" : {
@@ -1333,6 +1378,15 @@
     },
     "Two-finger tap on touchpad = right click" : {
 
+    },
+    "Type Now" : {
+
+    },
+    "Type Text" : {
+
+    },
+    "User cancelled" : {
+      "comment" : "Deep link error"
     },
     "Weak signal" : {
       "comment" : "Signal strength indicator",

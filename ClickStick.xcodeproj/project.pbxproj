@@ -10,7 +10,18 @@
 		F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		F32A27292F2CD9D400766586 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F3F4AC5F2F21670600158155 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F3F4AC662F21670600158155;
+			remoteInfo = ClickStick;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		F32A27252F2CD9D300766586 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3DBABAD2F238C88009D1CC2 /* ClickStickKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ClickStickKit; sourceTree = "<group>"; };
 		F3F4AC672F21670600158155 /* ClickStick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClickStick.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -26,6 +37,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F32A27262F2CD9D400766586 /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		F3F4AC692F21670600158155 /* ClickStick */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -37,6 +53,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F32A27222F2CD9D300766586 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3F4AC642F21670600158155 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -53,6 +76,7 @@
 			children = (
 				F3DBABAD2F238C88009D1CC2 /* ClickStickKit */,
 				F3F4AC692F21670600158155 /* ClickStick */,
+				F32A27262F2CD9D400766586 /* Tests */,
 				F3F4ACA12F22143F00158155 /* Frameworks */,
 				F3F4AC682F21670600158155 /* Products */,
 			);
@@ -62,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				F3F4AC672F21670600158155 /* ClickStick.app */,
+				F32A27252F2CD9D300766586 /* Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,6 +101,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		F32A27242F2CD9D300766586 /* Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F32A272D2F2CD9D400766586 /* Build configuration list for PBXNativeTarget "Tests" */;
+			buildPhases = (
+				F32A27212F2CD9D300766586 /* Sources */,
+				F32A27222F2CD9D300766586 /* Frameworks */,
+				F32A27232F2CD9D300766586 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F32A272A2F2CD9D400766586 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F32A27262F2CD9D400766586 /* Tests */,
+			);
+			name = Tests;
+			packageProductDependencies = (
+			);
+			productName = Tests;
+			productReference = F32A27252F2CD9D300766586 /* Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F3F4AC662F21670600158155 /* ClickStick */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3F4AC722F21670800158155 /* Build configuration list for PBXNativeTarget "ClickStick" */;
@@ -109,6 +157,10 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					F32A27242F2CD9D300766586 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = F3F4AC662F21670600158155;
+					};
 					F3F4AC662F21670600158155 = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -129,11 +181,19 @@
 			projectRoot = "";
 			targets = (
 				F3F4AC662F21670600158155 /* ClickStick */,
+				F32A27242F2CD9D300766586 /* Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F32A27232F2CD9D300766586 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3F4AC652F21670600158155 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -144,6 +204,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F32A27212F2CD9D300766586 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3F4AC632F21670600158155 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -153,7 +220,59 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F32A272A2F2CD9D400766586 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F3F4AC662F21670600158155 /* ClickStick */;
+			targetProxy = F32A27292F2CD9D400766586 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		F32A272B2F2CD9D400766586 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 84W4PHXS24;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.clickstick.app.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClickStick.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ClickStick";
+			};
+			name = Debug;
+		};
+		F32A272C2F2CD9D400766586 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 84W4PHXS24;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.clickstick.app.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClickStick.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ClickStick";
+			};
+			name = Release;
+		};
 		F3F4AC702F21670800158155 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -362,6 +481,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F32A272D2F2CD9D400766586 /* Build configuration list for PBXNativeTarget "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F32A272B2F2CD9D400766586 /* Debug */,
+				F32A272C2F2CD9D400766586 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F3F4AC622F21670600158155 /* Build configuration list for PBXProject "ClickStick" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

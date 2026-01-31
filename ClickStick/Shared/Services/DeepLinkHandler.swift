@@ -86,13 +86,12 @@ final class DeepLinkHandler {
             return false
         }
 
-        // Decode text (handles RFC 3986 percent encoding)
-        // URLComponents already decodes query parameters, so we use the value directly
+        // URLComponents already decodes query parameters (RFC 3986 percent encoding)
         let decodedText = encodedText
         guard !decodedText.isEmpty else {
-            log.error("Failed to decode text parameter")
-            parsingError = DeepLinkParsingError(code: .decodingFailed, url: url)
-            callErrorURL(params: params, errorCode: .decodingFailed)
+            log.error("Empty text parameter")
+            parsingError = DeepLinkParsingError(code: .emptyText, url: url)
+            callErrorURL(params: params, errorCode: .emptyText)
             return false
         }
 

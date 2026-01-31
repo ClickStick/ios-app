@@ -62,9 +62,14 @@ final class DeepLinkTypeViewModel {
         isDeviceReady && !isSending
     }
 
-    /// Source app name for display
+    /// Source app name for display - uses x-source parameter when available
     var sourceAppName: String {
-        request.sourceApp ?? String(localized: "Another app", comment: "Unknown source app")
+        request.sourceApp ?? String(localized: "External app", comment: "Unknown source app for deep link")
+    }
+
+    /// Whether the request came from a known source app
+    var hasKnownSourceApp: Bool {
+        request.sourceApp != nil
     }
 
     /// Status message for the selected device

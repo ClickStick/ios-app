@@ -9,7 +9,7 @@ import os.log
 /// ViewModel for handling deep link type requests
 @Observable
 @MainActor
-final class DeepLinkTypeViewModel {
+final class DeepLinkTypeViewModel: TypeTextViewModel {
     private let log = Logger(subsystem: "io.clickstick", category: "DeepLinkTypeViewModel")
 
     // MARK: - Dependencies
@@ -18,8 +18,9 @@ final class DeepLinkTypeViewModel {
     private let deepLinkHandler: DeepLinkHandler
     let request: TypeRequest
 
-    // MARK: - State
+    // MARK: - TypeTextViewModel Conformance
 
+    var text: String { request.text }
     var selectedLayout: CSKeyboardLayout
     var selectedDeviceID: UUID?
     var isTextVisible: Bool = false
@@ -28,38 +29,9 @@ final class DeepLinkTypeViewModel {
 
     // MARK: - Computed Properties
 
-    /// Character count for accessibility
-    var characterCount: Int { request.text.count }
-
-    /// Display text (masked or visible)
-    var displayText: String {
-        isTextVisible ? request.text : String(repeating: "•", count: min(request.text.count, 20))
-    }
-
     /// Available devices
     var devices: [DeviceModel] {
         service.devices.filter { $0.isKnownDevice }
-    }
-
-    /// Currently selected device
-    var selectedDevice: DeviceModel? {
-        guard let id = selectedDeviceID else { return nil }
-        return devices.first { $0.id == id }
-    }
-
-    /// Whether a device is connected and ready
-    var isDeviceReady: Bool {
-        selectedDevice?.isConnected == true
-    }
-
-    /// Whether the device is connecting
-    var isConnecting: Bool {
-        selectedDevice?.isConnecting == true
-    }
-
-    /// Whether we can proceed with typing
-    var canType: Bool {
-        isDeviceReady && !isSending
     }
 
     /// Source app name for display - uses x-source parameter when available
@@ -70,23 +42,6 @@ final class DeepLinkTypeViewModel {
     /// Whether the request came from a known source app
     var hasKnownSourceApp: Bool {
         request.sourceApp != nil
-    }
-
-    /// Status message for the selected device
-    var deviceStatusMessage: String {
-        guard let device = selectedDevice else {
-            return String(localized: "No device selected", comment: "Device status")
-        }
-        switch device.connectionState {
-        case .disconnected:
-            return String(localized: "Not connected", comment: "Device status")
-        case .serviceDiscovery:
-            return String(localized: "Connecting...", comment: "Device status")
-        case .connectedUnauthorized:
-            return String(localized: "Authorizing...", comment: "Device status")
-        case .connectedAuthorized:
-            return String(localized: "Connected", comment: "Device status")
-        }
     }
 
     // MARK: - Initialization
@@ -123,16 +78,14 @@ final class DeepLinkTypeViewModel {
         }
     }
 
-    // MARK: - Actions
+    // MARK: - TypeTextViewModel Actions
 
-    /// Connect to the selected device
     func connectDevice() {
         guard let device = selectedDevice, !device.isConnected else { return }
         connectionError = nil
         device.connect()
     }
 
-    /// Send the text to the device
     func sendText(completion: @escaping (Bool) -> Void) {
         guard let device = selectedDevice, canType else {
             completion(false)
@@ -142,7 +95,7 @@ final class DeepLinkTypeViewModel {
         isSending = true
         log.info("Sending \(self.characterCount) characters via deep link")
 
-        device.sendText(request.text, layout: selectedLayout) { [weak self] result in
+        device.sendText(text, layout: selectedLayout) { [weak self] result in
             guard let self else { return }
             isSending = false
 
@@ -168,10 +121,5 @@ final class DeepLinkTypeViewModel {
     func cancel() {
         log.info("Deep link cancelled by user")
         deepLinkHandler.callCancelURL(for: request)
-    }
-
-    /// Toggle text visibility
-    func toggleTextVisibility() {
-        isTextVisible.toggle()
     }
 }

@@ -11,6 +11,16 @@
         }
       }
     },
+    "%@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
     "%lld characters" : {
       "localizations" : {
         "sk" : {
@@ -204,6 +214,9 @@
           }
         }
       }
+    },
+    "Connect to a device first" : {
+
     },
     "Connect to device" : {
       "comment" : "Accessibility label\nAccessibility label for connect button",
@@ -475,6 +488,9 @@
         }
       }
     },
+    "Double tap to type the text" : {
+
+    },
     "Double-tap the connect button to reconnect" : {
       "comment" : "Accessibility hint for disconnected state",
       "localizations" : {
@@ -716,6 +732,9 @@
         }
       }
     },
+    "Hide text" : {
+
+    },
     "Insert %@" : {
       "localizations" : {
         "sk" : {
@@ -769,6 +788,9 @@
           }
         }
       }
+    },
+    "Keyboard layout selector" : {
+
     },
     "Left Click" : {
       "localizations" : {
@@ -901,6 +923,9 @@
         }
       }
     },
+    "Open the ClickStick app to pair a device first." : {
+
+    },
     "Opens camera to scan the QR code from your ClickStick" : {
       "comment" : "Accessibility hint",
       "localizations" : {
@@ -976,6 +1001,9 @@
           }
         }
       }
+    },
+    "Request from %@" : {
+
     },
     "Right Click" : {
       "localizations" : {
@@ -1219,6 +1247,9 @@
           }
         }
       }
+    },
+    "Show text" : {
+
     },
     "Specified device not found" : {
       "comment" : "Deep link error",

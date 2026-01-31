@@ -32,6 +32,7 @@ struct TypeRequest: Sendable, Identifiable {
 enum DeepLinkErrorCode: String, Sendable {
     case invalidURL = "invalid_url"
     case missingText = "missing_text"
+    case emptyText = "empty_text"
     case decodingFailed = "decoding_failed"
     case noDevice = "no_device"
     case deviceNotFound = "device_not_found"
@@ -44,7 +45,9 @@ enum DeepLinkErrorCode: String, Sendable {
         case .invalidURL:
             String(localized: "Invalid request URL", comment: "Deep link error")
         case .missingText:
-            String(localized: "No text to type", comment: "Deep link error")
+            String(localized: "Missing text parameter", comment: "Deep link error")
+        case .emptyText:
+            String(localized: "Text cannot be empty", comment: "Deep link error")
         case .decodingFailed:
             String(localized: "Could not decode text", comment: "Deep link error")
         case .noDevice:

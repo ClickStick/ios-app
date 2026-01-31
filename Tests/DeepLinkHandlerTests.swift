@@ -74,6 +74,56 @@ struct DeepLinkHandlerTests {
     }
     
     @Test
+    func emptyText() {
+        let url = URL(string: "clickstick://x-callback-url/type?text=")!
+        let result = handler.handle(url: url)
+        
+        #expect(!result)
+        #expect(handler.pendingTypeRequest == nil)
+        #expect(handler.parsingError?.code == .emptyText)
+    }
+    
+    @Test
+    func emptyTextCallsErrorURL() {
+        let errorURL = "myapp://error"
+        let url = URL(string: "clickstick://x-callback-url/type?text=&x-error=\(errorURL)")!
+        handler.handle(url: url)
+        
+        guard let opened = mockOpener.openedURL,
+              let components = URLComponents(url: opened, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems else {
+            Issue.record("Error URL not called")
+            return
+        }
+        
+        #expect(queryItems.contains { $0.name == "errorCode" && $0.value == "empty_text" })
+    }
+    
+    @Test
+    func missingTextCallsErrorURL() {
+        let errorURL = "myapp://error"
+        let url = URL(string: "clickstick://x-callback-url/type?layout=us&x-error=\(errorURL)")!
+        handler.handle(url: url)
+        
+        guard let opened = mockOpener.openedURL,
+              let components = URLComponents(url: opened, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems else {
+            Issue.record("Error URL not called")
+            return
+        }
+        
+        #expect(queryItems.contains { $0.name == "errorCode" && $0.value == "missing_text" })
+    }
+    
+    @Test
+    func sourceAppParsing() {
+        let url = URL(string: "clickstick://x-callback-url/type?text=Hi&x-source=KeePassium")!
+        handler.handle(url: url)
+        
+        #expect(handler.pendingTypeRequest?.sourceApp == "KeePassium")
+    }
+    
+    @Test
     func callbackURLs() {
         let success = "myapp://success"
         let error = "myapp://error"

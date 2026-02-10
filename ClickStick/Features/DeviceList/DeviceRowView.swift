@@ -27,7 +27,7 @@ struct DeviceRowView: View {
             Circle()
                 .fill(iconBackgroundColor.opacity(0.15))
                 .frame(width: 44, height: 44)
-            
+
             Image(systemName: device.isDemoDevice ? "testtube.2" : "cable.connector.horizontal")
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(iconColor)
@@ -46,7 +46,7 @@ struct DeviceRowView: View {
         )
         .accessibilityHidden(true)
     }
-    
+
     private var iconColor: Color {
         if device.isConnected {
             return .clickStickGreen
@@ -56,7 +56,7 @@ struct DeviceRowView: View {
             return .secondary
         }
     }
-    
+
     private var iconBackgroundColor: Color {
         if device.isConnected {
             return .clickStickGreen
@@ -77,7 +77,7 @@ struct DeviceRowView: View {
                 Text(device.displayName)
                     .font(.headline)
                     .lineLimit(1)
-                
+
                 if device.isKnownDevice && !device.isDemoDevice {
                     Image(systemName: "star.fill")
                         .font(.caption2)
@@ -133,7 +133,7 @@ struct DeviceRowView: View {
         }
         .accessibilityHidden(true)
     }
-    
+
     private func statusChip(icon: String, color: Color, text: String?) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)

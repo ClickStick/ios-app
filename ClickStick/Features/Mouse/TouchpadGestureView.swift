@@ -98,11 +98,11 @@ class TouchpadView: UIView {
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
         layer.insertSublayer(gradientLayer, at: 0)
         self.gradientLayer = gradientLayer
-        
+
         layer.cornerRadius = 20
         layer.borderWidth = 1.5
         layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
-        
+
         // Inner shadow effect
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOffset = CGSize(width: 0, height: 2)
@@ -123,9 +123,9 @@ class TouchpadView: UIView {
             self.updateColors()
         }
     }
-    
+
     private var gradientLayer: CAGradientLayer?
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer?.frame = bounds
@@ -141,7 +141,7 @@ class TouchpadView: UIView {
             UIColor.secondarySystemBackground.cgColor
         ]
     }
-    
+
     // Brand color matching Theme.swift
     private var brandBlue: UIColor {
         UIColor(red: 0.24, green: 0.51, blue: 0.87, alpha: 1.0)

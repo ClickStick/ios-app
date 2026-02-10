@@ -142,16 +142,16 @@ struct DeviceDetailView: View {
                 Circle()
                     .fill(Color.secondary.opacity(0.1))
                     .frame(width: 100, height: 100)
-                
+
                 Image(systemName: "cable.connector.horizontal")
                     .font(.system(size: 40, weight: .medium))
                     .foregroundStyle(.secondary)
             }
-            
+
             VStack(spacing: Spacing.xs) {
                 Text("Disconnected")
                     .font(.title2.weight(.semibold))
-                
+
                 if let error = device.lastError {
                     Text(error.localizedDescription)
                         .font(.subheadline)
@@ -164,7 +164,7 @@ struct DeviceDetailView: View {
                         .multilineTextAlignment(.center)
                 }
             }
-            
+
             Button {
                 device.connect()
             } label: {

@@ -31,7 +31,7 @@ final public class CSManager: NSObject {
     private let delegateQueue = DispatchQueue.main
     private let demoDevices: [CSDevice] = [
         CSMockDevice(uuid: UUID(uuidString: "4321FD5D-D172-4C21-97A1-A48F20C00001")!),
-        CSMockDevice(uuid: UUID(uuidString: "331D5219-3F05-48FA-B7F5-B3395DBF0002")!),
+        CSMockDevice(uuid: UUID(uuidString: "331D5219-3F05-48FA-B7F5-B3395DBF0002")!)
     ]
 
     private var centralManager: CBCentralManager!
@@ -76,7 +76,7 @@ extension CSManager {
 
         devicesByUUID.removeAll()
         discoveredPeripherals.removeAll()
-        
+
         log.debug("Starting a scan")
         includeDemoDevices(isDemoMode) // re-apply demo mode after cleanup
         centralManager.scanForPeripherals(

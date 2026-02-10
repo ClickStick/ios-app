@@ -13,7 +13,7 @@ extension AnnouncementBannerView.Configuration {
         actionTitle: String(localized: "Getting Started"),
         style: .welcome
     )
-    
+
     static var demo: Self = .init(
         title: nil,
         message: String(localized: "Just looking around?"),
@@ -21,7 +21,7 @@ extension AnnouncementBannerView.Configuration {
         actionTitle: String(localized: "Try in Demo Mode"),
         style: .info
     )
-    
+
     static func bluetoothError(error: CSError) -> Self {
         let nsError = error as NSError
         let isPermissionError: Bool
@@ -30,7 +30,7 @@ extension AnnouncementBannerView.Configuration {
         } else {
             isPermissionError = false
         }
-        
+
         return .init(
             title: nsError.localizedDescription,
             message: nsError.localizedFailureReason,

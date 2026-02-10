@@ -113,10 +113,10 @@ extension CSMockDevice {
     func _setMockCommandData(_ packet: Data?) {
         assert(_connectionState != .disconnected)
         _mockCommandData = packet
-        guard let packet else { 
-            return 
+        guard let packet else {
+            return
         }
-        
+
         _processMockCommandPacket(packet)
     }
 
@@ -125,10 +125,10 @@ extension CSMockDevice {
         // - seq: UInt16, ignored here
         // - encryptedCommand: Data, 0 to maxCommandSize bytes
         // - shortMAC: CSShortMAC, 16 bytes
-        
+
         // Validate minimum packet size (seq + commandID + MAC)
         let minPacketSize = CSSequenceCounter.byteCount + 1 + CSShortMAC.byteCount
-        guard packet.count >= minPacketSize else { 
+        guard packet.count >= minPacketSize else {
             log.error("Packet too short: \(packet.count) bytes, need at least \(minPacketSize)")
             _increaseMockErrorCounter()
             assertionFailure("Packet too short")
@@ -154,7 +154,6 @@ extension CSMockDevice {
             hmacKey = _mockSessionKey
         }
 
-        
         let hmacInput = packet.dropLast(CSShortMAC.byteCount)
         let calculatedMAC = Data(HMAC<SHA256>
             .authenticationCode(for: hmacInput, using: hmacKey)

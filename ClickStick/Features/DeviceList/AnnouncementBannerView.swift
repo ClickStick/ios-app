@@ -10,12 +10,12 @@ struct AnnouncementBannerView: View {
         let image: Image
         let actionTitle: String?
         var style: BannerStyle = .info
-        
+
         enum BannerStyle {
             case info
             case welcome
             case warning
-            
+
             var iconBackgroundColors: [Color] {
                 switch self {
                 case .info: return [.clickStickBlue, .clickStickTeal]
@@ -23,7 +23,7 @@ struct AnnouncementBannerView: View {
                 case .warning: return [.clickStickOrange, .red.opacity(0.8)]
                 }
             }
-            
+
             var accentColor: Color {
                 switch self {
                 case .info: return .clickStickBlue
@@ -50,7 +50,7 @@ struct AnnouncementBannerView: View {
                         )
                     )
                     .frame(width: 40, height: 40)
-                
+
                 configuration.image
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.white)

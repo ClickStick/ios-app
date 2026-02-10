@@ -8,13 +8,13 @@ import SwiftUI
 extension Color {
     /// Primary brand blue - matches ClickStick website
     static let clickStickBlue = Color(red: 0.24, green: 0.51, blue: 0.87)
-    
+
     /// Secondary brand teal for accents
     static let clickStickTeal = Color(red: 0.15, green: 0.68, blue: 0.72)
-    
+
     /// Success green for connected states
     static let clickStickGreen = Color(red: 0.22, green: 0.78, blue: 0.45)
-    
+
     /// Warning orange for authorization needed
     static let clickStickOrange = Color(red: 0.96, green: 0.65, blue: 0.14)
 }
@@ -28,7 +28,7 @@ extension LinearGradient {
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
-    
+
     /// Subtle card gradient for depth
     static func cardGradient(for colorScheme: ColorScheme) -> LinearGradient {
         LinearGradient(
@@ -39,7 +39,7 @@ extension LinearGradient {
             endPoint: .bottom
         )
     }
-    
+
     /// Touchpad surface gradient
     static func touchpadGradient(for colorScheme: ColorScheme) -> LinearGradient {
         LinearGradient(
@@ -85,7 +85,7 @@ extension View {
             y: 2
         )
     }
-    
+
     /// Deeper shadow for elevated elements
     func elevatedShadow() -> some View {
         self.shadow(
@@ -95,7 +95,7 @@ extension View {
             y: 4
         )
     }
-    
+
     /// Glow effect for active/connected states
     func glowEffect(color: Color, isActive: Bool) -> some View {
         self.shadow(
@@ -111,7 +111,7 @@ extension View {
 
 struct PrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
@@ -166,11 +166,11 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
 struct CardStyle: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     let isHighlighted: Bool
-    
+
     init(isHighlighted: Bool = false) {
         self.isHighlighted = isHighlighted
     }
-    
+
     func body(content: Content) -> some View {
         content
             .background(
@@ -199,10 +199,10 @@ extension View {
 struct PulsingDot: View {
     let color: Color
     let isAnimating: Bool
-    
+
     @State private var scale: CGFloat = 1.0
     @State private var opacity: Double = 1.0
-    
+
     var body: some View {
         Circle()
             .fill(color)
@@ -231,7 +231,7 @@ struct StatusBadge: View {
         case connecting
         case disconnected
         case unauthorized
-        
+
         var color: Color {
             switch self {
             case .connected: return .clickStickGreen
@@ -240,7 +240,7 @@ struct StatusBadge: View {
             case .unauthorized: return .clickStickOrange
             }
         }
-        
+
         var icon: String {
             switch self {
             case .connected: return "checkmark.circle.fill"
@@ -250,9 +250,9 @@ struct StatusBadge: View {
             }
         }
     }
-    
+
     let status: Status
-    
+
     var body: some View {
         HStack(spacing: 6) {
             if status == .connecting {
@@ -286,16 +286,16 @@ struct StatusBadge: View {
                 Circle().fill(Color.clickStickGreen).frame(width: 40, height: 40)
                 Circle().fill(Color.clickStickOrange).frame(width: 40, height: 40)
             }
-            
+
             // Buttons
             VStack(spacing: 12) {
                 Button("Primary Action") {}
                     .buttonStyle(.primary)
-                
+
                 Button("Secondary Action") {}
                     .buttonStyle(.secondary)
             }
-            
+
             // Status badges
             HStack(spacing: 12) {
                 StatusBadge(status: .connected)
@@ -303,20 +303,20 @@ struct StatusBadge: View {
                 StatusBadge(status: .disconnected)
                 StatusBadge(status: .unauthorized)
             }
-            
+
             // Cards
             VStack(spacing: 12) {
                 Text("Regular Card")
                     .padding()
                     .frame(maxWidth: .infinity)
                     .cardStyle()
-                
+
                 Text("Highlighted Card")
                     .padding()
                     .frame(maxWidth: .infinity)
                     .cardStyle(isHighlighted: true)
             }
-            
+
             // Pulsing dots
             HStack(spacing: 20) {
                 PulsingDot(color: .clickStickGreen, isAnimating: true)

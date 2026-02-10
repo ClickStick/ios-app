@@ -111,8 +111,7 @@ extension CSRealDevice: CBPeripheralDelegate {
         case CSUUID.statusCharacteristic:
             if let value = characteristic.value,
                value.first == CSDevice.State.initSession.rawValue,
-               value.count < 50 // TODO: prettify
-            {
+               value.count < 50 { // TODO: prettify
                 // TODO: perhaps redundant?
                 peripheral.readValue(for: characteristic)
                 return

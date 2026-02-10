@@ -83,7 +83,6 @@ public class CSDevice: NSObject {
     internal var _inFlightCommand: CSCommand? // command just sent to device
     internal var _commandCompletionTimeoutTimer: Timer?
 
-
     // MARK: Public API
 
     /// Starts service discovery for this device.
@@ -321,7 +320,7 @@ extension CSDevice {
     }
 
     func _maybeScheduleNextCommand() {
-        guard //_isDeviceIdle,
+        guard // _isDeviceIdle,
               _inFlightCommand == nil, // not already waiting
               !_commandQueue.isEmpty   // got something to send
         else {
@@ -396,7 +395,7 @@ extension CSDevice {
             finishedCommand.completedWithSuccess()
         }
     }
-    
+
     /// Runs the error completion of the in-flight command.
     /// - Parameters:
     ///   - error: error encountered while sending the command

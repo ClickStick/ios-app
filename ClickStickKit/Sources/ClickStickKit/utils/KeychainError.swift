@@ -7,7 +7,7 @@ import Foundation
 public enum KeychainError: Error, LocalizedError {
     case operationFailed(OSStatus)
     case invalidData
-    
+
     public var errorDescription: String? {
         switch self {
         case .operationFailed(let status):

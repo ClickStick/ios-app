@@ -33,7 +33,7 @@ internal final class CryptoHelper {
 
         return ciphertext
     }
-    
+
     /// - Throws: `CryptoError`
     static func decrypt(_ ciphertext: Data, key: CSSessionKey, iv: Data) throws -> Data {
         let keyData = key.withUnsafeBytes { Data($0) }

@@ -200,4 +200,3 @@ extension DeviceModel: Hashable {
         hasher.combine(id)
     }
 }
-

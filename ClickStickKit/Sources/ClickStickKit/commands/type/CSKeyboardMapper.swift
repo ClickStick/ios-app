@@ -105,7 +105,6 @@ struct KeyCode: CustomDebugStringConvertible {
     }
 }
 
-
 // MARK: - Internal Mapper
 
 private struct LayoutMapper {

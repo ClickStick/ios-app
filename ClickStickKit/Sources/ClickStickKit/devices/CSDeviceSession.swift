@@ -92,7 +92,7 @@ final class CSDeviceSession {
         sessionData.insert(CSDevice.State.initSession.rawValue, at: 0)
         return sessionData
     }
-    
+
     /// Calculates local session key based on locally generated private key,
     /// a public key received from the remote party, and pre-shared appAuthKey.
     /// https://clickstick.io/docs/protocol.html#session-start

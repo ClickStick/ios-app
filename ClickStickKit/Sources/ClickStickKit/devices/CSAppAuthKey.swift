@@ -44,23 +44,23 @@ final public class CSAppAuthKey: Codable {
         // Create CSAppAuthKey from the data
         return CSAppAuthKey(data: data)
     }
-    
+
     // MARK: - Codable
-    
+
     private enum CodingKeys: String, CodingKey {
         case keyData
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         let keyData = key.withUnsafeBytes { Data($0) }
         try container.encode(keyData, forKey: .keyData)
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let keyData = try container.decode(Data.self, forKey: .keyData)
-        
+
         guard let authKey = CSAppAuthKey(data: keyData) else {
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(

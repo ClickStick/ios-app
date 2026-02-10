@@ -59,7 +59,7 @@ struct MouseView: View {
         }
         .padding(.vertical, Spacing.xs)
     }
-    
+
     private func instructionItem(icon: String, text: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
@@ -170,7 +170,7 @@ struct MouseView: View {
 
 struct ClickButtonStyle: ButtonStyle {
     let color: Color
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(color)
@@ -193,4 +193,3 @@ struct ClickButtonStyle: ButtonStyle {
 #Preview {
     MouseView(device: .preview)
 }
-

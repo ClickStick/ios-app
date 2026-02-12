@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		7571A5CD2F359CD500CD7E3F /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7571A5C32F359CD500CD7E3F /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F361F8462F3D1CBD00FFE720 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = F361F8452F3D1CBD00FFE720 /* DesignSystem */; };
+		F361F8482F3D1CC200FFE720 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = F361F8472F3D1CC200FFE720 /* DesignSystem */; };
 		F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */; };
 		F3EA2B8C2F3B1BCB001070A5 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3EA2B8B2F3B1BCB001070A5 /* ClickStickKit */; };
 /* End PBXBuildFile section */
@@ -46,6 +48,7 @@
 /* Begin PBXFileReference section */
 		7571A5C32F359CD500CD7E3F /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		F32A27252F2CD9D300766586 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F361F8442F3D1C8900FFE720 /* DesignSystem */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = DesignSystem; sourceTree = "<group>"; };
 		F3DBABAD2F238C88009D1CC2 /* ClickStickKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ClickStickKit; sourceTree = "<group>"; };
 		F3F4AC672F21670600158155 /* ClickStick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClickStick.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3F4ACAA2F42000000158155 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
@@ -72,7 +75,6 @@
 				Features/DeviceList/Models/DeviceModel.swift,
 				Shared/Components/TypeTextContentView.swift,
 				Shared/Components/TypeTextViewModel.swift,
-				Shared/DesignSystem/Theme.swift,
 			);
 			target = 7571A5C22F359CD500CD7E3F /* ShareExtension */;
 		};
@@ -109,6 +111,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F3EA2B8C2F3B1BCB001070A5 /* ClickStickKit in Frameworks */,
+				F361F8482F3D1CC200FFE720 /* DesignSystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,6 +127,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */,
+				F361F8462F3D1CBD00FFE720 /* DesignSystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,6 +139,7 @@
 			children = (
 				F3F4ACAA2F42000000158155 /* Config.xcconfig */,
 				F3DBABAD2F238C88009D1CC2 /* ClickStickKit */,
+				F361F8442F3D1C8900FFE720 /* DesignSystem */,
 				F3F4AC692F21670600158155 /* ClickStick */,
 				F32A27262F2CD9D400766586 /* Tests */,
 				7571A5C42F359CD500CD7E3F /* ShareExtension */,
@@ -181,6 +186,7 @@
 			name = ShareExtension;
 			packageProductDependencies = (
 				F3EA2B8B2F3B1BCB001070A5 /* ClickStickKit */,
+				F361F8472F3D1CC200FFE720 /* DesignSystem */,
 			);
 			productName = ShareExtension;
 			productReference = 7571A5C32F359CD500CD7E3F /* ShareExtension.appex */;
@@ -229,6 +235,7 @@
 			name = ClickStick;
 			packageProductDependencies = (
 				F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */,
+				F361F8452F3D1CBD00FFE720 /* DesignSystem */,
 			);
 			productName = ClickStick;
 			productReference = F3F4AC672F21670600158155 /* ClickStick.app */;
@@ -265,6 +272,10 @@
 			);
 			mainGroup = F3F4AC5E2F21670600158155;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F3DBABB02F238D3A009D1CC2 /* XCLocalSwiftPackageReference "ClickStickKit" */,
+				F361F8492F3D1E0400FFE720 /* XCLocalSwiftPackageReference "DesignSystem" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F3F4AC682F21670600158155 /* Products */;
 			projectDirPath = "";
@@ -681,13 +692,36 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		F361F8492F3D1E0400FFE720 /* XCLocalSwiftPackageReference "DesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = DesignSystem;
+		};
+		F3DBABB02F238D3A009D1CC2 /* XCLocalSwiftPackageReference "ClickStickKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ClickStickKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		F361F8452F3D1CBD00FFE720 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F361F8492F3D1E0400FFE720 /* XCLocalSwiftPackageReference "DesignSystem" */;
+			productName = DesignSystem;
+		};
+		F361F8472F3D1CC200FFE720 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F361F8492F3D1E0400FFE720 /* XCLocalSwiftPackageReference "DesignSystem" */;
+			productName = DesignSystem;
+		};
 		F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = F3DBABB02F238D3A009D1CC2 /* XCLocalSwiftPackageReference "ClickStickKit" */;
 			productName = ClickStickKit;
 		};
 		F3EA2B8B2F3B1BCB001070A5 /* ClickStickKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = F3DBABB02F238D3A009D1CC2 /* XCLocalSwiftPackageReference "ClickStickKit" */;
 			productName = ClickStickKit;
 		};
 /* End XCSwiftPackageProductDependency section */

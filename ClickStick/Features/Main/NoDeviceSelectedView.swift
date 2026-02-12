@@ -1,6 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+import DesignSystem
 import SwiftUI
 
 struct NoDeviceSelectedView: View {
@@ -11,7 +12,7 @@ struct NoDeviceSelectedView: View {
     var body: some View {
         ContentUnavailableView {
             VStack(spacing: Spacing.md) {
-                BrandedIcon(systemName: "cable.connector.horizontal")
+                FeatureIcon(systemName: "cable.connector.horizontal")
                 Text("No Device Selected")
                     .font(.title2.weight(.semibold))
             }

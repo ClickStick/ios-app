@@ -1,6 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+import DesignSystem
 import SwiftUI
 import VisionKit
 internal import Vision
@@ -21,7 +22,7 @@ struct QRScannerSheet: View {
                 } else {
                     ContentUnavailableView {
                         VStack(spacing: Spacing.md) {
-                            BrandedIcon(systemName: "camera.fill")
+                            FeatureIcon(systemName: "camera.fill")
                             Text("Camera Not Available")
                                 .font(.title2.weight(.semibold))
                         }

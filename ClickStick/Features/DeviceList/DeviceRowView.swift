@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 
 struct DeviceRowView: View {
@@ -109,47 +110,21 @@ struct DeviceRowView: View {
     // MARK: - Connection Status Badge
 
     private var connectionStatusBadge: some View {
-        Group {
-            switch device.connectionState {
-            case .disconnected:
-                statusChip(icon: "circle", color: .secondary, text: nil)
-            case .serviceDiscovery:
-                HStack(spacing: 6) {
-                    ProgressView()
-                        .controlSize(.small)
-                        .tint(.clickStickBlue)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    Capsule()
-                        .fill(Color.clickStickBlue.opacity(0.1))
-                )
-            case .connectedUnauthorized:
-                statusChip(icon: "lock.fill", color: .clickStickOrange, text: nil)
-            case .connectedAuthorized:
-                statusChip(icon: "checkmark", color: .clickStickGreen, text: nil)
-            }
-        }
-        .accessibilityHidden(true)
+        StatusBadge(status: statusBadgeState)
+            .accessibilityHidden(true)
     }
 
-    private func statusChip(icon: String, color: Color, text: String?) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption.weight(.semibold))
-            if let text {
-                Text(text)
-                    .font(.caption.weight(.medium))
-            }
+    private var statusBadgeState: StatusBadge.Status {
+        switch device.connectionState {
+        case .disconnected:
+            return .disconnected
+        case .serviceDiscovery:
+            return .connecting
+        case .connectedUnauthorized:
+            return .unauthorized
+        case .connectedAuthorized:
+            return .connected
         }
-        .foregroundStyle(color)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(
-            Capsule()
-                .fill(color.opacity(0.12))
-        )
     }
 
     // MARK: - Accessibility

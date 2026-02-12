@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 
 struct MouseView: View {
@@ -83,7 +84,7 @@ struct MouseView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Spacing.sm)
             }
-            .buttonStyle(ClickButtonStyle(color: .clickStickBlue))
+            .buttonStyle(.tintedOutline(color: .clickStickBlue))
             .accessibilityLabel("Left click button")
             .accessibilityHint("Double-tap to perform a left click")
 
@@ -99,7 +100,7 @@ struct MouseView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Spacing.sm)
             }
-            .buttonStyle(ClickButtonStyle(color: .clickStickTeal))
+            .buttonStyle(.tintedOutline(color: .clickStickTeal))
             .accessibilityLabel("Right click button")
             .accessibilityHint("Double-tap to perform a right click")
         }
@@ -163,28 +164,6 @@ struct MouseView: View {
                 alertError = AlertError(error: error)
             }
         }
-    }
-}
-
-// MARK: - Click Button Style
-
-struct ClickButtonStyle: ButtonStyle {
-    let color: Color
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundStyle(color)
-            .background(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(color.opacity(0.1))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .stroke(color.opacity(0.3), lineWidth: 1)
-            )
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 

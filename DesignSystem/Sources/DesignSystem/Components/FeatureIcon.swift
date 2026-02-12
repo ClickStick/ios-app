@@ -3,12 +3,18 @@
 
 import SwiftUI
 
-struct BrandedIcon: View {
+public struct FeatureIcon: View {
     let systemName: String
     var size: CGFloat = 120
     var iconSize: CGFloat = 48
 
-    var body: some View {
+    public init(systemName: String, size: CGFloat = 120, iconSize: CGFloat = 48) {
+        self.systemName = systemName
+        self.size = size
+        self.iconSize = iconSize
+    }
+
+    public var body: some View {
         ZStack {
             Circle()
                 .fill(
@@ -22,15 +28,15 @@ struct BrandedIcon: View {
 
             Image(systemName: systemName)
                 .font(.system(size: iconSize, weight: .medium))
-                .foregroundStyle(LinearGradient.brandGradient)
+                .foregroundStyle(LinearGradient.clickStickGradient)
         }
     }
 }
 
 #Preview {
     VStack(spacing: 24) {
-        BrandedIcon(systemName: "cable.connector.horizontal")
-        BrandedIcon(systemName: "book")
-        BrandedIcon(systemName: "camera.fill")
+        FeatureIcon(systemName: "cable.connector.horizontal")
+        FeatureIcon(systemName: "book")
+        FeatureIcon(systemName: "camera.fill")
     }
 }

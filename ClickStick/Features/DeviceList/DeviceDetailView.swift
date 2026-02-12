@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 
 struct DeviceDetailView: View {
@@ -38,7 +39,7 @@ struct DeviceDetailView: View {
 
     private var connectedContent: some View {
         VStack(spacing: 0) {
-            // Custom segmented control with brand styling
+            // Custom segmented control with app accent styling
             HStack(spacing: Spacing.xs) {
                 ForEach(availableTabs) { tab in
                     Button {
@@ -56,19 +57,12 @@ struct DeviceDetailView: View {
                         .padding(.horizontal, Spacing.md)
                         .padding(.vertical, Spacing.sm)
                         .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: CornerRadius.small)
-                                .fill(selectedTab == tab ? Color.clickStickBlue : Color.clear)
-                        )
+                        .segmentedControlItem(isSelected: selectedTab == tab, tint: .clickStickBlue)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(Spacing.xxs)
-            .background(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(Color.secondary.opacity(0.1))
-            )
+            .segmentedControlContainer()
             .padding(.horizontal, Spacing.md)
             .padding(.vertical, Spacing.sm)
             .accessibilityLabel("Device features")
@@ -105,7 +99,7 @@ struct DeviceDetailView: View {
                 Circle()
                     .trim(from: 0, to: 0.7)
                     .stroke(
-                        LinearGradient.brandGradient,
+                        LinearGradient.clickStickGradient,
                         style: StrokeStyle(lineWidth: 4, lineCap: .round)
                     )
                     .frame(width: 80, height: 80)

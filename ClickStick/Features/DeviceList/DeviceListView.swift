@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 
 struct DeviceListView: View {
@@ -105,7 +106,7 @@ struct DeviceListView: View {
     private var emptyStateContent: some View {
         ContentUnavailableView {
             VStack(spacing: Spacing.md) {
-                BrandedIcon(systemName: "antenna.radiowaves.left.and.right")
+                FeatureIcon(systemName: "antenna.radiowaves.left.and.right")
                 Text("Welcome")
                     .font(.title2.weight(.semibold))
             }

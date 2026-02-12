@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 
 struct KeyboardLayoutPicker: View {
@@ -31,19 +32,12 @@ struct KeyboardLayoutPicker: View {
                             .padding(.horizontal, Spacing.md)
                             .padding(.vertical, Spacing.sm)
                             .frame(maxWidth: .infinity)
-                            .background(
-                                RoundedRectangle(cornerRadius: CornerRadius.small)
-                                    .fill(selection == layout ? Color.clickStickTeal : Color.clear)
-                            )
+                            .segmentedControlItem(isSelected: selection == layout, tint: .clickStickTeal)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(Spacing.xxs)
-            .background(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(Color.secondary.opacity(0.1))
-            )
+            .segmentedControlContainer()
             .accessibilityLabel("Select keyboard layout")
             .accessibilityHint("Choose the keyboard layout of the target computer")
             .accessibilityValue(selection.description)

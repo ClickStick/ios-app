@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 
 /// Shared content view for typing text to a ClickStick device
@@ -106,22 +107,16 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel>: View {
                             .padding(.horizontal, Spacing.md)
                             .padding(.vertical, Spacing.sm)
                             .frame(maxWidth: .infinity)
-                            .background(
-                                RoundedRectangle(cornerRadius: CornerRadius.small)
-                                    .fill(viewModel.selectedLayout == layout
-                                        ? Color.clickStickTeal
-                                        : Color.clear)
+                            .segmentedControlItem(
+                                isSelected: viewModel.selectedLayout == layout,
+                                tint: .clickStickTeal
                             )
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(viewModel.selectedLayout == layout ? .isSelected : [])
                 }
             }
-            .padding(Spacing.xxs)
-            .background(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(Color.secondary.opacity(0.1))
-            )
+            .segmentedControlContainer()
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Keyboard layout selector")
         }
@@ -259,23 +254,14 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel>: View {
                         }
                     }
                     .padding(Spacing.sm)
-                    .background(
-                        RoundedRectangle(cornerRadius: CornerRadius.small)
-                            .fill(viewModel.selectedDeviceID == device.id
-                                ? Color.clickStickBlue.opacity(0.1)
-                                : Color.clear)
-                    )
+                    .segmentedControlItem(isSelected: viewModel.selectedDeviceID == device.id, tint: .clickStickBlue.opacity(0.12))
                 }
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(viewModel.selectedDeviceID == device.id ? .isSelected : [])
                 .accessibilityLabel("\(device.displayName), \(device.isConnected ? "connected" : "not connected")")
             }
         }
-        .padding(Spacing.xxs)
-        .background(
-            RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .fill(Color.secondary.opacity(0.08))
-        )
+        .segmentedControlContainer()
     }
 
     // MARK: - Action Button

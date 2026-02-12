@@ -1,6 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+import DesignSystem
 import SwiftUI
 import UIKit
 
@@ -135,20 +136,19 @@ class TouchpadView: UIView {
 
     private func updateColors() {
         layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
-        crosshairLayer.strokeColor = brandBlue.withAlphaComponent(0.7).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.7).cgColor
         gradientLayer?.colors = [
             UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
             UIColor.secondarySystemBackground.cgColor
         ]
     }
 
-    // Brand color matching Theme.swift
-    private var brandBlue: UIColor {
-        UIColor(red: 0.24, green: 0.51, blue: 0.87, alpha: 1.0)
+    private var accentBlue: UIColor {
+        UIColor(Color.clickStickBlue)
     }
 
     private func setupCrosshair() {
-        crosshairLayer.strokeColor = brandBlue.withAlphaComponent(0.7).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.7).cgColor
         crosshairLayer.fillColor = UIColor.clear.cgColor
         crosshairLayer.lineWidth = 2
         crosshairLayer.opacity = 0

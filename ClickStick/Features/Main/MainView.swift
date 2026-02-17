@@ -46,6 +46,8 @@ struct MainView: View {
                     router.dismissSheet()
                 }
             }
+        case .paywall:
+            PaywallView()
         }
     }
 

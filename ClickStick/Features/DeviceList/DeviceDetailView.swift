@@ -7,6 +7,7 @@ import SwiftUI
 
 struct DeviceDetailView: View {
     let device: DeviceModel
+    @Environment(\.premiumService) private var premiumService
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var alertError: AlertError?
     @State private var rotationAngle: Double = 0
@@ -71,7 +72,7 @@ struct DeviceDetailView: View {
             Group {
                 switch selectedTab {
                 case .textEntry:
-                    TextEntryView(device: device)
+                    TextEntryView(device: device, premiumService: premiumService)
                 case .mouse:
                     MouseView(device: device)
                 }

@@ -6,9 +6,25 @@ import Foundation
 import Observation
 import os.log
 
+protocol TextSendingDevice: AnyObject {
+    var isConnected: Bool { get }
+    func sendText(
+        _ text: String,
+        layout: CSKeyboardLayout,
+        speed: TypingSpeed,
+        onProgress: (@Sendable (Double) -> Void)?
+    ) async throws
+}
+
+extension TextSendingDevice {
+    func sendText(_ text: String, layout: CSKeyboardLayout, speed: TypingSpeed) async throws {
+        try await sendText(text, layout: layout, speed: speed, onProgress: nil)
+    }
+}
+
 /// Observable wrapper for CSDevice to bridge ClickStickKit to SwiftUI
 @Observable
-final class DeviceModel: Identifiable, CSDeviceObserver {
+final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
     private let log = Logger(subsystem: "io.clickstick", category: "DeviceModel")
 
     // MARK: - Underlying Device
@@ -116,9 +132,57 @@ final class DeviceModel: Identifiable, CSDeviceObserver {
         device.disconnect()
     }
 
-    func sendText(_ text: String, layout: CSKeyboardLayout, completion: CSCommandCompletion? = nil) {
-        guard isConnected else { return }
-        device.sendTypeCommands(text: text, layout: layout, completion: completion)
+    func sendText(
+        _ text: String,
+        layout: CSKeyboardLayout,
+        speed: TypingSpeed,
+        onProgress: (@Sendable (Double) -> Void)? = nil
+    ) async throws {
+        guard isConnected else { throw CSError.connectionFailed(error: nil) }
+        switch speed {
+        case .unlimited:
+            try await sendTypeCommands(text: text, layout: layout)
+            onProgress?(1.0)
+        case .human(let delay):
+            try await sendTextThrottled(text, layout: layout, delay: delay, onProgress: onProgress)
+        }
+    }
+
+    private func sendTextThrottled(
+        _ text: String,
+        layout: CSKeyboardLayout,
+        delay: TimeInterval,
+        onProgress: (@Sendable (Double) -> Void)?
+    ) async throws {
+        guard !text.isEmpty else { return }
+
+        let totalCharacters = text.count
+        for (index, character) in text.enumerated() {
+            try Task.checkCancellation()
+            try await sendTypeCommands(text: String(character), layout: layout)
+            onProgress?(Double(index + 1) / Double(totalCharacters))
+
+            if index < (totalCharacters - 1) {
+                try await Task.sleep(for: .milliseconds(delay))
+            }
+        }
+    }
+
+    private func sendTypeCommands(text: String, layout: CSKeyboardLayout) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            guard isConnected else {
+                continuation.resume(throwing: CSError.connectionFailed(error: nil))
+                return
+            }
+            device.sendTypeCommands(text: text, layout: layout) { result in
+                switch result {
+                case .success:
+                    continuation.resume()
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
 
     func sendMouseClick(button: CSMouseButton, completion: CSCommandCompletion? = nil) {

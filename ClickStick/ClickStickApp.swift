@@ -8,6 +8,7 @@ struct ClickStickApp: App {
     @State private var router = AppRouter()
     @State private var deepLinkHandler: DeepLinkHandler
     private let service = ClickStickService()
+    private let premiumService = PremiumService()
     private let urlOpener: URLOpening
 
     init() {
@@ -24,6 +25,7 @@ struct ClickStickApp: App {
                 )
             )
             .environment(\.appRouter, router)
+            .environment(\.premiumService, premiumService)
             .onOpenURL { url in
                 deepLinkHandler.handle(url: url)
             }

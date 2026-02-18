@@ -66,8 +66,8 @@ protocol TypeTextViewModel: AnyObject, Observable {
     /// Connect to the selected device
     func connectDevice()
 
-    /// Send the text to the device
-    func sendText(completion: @escaping (Bool) -> Void)
+    /// Send the text to the device. Returns true on success.
+    func sendText() async -> Bool
 }
 
 // MARK: - Default Implementations

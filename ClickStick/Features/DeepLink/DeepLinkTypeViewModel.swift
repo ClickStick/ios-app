@@ -16,6 +16,7 @@ final class DeepLinkTypeViewModel: TypeTextViewModel {
 
     private let service: ClickStickService
     private let deepLinkHandler: DeepLinkHandler
+    private let premiumService: PremiumService
     let request: TypeRequest
 
     // MARK: - TypeTextViewModel Conformance
@@ -46,10 +47,11 @@ final class DeepLinkTypeViewModel: TypeTextViewModel {
 
     // MARK: - Initialization
 
-    init(request: TypeRequest, service: ClickStickService, deepLinkHandler: DeepLinkHandler) {
+    init(request: TypeRequest, service: ClickStickService, deepLinkHandler: DeepLinkHandler, premiumService: PremiumService) {
         self.request = request
         self.service = service
         self.deepLinkHandler = deepLinkHandler
+        self.premiumService = premiumService
         self.selectedLayout = request.effectiveLayout
 
         // Auto-select device based on request or find first connected/known device
@@ -86,34 +88,30 @@ final class DeepLinkTypeViewModel: TypeTextViewModel {
         device.connect()
     }
 
-    func sendText(completion: @escaping (Bool) -> Void) {
-        guard let device = selectedDevice, canType else {
-            completion(false)
-            return
-        }
+    func sendText() async -> Bool {
+        guard let device = selectedDevice, canType else { return false }
 
         isSending = true
+        let byteCount = text.utf8.count
+        let decision = premiumService.makeSendDecision(for: byteCount)
         log.info("Sending \(self.characterCount) characters via deep link")
 
-        device.sendText(text, layout: selectedLayout) { [weak self] result in
-            guard let self else { return }
+        do {
+            try await device.sendText(text, layout: selectedLayout, speed: decision.speed)
+            premiumService.recordCompletedSend(decision)
+            log.info("Deep link text sent successfully")
+            deepLinkHandler.callSuccessURL(for: request)
             isSending = false
-
-            switch result {
-            case .success:
-                log.info("Deep link text sent successfully")
-                deepLinkHandler.callSuccessURL(for: request)
-                completion(true)
-
-            case .failure(let error):
-                log.error("Deep link text failed: \(error.localizedDescription)")
-                deepLinkHandler.callErrorURL(
-                    for: request,
-                    errorCode: .typingFailed,
-                    errorMessage: error.localizedDescription
-                )
-                completion(false)
-            }
+            return true
+        } catch {
+            log.error("Deep link text failed: \(error.localizedDescription)")
+            deepLinkHandler.callErrorURL(
+                for: request,
+                errorCode: .typingFailed,
+                errorMessage: error.localizedDescription
+            )
+            isSending = false
+            return false
         }
     }
 

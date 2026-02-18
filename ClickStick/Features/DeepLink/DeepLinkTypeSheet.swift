@@ -8,6 +8,7 @@ import SwiftUI
 /// Sheet presented when the app receives a deep link request to type text
 struct DeepLinkTypeSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.premiumService) private var premiumService
 
     let request: TypeRequest
     let service: ClickStickService
@@ -28,7 +29,8 @@ struct DeepLinkTypeSheet: View {
                             viewModel = DeepLinkTypeViewModel(
                                 request: request,
                                 service: service,
-                                deepLinkHandler: deepLinkHandler
+                                deepLinkHandler: deepLinkHandler,
+                                premiumService: premiumService
                             )
                         }
                 }

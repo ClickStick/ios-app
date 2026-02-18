@@ -134,7 +134,9 @@ final class TextEntryViewModel {
         isSending = true
         sendingProgress = nil
 
-        let byteCount = text.utf8.count
+        let textToSend = text
+
+        let byteCount = textToSend.utf8.count
         let hadFullSpeedBytesBeforeSend = premiumService.hasAnyFullSpeedBytes
         let decision = premiumService.makeSendDecision(for: byteCount)
 
@@ -142,7 +144,7 @@ final class TextEntryViewModel {
             guard let self else { return }
 
             do {
-                try await device.sendText(text, layout: selectedLayout, speed: decision.speed) { progress in
+                try await device.sendText(textToSend, layout: selectedLayout, speed: decision.speed) { progress in
                     Task { @MainActor [weak self] in
                         self?.sendingProgress = progress
                     }

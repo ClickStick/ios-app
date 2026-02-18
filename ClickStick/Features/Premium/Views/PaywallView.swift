@@ -13,6 +13,7 @@ struct PaywallView: View {
     @State private var isPurchasing: Bool = false
     @State private var isLoadingProducts: Bool = false
     @State private var purchaseError: String?
+    @State private var purchaseSucceeded: Bool = false
 
     private var subscriptionProducts: [Product] {
         premiumService.products.filter { $0.type == .autoRenewable }
@@ -297,33 +298,50 @@ struct PaywallView: View {
                     .accessibilityLabel(String(localized: "Purchase error: \(error)", comment: "Purchase error accessibility"))
             }
 
-            Button {
-                guard let product = selectedProduct else { return }
-                Task { await purchase(product) }
-            } label: {
-                HStack {
-                    if isPurchasing {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    }
-                    if let product = selectedProduct {
-                        Text("Subscribe for \(pricePerPeriod(for: product))", comment: "Subscribe CTA button")
-                    } else {
-                        Text("Select a plan", comment: "CTA placeholder when no plan selected")
-                    }
+            if purchaseSucceeded {
+                HStack(spacing: Spacing.xs) {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("You're all set!", comment: "Purchase success confirmation")
                 }
                 .frame(maxWidth: .infinity)
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(.horizontal, Spacing.lg)
+                .padding(.vertical, Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .fill(Color.clickStickGreen)
+                )
+                .accessibilityLabel(String(localized: "Purchase successful", comment: "Purchase success accessibility"))
+            } else {
+                Button {
+                    guard let product = selectedProduct else { return }
+                    Task { await purchase(product) }
+                } label: {
+                    HStack {
+                        if isPurchasing {
+                            ProgressView()
+                                .controlSize(.small)
+                                .tint(.white)
+                        }
+                        if let product = selectedProduct {
+                            Text("Subscribe for \(pricePerPeriod(for: product))", comment: "Subscribe CTA button")
+                        } else {
+                            Text("Select a plan", comment: "CTA placeholder when no plan selected")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.primary)
+                .disabled(selectedProduct == nil || isPurchasing)
+                .accessibilityLabel(
+                    isPurchasing
+                        ? String(localized: "Processing purchase", comment: "CTA accessibility during purchase")
+                        : selectedProduct.map {
+                            String(localized: "Subscribe for \(pricePerPeriod(for: $0))", comment: "CTA accessibility")
+                        } ?? String(localized: "Select a plan first", comment: "CTA accessibility when no plan selected")
+                )
             }
-            .buttonStyle(.primary)
-            .disabled(selectedProduct == nil || isPurchasing)
-            .accessibilityLabel(
-                isPurchasing
-                    ? String(localized: "Processing purchase", comment: "CTA accessibility during purchase")
-                    : selectedProduct.map {
-                        String(localized: "Subscribe for \(pricePerPeriod(for: $0))", comment: "CTA accessibility")
-                    } ?? String(localized: "Select a plan first", comment: "CTA accessibility when no plan selected")
-            )
         }
         .padding(.horizontal, Spacing.md)
         .padding(.top, Spacing.sm)
@@ -401,7 +419,16 @@ struct PaywallView: View {
         isPurchasing = true
         purchaseError = nil
         do {
-            _ = try await premiumService.purchase(product)
+            let success = try await premiumService.purchase(product)
+            if success {
+                isPurchasing = false
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    purchaseSucceeded = true
+                }
+                try? await Task.sleep(for: .seconds(1.5))
+                dismiss()
+                return
+            }
         } catch {
             purchaseError = error.localizedDescription
         }

@@ -67,15 +67,15 @@ struct PaywallView: View {
                 }
             }
             .task {
-                guard premiumService.products.isEmpty else { return }
-                isLoadingProducts = true
-                await premiumService.loadProducts()
-                isLoadingProducts = false
-                if selectedProductID == nil {
-                    selectedProductID = subscriptionProducts.first(where: {
-                        $0.id == PremiumService.subMonthlyUnlimited
-                    })?.id ?? subscriptionProducts.first?.id
+                if premiumService.products.isEmpty {
+                    isLoadingProducts = true
+                    await premiumService.loadProducts()
+                    isLoadingProducts = false
                 }
+                ensureSelectedSubscriptionIfNeeded()
+            }
+            .onChange(of: premiumService.products.map(\.id)) { _, _ in
+                ensureSelectedSubscriptionIfNeeded()
             }
         }
     }
@@ -433,6 +433,17 @@ struct PaywallView: View {
             purchaseError = error.localizedDescription
         }
         isPurchasing = false
+    }
+
+    private func ensureSelectedSubscriptionIfNeeded() {
+        let hasValidSelection = selectedProductID.map { selectedID in
+            subscriptionProducts.contains { $0.id == selectedID }
+        } ?? false
+        guard !hasValidSelection else { return }
+
+        selectedProductID = subscriptionProducts.first(where: {
+            $0.id == PremiumService.subMonthlyUnlimited
+        })?.id ?? subscriptionProducts.first?.id
     }
 }
 

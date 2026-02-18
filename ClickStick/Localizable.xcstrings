@@ -18,6 +18,12 @@
             "state" : "new",
             "value" : "%1$@, %2$@"
           }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@"
+          }
         }
       }
     },
@@ -29,29 +35,91 @@
             "state" : "new",
             "value" : "%1$@, %2$@, %3$@"
           }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@, %3$@"
+          }
         }
       }
     },
     "%@/day" : {
-      "comment" : "Daily price label"
+      "comment" : "Daily price label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/deň"
+          }
+        }
+      }
     },
     "%@/month" : {
-      "comment" : "Monthly price label"
+      "comment" : "Monthly price label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/mesiac"
+          }
+        }
+      }
     },
     "%@/week" : {
-      "comment" : "Weekly price label"
+      "comment" : "Weekly price label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/týždeň"
+          }
+        }
+      }
     },
     "%@/year" : {
-      "comment" : "Yearly price label"
+      "comment" : "Yearly price label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/rok"
+          }
+        }
+      }
     },
     "%lld bytes of free quota remaining" : {
-      "comment" : "Quota status with remaining bytes"
+      "comment" : "Quota status with remaining bytes",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostáva %lld bajtov z bezplatnej kvóty"
+          }
+        }
+      }
     },
     "%lld bytes of full speed left" : {
-      "comment" : "Quota indicator with remaining bytes"
+      "comment" : "Quota indicator with remaining bytes",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostáva %lld bajtov plnej rýchlosti"
+          }
+        }
+      }
     },
     "%lld bytes of full-speed quota remaining. Tap to upgrade." : {
-      "comment" : "Quota indicator accessibility with remaining bytes"
+      "comment" : "Quota indicator accessibility with remaining bytes",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostáva %lld bajtov kvóty plnej rýchlosti. Klepnite pre upgrade."
+          }
+        }
+      }
     },
     "%lld characters" : {
       "comment" : "Character count label\nText field character count",
@@ -82,14 +150,36 @@
             "state" : "new",
             "value" : "%1$lld monthly bytes + %2$lld bonus bytes left"
           }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostáva %1$lld mesačných bajtov + %2$lld bonusových bajtov"
+          }
         }
       }
     },
     "%lld monthly bytes left on your plan" : {
-      "comment" : "Quota status for limited subscription"
+      "comment" : "Quota status for limited subscription",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vo vašom pláne zostáva %lld mesačných bajtov"
+          }
+        }
+      }
     },
     "1 KB of instant typing, no subscription" : {
-      "comment" : "One-time pack description"
+      "comment" : "One-time pack description",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 KB okamžitého písania, bez predplatného"
+          }
+        }
+      }
     },
     "An unknown error occurred." : {
       "comment" : "Default error message",
@@ -135,10 +225,26 @@
       }
     },
     "Benefits: instant typing, saves time, works everywhere" : {
-      "comment" : "Paywall benefits summary"
+      "comment" : "Paywall benefits summary",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výhody: okamžité písanie, úspora času, funguje všade"
+          }
+        }
+      }
     },
     "Best" : {
-      "comment" : "Recommended plan badge"
+      "comment" : "Recommended plan badge",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najlepšie"
+          }
+        }
+      }
     },
     "Camera Not Available" : {
       "localizations" : {
@@ -206,10 +312,26 @@
       }
     },
     "Cancel sending" : {
-      "comment" : "Cancel send accessibility"
+      "comment" : "Cancel send accessibility",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrušiť odosielanie"
+          }
+        }
+      }
     },
     "Choose a plan" : {
-      "comment" : "Paywall section header"
+      "comment" : "Paywall section header",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte plán"
+          }
+        }
+      }
     },
     "Choose the keyboard layout of the target computer" : {
       "comment" : "Accessibility hint",
@@ -266,7 +388,14 @@
       }
     },
     "Connect to a device first" : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najprv sa pripojte k zariadeniu"
+          }
+        }
+      }
     },
     "Connect to device" : {
       "comment" : "Accessibility label\nAccessibility label for connect button",
@@ -529,7 +658,14 @@
       }
     },
     "Double tap to type the text" : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím napíšete text"
+          }
+        }
+      }
     },
     "Double-tap the connect button to reconnect" : {
       "comment" : "Accessibility hint for disconnected state",
@@ -587,10 +723,26 @@
       }
     },
     "Double-tap to purchase" : {
-      "comment" : "Purchase hint"
+      "comment" : "Purchase hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím kúpite"
+          }
+        }
+      }
     },
     "Double-tap to select this plan" : {
-      "comment" : "Plan card hint"
+      "comment" : "Plan card hint",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvojitým klepnutím vyberiete tento plán"
+          }
+        }
+      }
     },
     "Double-tap to send %lld characters" : {
       "comment" : "Accessibility hint",
@@ -713,7 +865,15 @@
       }
     },
     "External app" : {
-      "comment" : "Unknown source app for deep link"
+      "comment" : "Unknown source app for deep link",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externá aplikácia"
+          }
+        }
+      }
     },
     "Failed to send text" : {
       "comment" : "Deep link error",
@@ -727,10 +887,26 @@
       }
     },
     "For occasional use" : {
-      "comment" : "Subscription tier description"
+      "comment" : "Subscription tier description",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na občasné používanie"
+          }
+        }
+      }
     },
     "For regular use" : {
-      "comment" : "Subscription tier description"
+      "comment" : "Subscription tier description",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na pravidelné používanie"
+          }
+        }
+      }
     },
     "Forget Device" : {
       "comment" : "Context menu action",
@@ -744,10 +920,26 @@
       }
     },
     "Free quota used up — purchase to type at full speed" : {
-      "comment" : "Quota status when depleted"
+      "comment" : "Quota status when depleted",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezplatná kvóta je vyčerpaná — kúpte pre písanie plnou rýchlosťou"
+          }
+        }
+      }
     },
     "Free users type character-by-character at human speed. Upgrade to send text instantly." : {
-      "comment" : "Paywall subtitle"
+      "comment" : "Paywall subtitle",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezplatní používatelia píšu znak po znaku ľudskou rýchlosťou. Prejdite na vyšší plán a odosielajte text okamžite."
+          }
+        }
+      }
     },
     "Getting Started" : {
       "comment" : "Getting started button",
@@ -792,13 +984,36 @@
       }
     },
     "Hide text" : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryť text"
+          }
+        }
+      }
     },
     "Human speed — no full-speed quota left" : {
-      "comment" : "Quota indicator when no full-speed bytes are available"
+      "comment" : "Quota indicator when no full-speed bytes are available",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ľudská rýchlosť — nezostala kvóta plnej rýchlosti"
+          }
+        }
+      }
     },
     "Human speed for this text (%lld bytes left)" : {
-      "comment" : "Quota indicator when current text exceeds remaining full-speed quota"
+      "comment" : "Quota indicator when current text exceeds remaining full-speed quota",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pre tento text ľudská rýchlosť (zostáva %lld bajtov)"
+          }
+        }
+      }
     },
     "Insert %@" : {
       "comment" : "Preset button accessibility",
@@ -845,7 +1060,15 @@
       }
     },
     "Just need a little?" : {
-      "comment" : "One-time pack heading"
+      "comment" : "One-time pack heading",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potrebujete len trochu?"
+          }
+        }
+      }
     },
     "Keyboard Layout" : {
       "comment" : "Picker label",
@@ -859,7 +1082,14 @@
       }
     },
     "Keyboard layout selector" : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výber rozloženia klávesnice"
+          }
+        }
+      }
     },
     "Left Click" : {
       "localizations" : {
@@ -894,10 +1124,26 @@
       }
     },
     "Minutes of typing delivered in seconds" : {
-      "comment" : "Paywall benefit"
+      "comment" : "Paywall benefit",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minúty písania doručené za sekundy"
+          }
+        }
+      }
     },
     "Missing text parameter" : {
-      "comment" : "Deep link error"
+      "comment" : "Deep link error",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chýba parameter textu"
+          }
+        }
+      }
     },
     "Nickname" : {
       "localizations" : {
@@ -942,7 +1188,15 @@
       }
     },
     "No full-speed quota remaining. Tap to upgrade." : {
-      "comment" : "Quota indicator accessibility when depleted"
+      "comment" : "Quota indicator accessibility when depleted",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nezostala žiadna kvóta plnej rýchlosti. Klepnite pre upgrade."
+          }
+        }
+      }
     },
     "No paired devices found" : {
       "localizations" : {
@@ -977,7 +1231,15 @@
       }
     },
     "One-time pack: 1 KB of instant typing for %@" : {
-      "comment" : "One-time pack accessibility"
+      "comment" : "One-time pack accessibility",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jednorazový balík: 1 KB okamžitého písania za %@"
+          }
+        }
+      }
     },
     "Open Settings" : {
       "localizations" : {
@@ -990,7 +1252,14 @@
       }
     },
     "Open the ClickStick app to pair a device first." : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najprv otvorte aplikáciu ClickStick a spárujte zariadenie."
+          }
+        }
+      }
     },
     "Opens camera to scan the QR code from your ClickStick" : {
       "comment" : "Accessibility hint",
@@ -1015,10 +1284,26 @@
       }
     },
     "or" : {
-      "comment" : "Separator between subscription and one-time options"
+      "comment" : "Separator between subscription and one-time options",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alebo"
+          }
+        }
+      }
     },
     "Plans temporarily unavailable." : {
-      "comment" : "Paywall empty state"
+      "comment" : "Paywall empty state",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plány sú dočasne nedostupné."
+          }
+        }
+      }
     },
     "Please wait" : {
       "comment" : "Accessibility hint",
@@ -1054,10 +1339,37 @@
       }
     },
     "Processing purchase" : {
-      "comment" : "CTA accessibility during purchase"
+      "comment" : "CTA accessibility during purchase",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spracovanie nákupu"
+          }
+        }
+      }
     },
     "Purchase error: %@" : {
-      "comment" : "Purchase error accessibility"
+      "comment" : "Purchase error accessibility",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba nákupu: %@"
+          }
+        }
+      }
+    },
+    "Purchase successful" : {
+      "comment" : "Purchase success accessibility",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nákup bol úspešný"
+          }
+        }
+      }
     },
     "Quick Presets" : {
       "comment" : "Quick presets section header",
@@ -1082,13 +1394,36 @@
       }
     },
     "Request from %@" : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Požiadavka od %@"
+          }
+        }
+      }
     },
     "Restore previous purchases" : {
-      "comment" : "Restore button accessibility"
+      "comment" : "Restore button accessibility",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obnoviť predchádzajúce nákupy"
+          }
+        }
+      }
     },
     "Restore Purchases" : {
-      "comment" : "Restore purchases button"
+      "comment" : "Restore purchases button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obnoviť nákupy"
+          }
+        }
+      }
     },
     "Right Click" : {
       "localizations" : {
@@ -1229,10 +1564,26 @@
       }
     },
     "Select a plan" : {
-      "comment" : "CTA placeholder when no plan selected"
+      "comment" : "CTA placeholder when no plan selected",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyberte plán"
+          }
+        }
+      }
     },
     "Select a plan first" : {
-      "comment" : "CTA accessibility when no plan selected"
+      "comment" : "CTA accessibility when no plan selected",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najprv vyberte plán"
+          }
+        }
+      }
     },
     "Select between text entry and touchpad modes" : {
       "comment" : "Accessibility hint for feature picker",
@@ -1267,13 +1618,37 @@
       }
     },
     "Send at Human Speed" : {
-      "comment" : "Throttled send button"
+      "comment" : "Throttled send button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odoslať ľudskou rýchlosťou"
+          }
+        }
+      }
     },
     "Send entire text in one shot, not character-by-character" : {
-      "comment" : "Paywall benefit"
+      "comment" : "Paywall benefit",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odošlite celý text naraz, nie znak po znaku"
+          }
+        }
+      }
     },
     "Send Instantly" : {
-      "comment" : "Full-speed send button"
+      "comment" : "Full-speed send button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odoslať okamžite"
+          }
+        }
+      }
     },
     "Send text to device" : {
       "comment" : "Send button accessibility",
@@ -1287,7 +1662,15 @@
       }
     },
     "Sending at human speed... %lld%%" : {
-      "comment" : "Throttled send progress"
+      "comment" : "Throttled send progress",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odosielanie ľudskou rýchlosťou... %lld%%"
+          }
+        }
+      }
     },
     "Sending..." : {
       "comment" : "Sending in progress",
@@ -1333,7 +1716,14 @@
       }
     },
     "Show text" : {
-
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobraziť text"
+          }
+        }
+      }
     },
     "Specified device not found" : {
       "comment" : "Deep link error",
@@ -1369,10 +1759,26 @@
       }
     },
     "Subscribe for %@" : {
-      "comment" : "CTA accessibility\nSubscribe CTA button"
+      "comment" : "CTA accessibility\nSubscribe CTA button",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Predplatiť za %@"
+          }
+        }
+      }
     },
     "Subscriptions renew monthly. Cancel anytime in Settings." : {
-      "comment" : "Subscription terms disclaimer"
+      "comment" : "Subscription terms disclaimer",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Predplatné sa obnovuje každý mesiac. Zrušiť ho môžete kedykoľvek v Nastaveniach."
+          }
+        }
+      }
     },
     "Tap Connect to start using this device." : {
       "localizations" : {
@@ -1396,7 +1802,15 @@
       }
     },
     "Text cannot be empty" : {
-      "comment" : "Deep link error"
+      "comment" : "Deep link error",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text nemôže byť prázdny"
+          }
+        }
+      }
     },
     "Text Entry" : {
       "comment" : "Tab title",
@@ -1453,7 +1867,15 @@
       }
     },
     "This text will be sent at human speed. %lld full-speed bytes remain." : {
-      "comment" : "Quota indicator accessibility when text exceeds quota"
+      "comment" : "Quota indicator accessibility when text exceeds quota",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento text sa odošle ľudskou rýchlosťou. Zostáva %lld bajtov plnej rýchlosti."
+          }
+        }
+      }
     },
     "Touchpad" : {
       "comment" : "Tab title",
@@ -1510,7 +1932,15 @@
       }
     },
     "Type at Full Speed" : {
-      "comment" : "Paywall headline"
+      "comment" : "Paywall headline",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Píšte plnou rýchlosťou"
+          }
+        }
+      }
     },
     "Type Now" : {
       "localizations" : {
@@ -1533,13 +1963,37 @@
       }
     },
     "Unlimited instant typing" : {
-      "comment" : "Subscription tier description"
+      "comment" : "Subscription tier description",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neobmedzené okamžité písanie"
+          }
+        }
+      }
     },
     "Unlimited subscription active" : {
-      "comment" : "Quota status"
+      "comment" : "Quota status",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neobmedzené predplatné je aktívne"
+          }
+        }
+      }
     },
     "Upgrade" : {
-      "comment" : "Paywall navigation title\nUpgrade link label"
+      "comment" : "Paywall navigation title\nUpgrade link label",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upgradovať"
+          }
+        }
+      }
     },
     "User cancelled" : {
       "comment" : "Deep link error",
@@ -1574,7 +2028,26 @@
       }
     },
     "Works in main app, Share extension and deep links" : {
-      "comment" : "Paywall benefit"
+      "comment" : "Paywall benefit",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funguje v hlavnej aplikácii, Share rozšírení a deep linkoch"
+          }
+        }
+      }
+    },
+    "You're all set!" : {
+      "comment" : "Purchase success confirmation",
+      "localizations" : {
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Všetko je pripravené!"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

@@ -178,22 +178,9 @@ struct TextEntryView: View {
                 quotaIndicator(viewModel)
             }
 
-            if viewModel.isSending {
+            if viewModel.isSending && viewModel.isThrottled {
+                // Human speed: Cancel button takes the send button's place, progress bar below
                 VStack(spacing: Spacing.xs) {
-                    if let progress = viewModel.sendingProgress, viewModel.isThrottled {
-                        ProgressView(value: progress)
-                            .tint(Color.clickStickOrange)
-                        Text("Sending at human speed... \(Int(progress * 100))%", comment: "Throttled send progress")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ProgressView()
-                            .controlSize(.small)
-                        Text(viewModel.sendButtonTitle)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
                     Button {
                         viewModel.cancelSend()
                     } label: {
@@ -201,12 +188,23 @@ struct TextEntryView: View {
                             Image(systemName: "xmark.circle.fill")
                             Text("Cancel", comment: "Cancel send button")
                         }
+                        .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.secondary)
+                    .buttonStyle(.primary)
                     .accessibilityLabel(String(localized: "Cancel sending", comment: "Cancel send accessibility"))
+
+                    if let progress = viewModel.sendingProgress {
+                        VStack(spacing: Spacing.xxs) {
+                            ProgressView(value: progress)
+                                .tint(Color.clickStickOrange)
+                            Text("Sending at human speed... \(Int(progress * 100))%", comment: "Throttled send progress")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .padding(Spacing.sm)
             } else {
+                // Instant send or idle: show the send button, briefly disabled during instant send
                 Button {
                     isTextFieldFocused = false
                     viewModel.sendText()

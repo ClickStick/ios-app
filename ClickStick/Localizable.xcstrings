@@ -21,7 +21,40 @@
         }
       }
     },
+    "%@, %@, %@" : {
+      "comment" : "Plan card accessibility",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, %3$@"
+          }
+        }
+      }
+    },
+    "%@/day" : {
+      "comment" : "Daily price label"
+    },
+    "%@/month" : {
+      "comment" : "Monthly price label"
+    },
+    "%@/week" : {
+      "comment" : "Weekly price label"
+    },
+    "%@/year" : {
+      "comment" : "Yearly price label"
+    },
+    "%lld bytes of free quota remaining" : {
+      "comment" : "Quota status with remaining bytes"
+    },
+    "%lld bytes of full speed left" : {
+      "comment" : "Quota indicator with remaining bytes"
+    },
+    "%lld bytes of full-speed quota remaining. Tap to upgrade." : {
+      "comment" : "Quota indicator accessibility with remaining bytes"
+    },
     "%lld characters" : {
+      "comment" : "Character count label\nText field character count",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -41,6 +74,23 @@
         }
       }
     },
+    "%lld monthly bytes + %lld bonus bytes left" : {
+      "comment" : "Quota status for limited subscription with bonus quota",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld monthly bytes + %2$lld bonus bytes left"
+          }
+        }
+      }
+    },
+    "%lld monthly bytes left on your plan" : {
+      "comment" : "Quota status for limited subscription"
+    },
+    "1 KB of instant typing, no subscription" : {
+      "comment" : "One-time pack description"
+    },
     "An unknown error occurred." : {
       "comment" : "Default error message",
       "localizations" : {
@@ -48,18 +98,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vyskytla sa neznáma chyba."
-          }
-        }
-      }
-    },
-    "Another app" : {
-      "comment" : "Unknown source app",
-      "extractionState" : "stale",
-      "localizations" : {
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Iná aplikácia"
           }
         }
       }
@@ -96,6 +134,12 @@
         }
       }
     },
+    "Benefits: instant typing, saves time, works everywhere" : {
+      "comment" : "Paywall benefits summary"
+    },
+    "Best" : {
+      "comment" : "Recommended plan badge"
+    },
     "Camera Not Available" : {
       "localizations" : {
         "sk" : {
@@ -118,7 +162,7 @@
       }
     },
     "Cancel" : {
-      "comment" : "Button title",
+      "comment" : "Cancel send button",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -161,6 +205,12 @@
         }
       }
     },
+    "Cancel sending" : {
+      "comment" : "Cancel send accessibility"
+    },
+    "Choose a plan" : {
+      "comment" : "Paywall section header"
+    },
     "Choose the keyboard layout of the target computer" : {
       "comment" : "Accessibility hint",
       "localizations" : {
@@ -184,7 +234,7 @@
       }
     },
     "Clear text" : {
-      "comment" : "Accessibility label for clear button",
+      "comment" : "Clear text button accessibility",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -258,17 +308,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pripájanie k %@"
-          }
-        }
-      }
-    },
-    "Connecting to %@..." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pripájanie k %@..."
           }
         }
       }
@@ -479,6 +518,7 @@
       }
     },
     "Done" : {
+      "comment" : "Dismiss keyboard button\nDismiss paywall",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -545,6 +585,12 @@
           }
         }
       }
+    },
+    "Double-tap to purchase" : {
+      "comment" : "Purchase hint"
+    },
+    "Double-tap to select this plan" : {
+      "comment" : "Plan card hint"
     },
     "Double-tap to send %lld characters" : {
       "comment" : "Accessibility hint",
@@ -634,6 +680,7 @@
       }
     },
     "Enter the text you want to type on the connected device" : {
+      "comment" : "Text editor accessibility hint",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -679,6 +726,12 @@
         }
       }
     },
+    "For occasional use" : {
+      "comment" : "Subscription tier description"
+    },
+    "For regular use" : {
+      "comment" : "Subscription tier description"
+    },
     "Forget Device" : {
       "comment" : "Context menu action",
       "localizations" : {
@@ -689,6 +742,12 @@
           }
         }
       }
+    },
+    "Free quota used up — purchase to type at full speed" : {
+      "comment" : "Quota status when depleted"
+    },
+    "Free users type character-by-character at human speed. Upgrade to send text instantly." : {
+      "comment" : "Paywall subtitle"
     },
     "Getting Started" : {
       "comment" : "Getting started button",
@@ -735,7 +794,14 @@
     "Hide text" : {
 
     },
+    "Human speed — no full-speed quota left" : {
+      "comment" : "Quota indicator when no full-speed bytes are available"
+    },
+    "Human speed for this text (%lld bytes left)" : {
+      "comment" : "Quota indicator when current text exceeds remaining full-speed quota"
+    },
     "Insert %@" : {
+      "comment" : "Preset button accessibility",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -777,6 +843,9 @@
           }
         }
       }
+    },
+    "Just need a little?" : {
+      "comment" : "One-time pack heading"
     },
     "Keyboard Layout" : {
       "comment" : "Picker label",
@@ -824,6 +893,9 @@
         }
       }
     },
+    "Minutes of typing delivered in seconds" : {
+      "comment" : "Paywall benefit"
+    },
     "Missing text parameter" : {
       "comment" : "Deep link error"
     },
@@ -869,24 +941,15 @@
         }
       }
     },
+    "No full-speed quota remaining. Tap to upgrade." : {
+      "comment" : "Quota indicator accessibility when depleted"
+    },
     "No paired devices found" : {
       "localizations" : {
         "sk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nenašli sa žiadne spárované zariadenia"
-          }
-        }
-      }
-    },
-    "No text to type" : {
-      "comment" : "Deep link error",
-      "extractionState" : "stale",
-      "localizations" : {
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Žiadny text na napísanie"
           }
         }
       }
@@ -912,6 +975,9 @@
           }
         }
       }
+    },
+    "One-time pack: 1 KB of instant typing for %@" : {
+      "comment" : "One-time pack accessibility"
     },
     "Open Settings" : {
       "localizations" : {
@@ -948,6 +1014,12 @@
         }
       }
     },
+    "or" : {
+      "comment" : "Separator between subscription and one-time options"
+    },
+    "Plans temporarily unavailable." : {
+      "comment" : "Paywall empty state"
+    },
     "Please wait" : {
       "comment" : "Accessibility hint",
       "localizations" : {
@@ -981,7 +1053,14 @@
         }
       }
     },
+    "Processing purchase" : {
+      "comment" : "CTA accessibility during purchase"
+    },
+    "Purchase error: %@" : {
+      "comment" : "Purchase error accessibility"
+    },
     "Quick Presets" : {
+      "comment" : "Quick presets section header",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -992,7 +1071,7 @@
       }
     },
     "Replaces current text" : {
-      "comment" : "Accessibility hint for preset button",
+      "comment" : "Preset button hint",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1004,6 +1083,12 @@
     },
     "Request from %@" : {
 
+    },
+    "Restore previous purchases" : {
+      "comment" : "Restore button accessibility"
+    },
+    "Restore Purchases" : {
+      "comment" : "Restore purchases button"
     },
     "Right Click" : {
       "localizations" : {
@@ -1143,6 +1228,12 @@
         }
       }
     },
+    "Select a plan" : {
+      "comment" : "CTA placeholder when no plan selected"
+    },
+    "Select a plan first" : {
+      "comment" : "CTA accessibility when no plan selected"
+    },
     "Select between text entry and touchpad modes" : {
       "comment" : "Accessibility hint for feature picker",
       "localizations" : {
@@ -1175,17 +1266,17 @@
         }
       }
     },
-    "Send Text" : {
-      "localizations" : {
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odoslať text"
-          }
-        }
-      }
+    "Send at Human Speed" : {
+      "comment" : "Throttled send button"
+    },
+    "Send entire text in one shot, not character-by-character" : {
+      "comment" : "Paywall benefit"
+    },
+    "Send Instantly" : {
+      "comment" : "Full-speed send button"
     },
     "Send text to device" : {
+      "comment" : "Send button accessibility",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1195,15 +1286,8 @@
         }
       }
     },
-    "Sending text" : {
-      "localizations" : {
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odosielanie textu"
-          }
-        }
-      }
+    "Sending at human speed... %lld%%" : {
+      "comment" : "Throttled send progress"
     },
     "Sending..." : {
       "comment" : "Sending in progress",
@@ -1284,6 +1368,12 @@
         }
       }
     },
+    "Subscribe for %@" : {
+      "comment" : "CTA accessibility\nSubscribe CTA button"
+    },
+    "Subscriptions renew monthly. Cancel anytime in Settings." : {
+      "comment" : "Subscription terms disclaimer"
+    },
     "Tap Connect to start using this device." : {
       "localizations" : {
         "sk" : {
@@ -1331,6 +1421,7 @@
       }
     },
     "Text to send" : {
+      "comment" : "Text editor accessibility label",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1341,6 +1432,7 @@
       }
     },
     "Text to type" : {
+      "comment" : "Text entry section header",
       "localizations" : {
         "sk" : {
           "stringUnit" : {
@@ -1359,6 +1451,9 @@
           }
         }
       }
+    },
+    "This text will be sent at human speed. %lld full-speed bytes remain." : {
+      "comment" : "Quota indicator accessibility when text exceeds quota"
     },
     "Touchpad" : {
       "comment" : "Tab title",
@@ -1414,6 +1509,9 @@
         }
       }
     },
+    "Type at Full Speed" : {
+      "comment" : "Paywall headline"
+    },
     "Type Now" : {
       "localizations" : {
         "sk" : {
@@ -1433,6 +1531,15 @@
           }
         }
       }
+    },
+    "Unlimited instant typing" : {
+      "comment" : "Subscription tier description"
+    },
+    "Unlimited subscription active" : {
+      "comment" : "Quota status"
+    },
+    "Upgrade" : {
+      "comment" : "Paywall navigation title\nUpgrade link label"
     },
     "User cancelled" : {
       "comment" : "Deep link error",
@@ -1465,6 +1572,9 @@
           }
         }
       }
+    },
+    "Works in main app, Share extension and deep links" : {
+      "comment" : "Paywall benefit"
     }
   },
   "version" : "1.1"

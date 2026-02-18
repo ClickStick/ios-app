@@ -75,6 +75,8 @@
 				Features/DeviceList/Models/DeviceModel.swift,
 				Shared/Components/TypeTextContentView.swift,
 				Shared/Components/TypeTextViewModel.swift,
+				Shared/Models/TypingSpeed.swift,
+				Shared/Services/PremiumService.swift,
 			);
 			target = 7571A5C22F359CD500CD7E3F /* ShareExtension */;
 		};

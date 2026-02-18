@@ -17,6 +17,7 @@ struct TextEntryViewModelPremiumIntegrationTests {
 
         var isConnected: Bool = true
         var shouldFailSend: Bool = false
+        private(set) var lastSentText: String?
         private(set) var lastSpeed: TypingSpeed?
         private(set) var sendCallCount: Int = 0
 
@@ -27,6 +28,7 @@ struct TextEntryViewModelPremiumIntegrationTests {
             onProgress: (@Sendable (Double) -> Void)?
         ) async throws {
             sendCallCount += 1
+            lastSentText = text
             lastSpeed = speed
             if shouldFailSend {
                 throw MockError.sendFailed
@@ -189,6 +191,30 @@ struct TextEntryViewModelPremiumIntegrationTests {
         } else {
             Issue.record("Expected human speed when quota is exhausted")
         }
+    }
+
+    @Test
+    func sendUsesTextSnapshotFromTapTime() async {
+        let (premiumService, defaults, suiteName) = makePremiumService(
+            hasSubscription: false,
+            oneTimeQuotaBytes: 500
+        )
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let device = MockTextDevice()
+        let viewModel = TextEntryViewModel(device: device, premiumService: premiumService)
+        let originalText = String(repeating: "a", count: 120)
+        viewModel.text = originalText
+
+        viewModel.sendText()
+        viewModel.text = "edited after tapping send"
+
+        while viewModel.isSending {
+            await Task.yield()
+        }
+
+        #expect(device.lastSentText == originalText)
+        #expect(premiumService.remainingBytes == 380)
     }
 
     // MARK: - Helpers

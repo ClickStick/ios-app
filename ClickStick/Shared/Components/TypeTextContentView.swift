@@ -294,7 +294,8 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel>: View {
             }
 
             Button {
-                viewModel.sendText { success in
+                Task {
+                    let success = await viewModel.sendText()
                     if success {
                         onDismiss()
                     }

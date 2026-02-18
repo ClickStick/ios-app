@@ -15,6 +15,7 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
     // MARK: - Dependencies
 
     private let manager: CSManager
+    private let premiumService: PremiumService
 
     // MARK: - TypeTextViewModel Conformance
 
@@ -52,6 +53,7 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
     init(sharedText: String, manager: CSManager = .shared) {
         self.text = sharedText
         self.manager = manager
+        self.premiumService = PremiumService(autoSyncStoreKit: false)
         self.selectedLayout = CSKeyboardLayout.fromSystemLocale()
 
         manager.delegate = self
@@ -115,29 +117,25 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
     }
 
     /// Send the text to the device
-    func sendText(completion: @escaping (Bool) -> Void) {
-        guard let device = selectedDevice, canType else {
-            completion(false)
-            return
-        }
+    func sendText() async -> Bool {
+        guard let device = selectedDevice, canType else { return false }
 
         isSending = true
-        log.info("Sending \(self.characterCount) characters via Share Extension")
+        let byteCount = text.utf8.count
+        let decision = premiumService.makeSendDecision(for: byteCount)
+        log.info("Sending \(self.characterCount) characters via Share Extension (premium: \(self.premiumService.isPremium))")
 
-        device.sendText(text, layout: selectedLayout) { [weak self] result in
-            guard let self else { return }
+        do {
+            try await device.sendText(text, layout: selectedLayout, speed: decision.speed)
+            premiumService.recordCompletedSend(decision)
+            log.info("Share Extension text sent successfully")
             isSending = false
-
-            switch result {
-            case .success:
-                log.info("Share Extension text sent successfully")
-                completion(true)
-
-            case .failure(let error):
-                log.error("Share Extension text failed: \(error.localizedDescription)")
-                connectionError = error.localizedDescription
-                completion(false)
-            }
+            return true
+        } catch {
+            log.error("Share Extension text failed: \(error.localizedDescription)")
+            connectionError = error.localizedDescription
+            isSending = false
+            return false
         }
     }
 

@@ -35,7 +35,10 @@ final class TextEntryViewModel {
     }
 
     var isThrottled: Bool {
-        if case .human = premiumService.typingSpeed(for: text.utf8.count) { return true }
+        // Use at least 1 byte so makeSendDecision reflects the actual subscription/quota state
+        // rather than its hardcoded human-speed fallback for the 0-byte edge case.
+        let byteCount = max(1, text.utf8.count)
+        if case .human = premiumService.typingSpeed(for: byteCount) { return true }
         return false
     }
 
@@ -63,7 +66,7 @@ final class TextEntryViewModel {
     }
 
     var sendButtonTitle: String {
-        if isSending {
+        if isSending && isThrottled {
             return String(localized: "Sending...", comment: "Sending in progress")
         }
         return isThrottled

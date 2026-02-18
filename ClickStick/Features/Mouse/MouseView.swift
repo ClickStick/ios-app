@@ -150,6 +150,7 @@ struct MouseView: View {
 
     private func handleLeftClick() {
         guard device.isConnected else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         device.sendMouseClick(button: .left) { result in
             if case .failure(let error) = result {
                 alertError = AlertError(error: error)
@@ -159,6 +160,7 @@ struct MouseView: View {
 
     private func handleRightClick() {
         guard device.isConnected else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
         device.sendMouseClick(button: .right) { result in
             if case .failure(let error) = result {
                 alertError = AlertError(error: error)

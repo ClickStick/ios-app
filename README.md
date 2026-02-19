@@ -23,7 +23,7 @@ iOS companion app for [ClickStick](https://clickstick.io) -- a USB HID dongle th
 
 | Module | Description |
 |--------|-------------|
-| `ClickStick/` | Main iOS app target (SwiftUI, iOS 18+) |
+| `ClickStick/` | Main iOS app target (SwiftUI, iOS 17+) |
 | `ShareExtension/` | Share extension for sending text from other apps |
 | `ClickStickKit/` | Local Swift package: BLE communication, device commands, crypto, session management |
 | `DesignSystem/` | Local Swift package: shared UI styles, components, design tokens |
@@ -49,7 +49,7 @@ Premium state is shared between the main app and the Share Extension via a share
 
 ## Build
 
-Requires Xcode 16+ and iOS 18+ SDK.
+Requires Xcode 16+ and iOS 17+ SDK.
 
 ```bash
 xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator build 2>&1 | xcsift

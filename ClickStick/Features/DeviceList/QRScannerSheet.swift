@@ -9,16 +9,25 @@ internal import Vision
 struct QRScannerSheet: View {
     let onScan: (String) -> Void
     @Environment(\.dismiss) private var dismiss
+    @State private var alertError: AlertError?
 
     var body: some View {
         NavigationStack {
             Group {
                 if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                    DataScannerRepresentable(onScan: onScan)
-                        .ignoresSafeArea()
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Camera viewfinder for scanning QR code")
-                        .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
+                    QRCodeScannerView(
+                        onScan: onScan,
+                        onStartError: { error in
+                            alertError = AlertError(
+                                title: String(localized: "Scanner Error", comment: "QR scanner error title"),
+                                error: error
+                            )
+                        }
+                    )
+                    .ignoresSafeArea()
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Camera viewfinder for scanning QR code")
+                    .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
                 } else {
                     ContentUnavailableView {
                         VStack(spacing: Spacing.md) {
@@ -49,13 +58,15 @@ struct QRScannerSheet: View {
                 }
             }
         }
+        .errorAlert($alertError)
     }
 }
 
 // MARK: - DataScanner Representable
 
-struct DataScannerRepresentable: UIViewControllerRepresentable {
+struct QRCodeScannerView: UIViewControllerRepresentable {
     let onScan: (String) -> Void
+    let onStartError: (Error) -> Void
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
         let scanner = DataScannerViewController(
@@ -68,11 +79,23 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             isHighlightingEnabled: true
         )
         scanner.delegate = context.coordinator
+
+        do {
+            try context.coordinator.startScannerIfNeeded {
+                try scanner.startScanning()
+            }
+        } catch {
+            onStartError(error)
+        }
         return scanner
     }
 
-    func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
-        try? uiViewController.startScanning()
+    func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {}
+
+    static func dismantleUIViewController(_ uiViewController: DataScannerViewController, coordinator: Coordinator) {
+        coordinator.stopScannerIfRunning {
+            uiViewController.stopScanning()
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -81,10 +104,23 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
 
     final class Coordinator: NSObject, DataScannerViewControllerDelegate {
         let onScan: (String) -> Void
+        private(set) var isScannerRunning = false
         private var hasScanned = false
 
         init(onScan: @escaping (String) -> Void) {
             self.onScan = onScan
+        }
+
+        func startScannerIfNeeded(_ start: () throws -> Void) throws {
+            guard !isScannerRunning else { return }
+            try start()
+            isScannerRunning = true
+        }
+
+        func stopScannerIfRunning(_ stop: () -> Void) {
+            guard isScannerRunning else { return }
+            stop()
+            isScannerRunning = false
         }
 
         func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem) {
@@ -103,7 +139,9 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
                let payload = barcode.payloadStringValue {
                 if let hexKey = extractHexKey(from: payload) {
                     hasScanned = true
-                    scanner.stopScanning()
+                    stopScannerIfRunning {
+                        scanner.stopScanning()
+                    }
                     onScan(hexKey)
                 }
             }

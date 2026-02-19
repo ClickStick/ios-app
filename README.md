@@ -7,6 +7,7 @@ iOS companion app for [ClickStick](https://clickstick.io) -- a USB HID dongle th
 - **Device Management**: Scan for ClickStick dongles via Bluetooth LE, pair, and manage multiple devices.
 - **Text Typing**: Send text to the connected computer through the dongle. Supports US QWERTY, German QWERTZ, and French AZERTY keyboard layouts with automatic locale detection.
 - **Mouse Control**: Touchpad-style gestures for cursor movement, clicks (left/middle/right), and scrolling.
+- **Premium Typing Quota**: Freemium model with free quota, one-time speed packs, monthly subscriptions, and in-context paywall presentation.
 - **Share Extension**: Send text from any app (password managers, notes, browsers) to ClickStick without switching apps.
 - **URL Scheme**: Automate typing via [x-callback-url](#url-scheme-integration) for integration with Shortcuts, password managers, and other apps.
 - **Accessibility**: Full VoiceOver, Dynamic Type, and Voice Control support.
@@ -42,7 +43,7 @@ ClickStick uses a freemium model. The core value proposition is saving time: typ
   - Large (50 KB/month) -- $4.99/month
   - Unlimited -- $9.99/month
 
-Quota is checked per-send and only deducted after a successful send. Failed sends never consume quota. The paywall appears after a user exhausts their last free quota, at a natural moment rather than as a blocking gate.
+Quota is checked per-send and only deducted after a successful send. Failed sends never consume quota. The paywall appears after a successful send that consumes the last available full-speed bytes for non-subscribers, at a natural moment rather than as a blocking gate.
 
 Premium state is shared between the main app and the Share Extension via a shared `UserDefaults` suite.
 
@@ -51,13 +52,13 @@ Premium state is shared between the main app and the Share Extension via a share
 Requires Xcode 16+ and iOS 18+ SDK.
 
 ```bash
-xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator build
+xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator build 2>&1 | xcsift
 ```
 
 ## Test
 
 ```bash
-xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator test
+xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator test 2>&1 | xcsift
 ```
 
 ---
@@ -69,7 +70,7 @@ ClickStick supports [x-callback-url](http://x-callback-url.com/) for app integra
 ## URL Format
 
 ```
-clickstick://x-callback-url/type?text=<encoded>&layout=<us|de|fr>&x-source=<app>&x-success=<url>&x-error=<url>
+clickstick://x-callback-url/type?text=<encoded>&layout=<us|de|fr>&device=<uuid-or-alias>&x-source=<app>&x-success=<url>&x-error=<url>&x-cancel=<url>
 ```
 
 ## Parameters
@@ -111,7 +112,10 @@ clickstick://x-callback-url/type?text=P%40ssw0rd%21&layout=de
 |------|-------------|
 | invalid_url | Malformed URL |
 | missing_text | No text parameter |
+| empty_text | Empty text parameter |
+| decoding_failed | Text decoding failed |
 | no_device | No devices found |
+| device_not_found | Requested device alias/UUID was not found |
 | not_connected | Device not connected |
 | typing_failed | Send failed |
 | cancelled | User cancelled |

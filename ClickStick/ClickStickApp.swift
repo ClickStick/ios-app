@@ -9,7 +9,7 @@ struct ClickStickApp: App {
     @State private var deepLinkHandler: DeepLinkHandler
     private let service = ClickStickService()
     private let premiumService = PremiumService()
-    private let urlOpener: URLOpening
+    private let urlOpener: URLOpener
 
     init() {
         urlOpener = URLOpener()
@@ -21,7 +21,7 @@ struct ClickStickApp: App {
             MainView(
                 viewModel: DeviceListViewModel(
                     service: service,
-                    urlOpener: URLOpener()
+                    urlOpener: urlOpener
                 )
             )
             .environment(\.appRouter, router)
@@ -33,7 +33,8 @@ struct ClickStickApp: App {
                 DeepLinkTypeSheet(
                     request: request,
                     service: service,
-                    deepLinkHandler: deepLinkHandler
+                    deepLinkHandler: deepLinkHandler,
+                    premiumService: premiumService
                 )
             }
             .alert(

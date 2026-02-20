@@ -7,19 +7,25 @@ import SwiftUI
 
 /// Shared content view for typing text to a ClickStick device
 /// Used by both DeepLinkTypeSheet and ShareExtension
-struct TypeTextContentView<ViewModel: TypeTextViewModel>: View {
+struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
     @Bindable var viewModel: ViewModel
     let onDismiss: () -> Void
+    private let headerView: Header
 
-    /// Optional header view to show above the text preview
-    var headerView: AnyView?
+    init(
+        viewModel: ViewModel,
+        onDismiss: @escaping () -> Void,
+        @ViewBuilder header: () -> Header
+    ) {
+        self.viewModel = viewModel
+        self.onDismiss = onDismiss
+        self.headerView = header()
+    }
 
     var body: some View {
         ScrollView {
             VStack(spacing: Spacing.lg) {
-                if let headerView {
-                    headerView
-                }
+                headerView
                 textPreview
                 layoutPicker
                 deviceSection
@@ -325,18 +331,11 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel>: View {
 
 // MARK: - Convenience Initializer
 
-extension TypeTextContentView {
+extension TypeTextContentView where Header == EmptyView {
     /// Creates a TypeTextContentView without a header
     init(viewModel: ViewModel, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
         self.onDismiss = onDismiss
-        self.headerView = nil
-    }
-
-    /// Creates a TypeTextContentView with a custom header
-    init<Header: View>(viewModel: ViewModel, onDismiss: @escaping () -> Void, @ViewBuilder header: () -> Header) {
-        self.viewModel = viewModel
-        self.onDismiss = onDismiss
-        self.headerView = AnyView(header())
+        self.headerView = EmptyView()
     }
 }

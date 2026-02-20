@@ -32,8 +32,10 @@ struct MainView: View {
         )) { sheet in
             sheetContent(for: sheet)
         }
-        .onAppear {
-            viewModel.startScanning()
+        .task {
+            if !viewModel.isScanning {
+                viewModel.startScanning()
+            }
         }
     }
 

@@ -84,17 +84,19 @@ struct DeviceListView: View {
     private var devicesSection: some View {
         Section {
             ForEach(viewModel.devices) { device in
-                DeviceRowView(device: device)
-                    .tag(device.id)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        if viewModel.connectDevice(device) {
-                            router.selectDevice(device)
-                        }
+                Button {
+                    if viewModel.connectDevice(device) {
+                        router.selectDevice(device)
                     }
-                    .contextMenu {
-                        deviceContextMenu(for: device)
-                    }
+                } label: {
+                    DeviceRowView(device: device)
+                }
+                .buttonStyle(.plain)
+                .tag(device.id)
+                .contentShape(Rectangle())
+                .contextMenu {
+                    deviceContextMenu(for: device)
+                }
             }
         } header: {
             Text("Devices")

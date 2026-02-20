@@ -35,12 +35,12 @@ struct DeviceRowView: View {
         }
         .overlay(
             Circle()
-                .stroke(iconColor.opacity(device.isConnected ? 0.3 : 0), lineWidth: 2)
+                .stroke(iconColor.opacity(device.isConnecting ? 0.45 : 0), lineWidth: 2)
                 .scaleEffect(device.isConnecting ? 1.3 : 1.0)
-                .opacity(device.isConnecting ? 0 : 1)
+                .opacity(device.isConnecting ? 1 : 0)
                 .animation(
                     device.isConnecting
-                        ? .easeInOut(duration: 1.0).repeatForever(autoreverses: false)
+                        ? .easeInOut(duration: 1.0).repeatForever(autoreverses: true)
                         : .default,
                     value: device.isConnecting
                 )

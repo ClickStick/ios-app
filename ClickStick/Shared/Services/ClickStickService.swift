@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 final class ClickStickService: CSManagerDelegate {
     private let log = Logger(subsystem: "io.clickstick", category: "ClickStickService")
-    private let manager: CSManager
+    private let manager: CSManaging
 
     // MARK: - Observable State
 
@@ -28,7 +28,7 @@ final class ClickStickService: CSManagerDelegate {
 
     // MARK: - Initialization
 
-    init(manager: CSManager = .shared) {
+    init(manager: CSManaging = CSManager.shared) {
         self.manager = manager
         self.isDemoMode = manager.isDemoMode
         self.manager.delegate = self
@@ -51,6 +51,7 @@ final class ClickStickService: CSManagerDelegate {
     // MARK: - Public API
 
     func startScanning() {
+        guard !isScanning else { return }
         log.debug("Starting scan")
         manager.delegate = self
         isScanning = true

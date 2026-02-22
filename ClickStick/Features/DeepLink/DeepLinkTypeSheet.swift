@@ -8,39 +8,45 @@ import SwiftUI
 /// Sheet presented when the app receives a deep link request to type text
 struct DeepLinkTypeSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.premiumService) private var premiumService
 
     let request: TypeRequest
     let service: ClickStickService
     let deepLinkHandler: DeepLinkHandler
+    let premiumService: PremiumService
 
-    @State private var viewModel: DeepLinkTypeViewModel?
+    @State private var viewModel: DeepLinkTypeViewModel
+
+    init(
+        request: TypeRequest,
+        service: ClickStickService,
+        deepLinkHandler: DeepLinkHandler,
+        premiumService: PremiumService
+    ) {
+        self.request = request
+        self.service = service
+        self.deepLinkHandler = deepLinkHandler
+        self.premiumService = premiumService
+        _viewModel = State(
+            initialValue: DeepLinkTypeViewModel(
+                request: request,
+                service: service,
+                deepLinkHandler: deepLinkHandler,
+                premiumService: premiumService
+            )
+        )
+    }
 
     var body: some View {
         NavigationStack {
-            Group {
-                if let viewModel {
-                    TypeTextContentView(viewModel: viewModel, onDismiss: { dismiss() }) {
-                        sourceAppHeader(viewModel: viewModel)
-                    }
-                } else {
-                    ProgressView()
-                        .onAppear {
-                            viewModel = DeepLinkTypeViewModel(
-                                request: request,
-                                service: service,
-                                deepLinkHandler: deepLinkHandler,
-                                premiumService: premiumService
-                            )
-                        }
-                }
+            TypeTextContentView(viewModel: viewModel, onDismiss: { dismiss() }) {
+                sourceAppHeader(viewModel: viewModel)
             }
             .navigationTitle("Type Text")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        viewModel?.cancel()
+                        viewModel.cancel()
                         dismiss()
                     }
                 }
@@ -92,6 +98,7 @@ struct DeepLinkTypeSheet: View {
             cancelURL: nil
         ),
         service: service,
-        deepLinkHandler: handler
+        deepLinkHandler: handler,
+        premiumService: PremiumService(autoSyncStoreKit: false)
     )
 }

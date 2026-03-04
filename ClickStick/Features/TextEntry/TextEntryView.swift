@@ -25,10 +25,7 @@ struct TextEntryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: Spacing.md) {
-                    KeyboardLayoutPicker(selection: Binding(
-                        get: { viewModel.selectedLayout },
-                        set: { viewModel.selectedLayout = $0 }
-                    ))
+                    layoutRow(viewModel)
                     textEditor(viewModel)
                     presetButtons(viewModel)
                     sendSection(viewModel)
@@ -64,6 +61,26 @@ struct TextEntryView: View {
             set: { viewModel.showPaywallAfterSend = $0 }
         )) {
             PaywallView()
+        }
+    }
+
+    // MARK: - Layout Row
+
+    private func layoutRow(_ viewModel: TextEntryViewModel) -> some View {
+        HStack {
+            Label("Keyboard Layout", systemImage: "globe")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Picker("Keyboard Layout", selection: Binding(
+                get: { viewModel.selectedLayout },
+                set: { viewModel.selectedLayout = $0 }
+            )) {
+                ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
+                    Text(layout.description).tag(layout)
+                }
+            }
+            .pickerStyle(.menu)
         }
     }
 

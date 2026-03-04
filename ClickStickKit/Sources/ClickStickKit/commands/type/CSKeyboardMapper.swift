@@ -41,6 +41,20 @@ public enum CSKeyboardLayout: CaseIterable, CustomStringConvertible {
     }
 }
 
+extension CSKeyboardLayout {
+    /// Detects the appropriate keyboard layout from the system locale
+    public static func fromSystemLocale() -> CSKeyboardLayout {
+        guard let languageCode = Locale.current.language.languageCode?.identifier else {
+            return .usQWERTY
+        }
+        switch languageCode {
+        case "de": return .deQWERTZ
+        case "fr": return .frAZERTY_Classic
+        default:   return .usQWERTY
+        }
+    }
+}
+
 /// USB HID keyboard modifier bits (boot keyboard)
 struct KeyModifiers: OptionSet {
     let rawValue: UInt8

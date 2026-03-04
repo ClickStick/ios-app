@@ -23,6 +23,7 @@ struct DeviceDetailView: View {
             }
         }
         .navigationTitle(device.displayName)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 connectionButton

@@ -43,6 +43,8 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
     private(set) var isConnectable: Bool
     private(set) var isDemoDevice: Bool
 
+    private var lastRSSIUpdate: Date = .distantPast
+
     // MARK: - Cached Settings (to avoid keychain I/O during render)
 
     private(set) var cachedAlias: String?
@@ -222,8 +224,12 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
 
     func deviceDidUpdateProperties(_ device: CSDevice) {
         name = device.name
-        rssi = device.rssi
         isConnectable = device.isConnectable
+        let now = Date.now
+        if now.timeIntervalSince(lastRSSIUpdate) >= 0.4 {
+            rssi = device.rssi
+            lastRSSIUpdate = now
+        }
     }
 
     func deviceConnectionStateUpdated(_ device: CSDevice) {

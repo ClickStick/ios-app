@@ -108,23 +108,11 @@ struct AnnouncementBannerView: View {
             }
         }
         .padding(Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .fill(Color(white: 0.5).opacity(0.08))
-        )
+        .background(Color(white: 0.5).opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
         .overlay(
             RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            configuration.style.accentColor.opacity(0.3),
-                            configuration.style.accentColor.opacity(0.1)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
+                .stroke(Color.primary.opacity(0.12), lineWidth: 1)
         )
     }
 }
@@ -141,7 +129,7 @@ extension View {
                     removal: .opacity.combined(with: .scale(scale: 0.95, anchor: .top))
                 )
             )
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: Spacing.xs, trailing: 0))
+            .listRowInsets(EdgeInsets(top: Spacing.xs, leading: Spacing.md, bottom: Spacing.xs, trailing: Spacing.md))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
     }

@@ -169,19 +169,18 @@ struct TextEntryView: View {
             }
             .accessibilityAddTraits(.isHeader)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.xs) {
-                    ForEach(TextPreset.allCases) { preset in
-                        Button {
-                            viewModel.setPreset(preset)
-                        } label: {
-                            Text(preset.title)
-                                .font(.subheadline.weight(.medium))
-                        }
-                        .buttonStyle(.secondary)
-                        .accessibilityLabel(String(localized: "Insert \(preset.title)", comment: "Preset button accessibility"))
-                        .accessibilityHint(String(localized: "Replaces current text", comment: "Preset button hint"))
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Spacing.xs) {
+                ForEach(TextPreset.allCases) { preset in
+                    Button {
+                        viewModel.setPreset(preset)
+                    } label: {
+                        Text(preset.title)
+                            .font(.subheadline.weight(.medium))
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.secondary)
+                    .accessibilityLabel(String(localized: "Insert \(preset.title)", comment: "Preset button accessibility"))
+                    .accessibilityHint(String(localized: "Replaces current text", comment: "Preset button hint"))
                 }
             }
         }

@@ -39,46 +39,23 @@ struct DeviceDetailView: View {
     // MARK: - Connected Content
 
     private var connectedContent: some View {
-        VStack(spacing: 0) {
-            // Custom segmented control with app accent styling
-            HStack(spacing: Spacing.xs) {
-                ForEach(availableTabs) { tab in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedTab = tab
-                        }
-                    } label: {
-                        HStack(spacing: Spacing.xs) {
-                            Image(systemName: tab.icon)
-                                .font(.subheadline.weight(.medium))
-                            Text(tab.localizedTitle)
-                                .font(.subheadline.weight(.medium))
-                        }
-                        .foregroundStyle(selectedTab == tab ? .white : .primary)
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
-                        .frame(maxWidth: .infinity)
-                        .segmentedControlItem(isSelected: selectedTab == tab, tint: .clickStickBlue)
+        TabView(selection: $selectedTab) {
+            if availableTabs.contains(.textEntry) {
+                TextEntryView(device: device, premiumService: premiumService)
+                    .tabItem {
+                        Label(DeviceFeatureTab.textEntry.localizedTitle,
+                              systemImage: DeviceFeatureTab.textEntry.icon)
                     }
-                    .buttonStyle(.plain)
-                }
+                    .tag(DeviceFeatureTab.textEntry)
             }
-            .segmentedControlContainer()
-            .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.sm)
-            .accessibilityLabel("Device features")
-            .accessibilityHint("Select between text entry and touchpad modes")
-
-            Group {
-                switch selectedTab {
-                case .textEntry:
-                    TextEntryView(device: device, premiumService: premiumService)
-                case .mouse:
-                    MouseView(device: device)
-                }
+            if availableTabs.contains(.mouse) {
+                MouseView(device: device)
+                    .tabItem {
+                        Label(DeviceFeatureTab.mouse.localizedTitle,
+                              systemImage: DeviceFeatureTab.mouse.icon)
+                    }
+                    .tag(DeviceFeatureTab.mouse)
             }
-            .frame(maxHeight: .infinity)
-            .transition(.opacity)
         }
     }
 

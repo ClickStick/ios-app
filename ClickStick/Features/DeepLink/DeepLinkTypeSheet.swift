@@ -99,6 +99,6 @@ struct DeepLinkTypeSheet: View {
         ),
         service: service,
         deepLinkHandler: handler,
-        premiumService: PremiumService(autoSyncStoreKit: false)
+        premiumService: PremiumService(defaults: .standard, autoSyncStoreKit: false)
     )
 }

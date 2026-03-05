@@ -1,3 +1,4 @@
+#if !targetEnvironment(macCatalyst)
 import Testing
 @testable import ClickStick
 
@@ -56,3 +57,4 @@ struct QRCodeScannerViewCoordinatorTests {
         #expect(!coordinator.isScannerRunning)
     }
 }
+#endif

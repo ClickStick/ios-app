@@ -1,6 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+#if !targetEnvironment(macCatalyst)
 import DesignSystem
 import SwiftUI
 import VisionKit
@@ -171,3 +172,4 @@ struct QRCodeScannerView: UIViewControllerRepresentable {
         print("Scanned: \(scannedKey)")
     }
 }
+#endif

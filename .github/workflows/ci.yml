@@ -23,3 +23,25 @@ jobs:
             -scheme ClickStick \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             test 2>&1 | xcbeautify
+
+  build-and-test-macos:
+    name: Build & Test (macOS Catalyst)
+    runs-on: macos-26
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.2.app
+
+      - name: Build & Test
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project ClickStick.xcodeproj \
+            -scheme ClickStick \
+            -destination 'platform=macOS,variant=Mac Catalyst' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            test 2>&1 | xcbeautify

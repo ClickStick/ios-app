@@ -22,6 +22,9 @@ struct ClickStickApp: App {
     init() {
         urlOpener = URLOpener()
         deepLinkHandler = DeepLinkHandler(urlOpener: urlOpener)
+#if targetEnvironment(macCatalyst)
+        UITextField.appearance().focusEffect = nil
+#endif
     }
 
     var body: some Scene {

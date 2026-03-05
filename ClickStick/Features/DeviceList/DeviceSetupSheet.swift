@@ -3,6 +3,7 @@
 
 import ClickStickKit
 import SwiftUI
+import VisionKit
 
 struct DeviceSetupSheet: View {
     let device: DeviceModel
@@ -15,8 +16,16 @@ struct DeviceSetupSheet: View {
     @State private var showingScanner: Bool = false
     @State private var validationError: String?
 
+    private var isCameraScanningAvailable: Bool {
+#if targetEnvironment(macCatalyst)
+        return false
+#else
+        return DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+#endif
+    }
+
     private var shouldAutoScan: Bool {
-        !device.isDemoDevice
+        !device.isDemoDevice && isCameraScanningAvailable
     }
 
     var body: some View {
@@ -46,6 +55,7 @@ struct DeviceSetupSheet: View {
                         : String(localized: "Enter a valid authentication key first", comment: "Accessibility hint"))
                 }
             }
+#if !targetEnvironment(macCatalyst)
             .sheet(isPresented: $showingScanner) {
                 QRScannerSheet { scannedKey in
                     authKeyText = scannedKey
@@ -56,6 +66,7 @@ struct DeviceSetupSheet: View {
                     }
                 }
             }
+#endif
             .onAppear {
                 deviceAlias = device.name
                 // Auto-open QR scanner for non-demo devices
@@ -92,14 +103,16 @@ struct DeviceSetupSheet: View {
                     .accessibilityLabel("Authentication key input")
                     .accessibilityHint("Enter the 32-character hex key from your ClickStick")
 
-                Button {
-                    showingScanner = true
-                } label: {
-                    Image(systemName: "qrcode.viewfinder")
+                if isCameraScanningAvailable {
+                    Button {
+                        showingScanner = true
+                    } label: {
+                        Image(systemName: "qrcode.viewfinder")
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Scan QR code")
+                    .accessibilityHint("Opens camera to scan the QR code from your ClickStick")
                 }
-                .buttonStyle(.borderless)
-                .accessibilityLabel("Scan QR code")
-                .accessibilityHint("Opens camera to scan the QR code from your ClickStick")
             }
 
             if let error = validationError {

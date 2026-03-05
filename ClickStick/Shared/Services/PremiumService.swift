@@ -147,8 +147,8 @@ final class PremiumService {
 
     // MARK: - Initialization
 
-    init(defaults: UserDefaults? = nil, autoSyncStoreKit: Bool = true) {
-        self.defaults = defaults ?? UserDefaults(suiteName: Self.appGroupID) ?? .standard
+    init(defaults: UserDefaults, autoSyncStoreKit: Bool = true) {
+        self.defaults = defaults
         loadCachedState()
         resetSubscriptionUsageIfNeeded()
         grantFreeQuotaIfNeeded()
@@ -450,7 +450,7 @@ private struct PremiumServiceKey: EnvironmentKey {
     /// Inert placeholder — no StoreKit sync, isolated UserDefaults suite.
     /// The real instance is injected at the WindowGroup level in ClickStickApp.
     @MainActor static let defaultValue = PremiumService(
-        defaults: UserDefaults(suiteName: "io.clickstick.environment-placeholder"),
+        defaults: UserDefaults(suiteName: "io.clickstick.environment-placeholder") ?? .standard,
         autoSyncStoreKit: false
     )
 }

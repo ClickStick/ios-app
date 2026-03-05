@@ -53,7 +53,10 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
     init(sharedText: String, manager: CSManager = .shared) {
         self.text = sharedText
         self.manager = manager
-        self.premiumService = PremiumService(autoSyncStoreKit: false)
+        self.premiumService = PremiumService(
+            defaults: UserDefaults(suiteName: PremiumService.appGroupID) ?? .standard,
+            autoSyncStoreKit: false
+        )
         self.selectedLayout = CSKeyboardLayout.fromSystemLocale()
 
         manager.delegate = self

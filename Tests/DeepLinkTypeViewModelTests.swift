@@ -56,7 +56,7 @@ struct DeepLinkTypeViewModelTests {
             request: makeRequest(deviceIdentifier: device.id.uuidString),
             service: service,
             deepLinkHandler: DeepLinkHandler(urlOpener: MockURLOpener()),
-            premiumService: PremiumService(autoSyncStoreKit: false)
+            premiumService: PremiumService(defaults: UserDefaults(suiteName: UUID().uuidString)!, autoSyncStoreKit: false)
         )
 
         #expect(viewModel.selectedDeviceID == device.id)
@@ -74,7 +74,7 @@ struct DeepLinkTypeViewModelTests {
             request: makeRequest(deviceIdentifier: device.displayName),
             service: service,
             deepLinkHandler: DeepLinkHandler(urlOpener: MockURLOpener()),
-            premiumService: PremiumService(autoSyncStoreKit: false)
+            premiumService: PremiumService(defaults: UserDefaults(suiteName: UUID().uuidString)!, autoSyncStoreKit: false)
         )
 
         #expect(viewModel.selectedDeviceID == device.id)
@@ -92,7 +92,7 @@ struct DeepLinkTypeViewModelTests {
             request: makeRequest(deviceIdentifier: "device-that-does-not-exist"),
             service: service,
             deepLinkHandler: DeepLinkHandler(urlOpener: MockURLOpener()),
-            premiumService: PremiumService(autoSyncStoreKit: false)
+            premiumService: PremiumService(defaults: UserDefaults(suiteName: UUID().uuidString)!, autoSyncStoreKit: false)
         )
 
         #expect(viewModel.selectedDeviceID == firstDevice.id)
@@ -105,7 +105,7 @@ struct DeepLinkTypeViewModelTests {
             request: makeRequest(sourceApp: "KeePassium"),
             service: emptyService,
             deepLinkHandler: DeepLinkHandler(urlOpener: MockURLOpener()),
-            premiumService: PremiumService(autoSyncStoreKit: false)
+            premiumService: PremiumService(defaults: UserDefaults(suiteName: UUID().uuidString)!, autoSyncStoreKit: false)
         )
 
         #expect(viewModel.hasKnownSourceApp)
@@ -122,7 +122,7 @@ struct DeepLinkTypeViewModelTests {
             request: makeRequest(cancelURL: cancelURL),
             service: emptyService,
             deepLinkHandler: handler,
-            premiumService: PremiumService(autoSyncStoreKit: false)
+            premiumService: PremiumService(defaults: UserDefaults(suiteName: UUID().uuidString)!, autoSyncStoreKit: false)
         )
 
         viewModel.cancel()
@@ -139,7 +139,7 @@ struct DeepLinkTypeViewModelTests {
             request: makeRequest(successURL: URL(string: "myapp://success")!),
             service: emptyService,
             deepLinkHandler: handler,
-            premiumService: PremiumService(autoSyncStoreKit: false)
+            premiumService: PremiumService(defaults: UserDefaults(suiteName: UUID().uuidString)!, autoSyncStoreKit: false)
         )
 
         let success = await viewModel.sendText()

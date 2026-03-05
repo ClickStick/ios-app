@@ -281,6 +281,6 @@ struct TextEntryView: View {
 #Preview {
     TextEntryView(
         device: .preview,
-        premiumService: PremiumService(autoSyncStoreKit: false)
+        premiumService: PremiumService(defaults: .standard, autoSyncStoreKit: false)
     )
 }

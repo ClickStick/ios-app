@@ -8,7 +8,15 @@ struct ClickStickApp: App {
     @State private var router = AppRouter()
     @State private var deepLinkHandler: DeepLinkHandler
     private let service = ClickStickService()
-    private let premiumService = PremiumService()
+    private let premiumService = PremiumService(
+        defaults: {
+#if targetEnvironment(macCatalyst)
+            return .standard
+#else
+            return UserDefaults(suiteName: PremiumService.appGroupID) ?? .standard
+#endif
+        }()
+    )
     private let urlOpener: URLOpener
 
     init() {

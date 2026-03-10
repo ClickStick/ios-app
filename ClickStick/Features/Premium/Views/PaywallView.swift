@@ -177,7 +177,7 @@ struct PaywallView: View {
                         }
                     }
                     Text(subscriptionSubtitle(for: product))
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
@@ -259,7 +259,7 @@ struct PaywallView: View {
                         Text("Just need a little?", comment: "One-time pack heading")
                             .font(.caption.weight(.medium))
                         Text("1 KB of instant typing, no subscription", comment: "One-time pack description")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
 
@@ -292,7 +292,7 @@ struct PaywallView: View {
         VStack(spacing: Spacing.xs) {
             if let error = purchaseError {
                 Text(error)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .accessibilityLabel(String(localized: "Purchase error: \(error)", comment: "Purchase error accessibility"))

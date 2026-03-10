@@ -25,10 +25,7 @@ struct TextEntryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: Spacing.md) {
-                    KeyboardLayoutPicker(selection: Binding(
-                        get: { viewModel.selectedLayout },
-                        set: { viewModel.selectedLayout = $0 }
-                    ))
+                    layoutRow(viewModel)
                     textEditor(viewModel)
                     presetButtons(viewModel)
                     sendSection(viewModel)
@@ -64,6 +61,26 @@ struct TextEntryView: View {
             set: { viewModel.showPaywallAfterSend = $0 }
         )) {
             PaywallView()
+        }
+    }
+
+    // MARK: - Layout Row
+
+    private func layoutRow(_ viewModel: TextEntryViewModel) -> some View {
+        HStack {
+            Label("Keyboard Layout", systemImage: "globe")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Picker("Keyboard Layout", selection: Binding(
+                get: { viewModel.selectedLayout },
+                set: { viewModel.selectedLayout = $0 }
+            )) {
+                ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
+                    Text(layout.description).tag(layout)
+                }
+            }
+            .pickerStyle(.menu)
         }
     }
 
@@ -152,19 +169,18 @@ struct TextEntryView: View {
             }
             .accessibilityAddTraits(.isHeader)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.xs) {
-                    ForEach(TextPreset.allCases) { preset in
-                        Button {
-                            viewModel.setPreset(preset)
-                        } label: {
-                            Text(preset.title)
-                                .font(.subheadline.weight(.medium))
-                        }
-                        .buttonStyle(.secondary)
-                        .accessibilityLabel(String(localized: "Insert \(preset.title)", comment: "Preset button accessibility"))
-                        .accessibilityHint(String(localized: "Replaces current text", comment: "Preset button hint"))
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Spacing.xs) {
+                ForEach(TextPreset.allCases) { preset in
+                    Button {
+                        viewModel.setPreset(preset)
+                    } label: {
+                        Text(preset.title)
+                            .font(.subheadline.weight(.medium))
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.secondary)
+                    .accessibilityLabel(String(localized: "Insert \(preset.title)", comment: "Preset button accessibility"))
+                    .accessibilityHint(String(localized: "Replaces current text", comment: "Preset button hint"))
                 }
             }
         }

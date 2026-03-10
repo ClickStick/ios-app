@@ -48,13 +48,20 @@ struct QRScannerSheet: View {
                     .accessibilityElement(children: .combine)
                 }
             }
-            .navigationTitle("Scan QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Scan QR Code")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+                }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
                     .accessibilityLabel("Cancel scanning")
                 }
             }

@@ -91,40 +91,17 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
     // MARK: - Layout Picker
 
     private var layoutPicker: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            HStack(spacing: Spacing.xs) {
-                Image(systemName: "globe")
-                    .foregroundStyle(Color.clickStickTeal)
-                Text("Keyboard Layout")
-                    .font(.headline)
-            }
-            .accessibilityAddTraits(.isHeader)
-
-            HStack(spacing: Spacing.xxs) {
+        HStack {
+            Label("Keyboard Layout", systemImage: "globe")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Picker("Keyboard Layout", selection: $viewModel.selectedLayout) {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.selectedLayout = layout
-                        }
-                    } label: {
-                        Text(layout.description)
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(viewModel.selectedLayout == layout ? .white : .primary)
-                            .padding(.horizontal, Spacing.md)
-                            .padding(.vertical, Spacing.sm)
-                            .frame(maxWidth: .infinity)
-                            .segmentedControlItem(
-                                isSelected: viewModel.selectedLayout == layout,
-                                tint: .clickStickTeal
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(viewModel.selectedLayout == layout ? .isSelected : [])
+                    Text(layout.description).tag(layout)
                 }
             }
-            .segmentedControlContainer()
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel("Keyboard layout selector")
+            .pickerStyle(.menu)
         }
     }
 

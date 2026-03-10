@@ -136,7 +136,7 @@ class TouchpadView: UIView {
 
     private func updateColors() {
         layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
-        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.7).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.4).cgColor
         gradientLayer?.colors = [
             UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
             UIColor.secondarySystemBackground.cgColor
@@ -148,9 +148,9 @@ class TouchpadView: UIView {
     }
 
     private func setupCrosshair() {
-        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.7).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.4).cgColor
         crosshairLayer.fillColor = UIColor.clear.cgColor
-        crosshairLayer.lineWidth = 2
+        crosshairLayer.lineWidth = 1
         crosshairLayer.opacity = 0
         layer.addSublayer(crosshairLayer)
     }
@@ -207,24 +207,14 @@ class TouchpadView: UIView {
 
     private func updateCrosshairPath() {
         let path = UIBezierPath()
-        let crossSize: CGFloat = 20
 
-        // Horizontal line
-        path.move(to: CGPoint(x: crosshairPosition.x - crossSize, y: crosshairPosition.y))
-        path.addLine(to: CGPoint(x: crosshairPosition.x + crossSize, y: crosshairPosition.y))
+        // Horizontal line — full width
+        path.move(to: CGPoint(x: 0, y: crosshairPosition.y))
+        path.addLine(to: CGPoint(x: bounds.width, y: crosshairPosition.y))
 
-        // Vertical line
-        path.move(to: CGPoint(x: crosshairPosition.x, y: crosshairPosition.y - crossSize))
-        path.addLine(to: CGPoint(x: crosshairPosition.x, y: crosshairPosition.y + crossSize))
-
-        // Center circle
-        let circleRect = CGRect(
-            x: crosshairPosition.x - 4,
-            y: crosshairPosition.y - 4,
-            width: 8,
-            height: 8
-        )
-        path.append(UIBezierPath(ovalIn: circleRect))
+        // Vertical line — full height
+        path.move(to: CGPoint(x: crosshairPosition.x, y: 0))
+        path.addLine(to: CGPoint(x: crosshairPosition.x, y: bounds.height))
 
         crosshairLayer.path = path.cgPath
     }

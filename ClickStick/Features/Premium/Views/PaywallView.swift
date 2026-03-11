@@ -38,6 +38,7 @@ struct PaywallView: View {
                         if isLoadingProducts {
                             ProgressView()
                                 .padding(Spacing.lg)
+                                .accessibilityLabel(String(localized: "Loading subscription plans", comment: "Loading indicator accessibility"))
                         } else if premiumService.products.isEmpty {
                             Text("Plans temporarily unavailable.", comment: "Paywall empty state")
                                 .font(.caption)
@@ -115,7 +116,7 @@ struct PaywallView: View {
         .padding(Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .fill(Color.secondary.opacity(0.06))
+                .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Benefits: instant typing, saves time, works everywhere", comment: "Paywall benefits summary"))
@@ -138,7 +139,7 @@ struct PaywallView: View {
     private var subscriptionSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text("Choose a plan", comment: "Paywall section header")
-                .font(.subheadline.weight(.semibold))
+                .font(.headline)
                 .accessibilityAddTraits(.isHeader)
 
             ForEach(subscriptionProducts, id: \.id) { product in
@@ -162,7 +163,7 @@ struct PaywallView: View {
                     .foregroundStyle(isSelected ? Color.clickStickBlue : .secondary.opacity(0.4))
                     .accessibilityHidden(true)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
                     HStack(spacing: Spacing.xs) {
                         Text(product.displayName)
                             .font(.subheadline.weight(.medium))
@@ -171,7 +172,7 @@ struct PaywallView: View {
                             Text("Best", comment: "Recommended plan badge")
                                 .font(.caption2.weight(.bold))
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, 5)
+                                .padding(.horizontal, Spacing.xxs)
                                 .padding(.vertical, 1)
                                 .background(Capsule().fill(Color.clickStickBlue))
                         }
@@ -190,11 +191,11 @@ struct PaywallView: View {
             .padding(Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(isSelected ? Color.clickStickBlue.opacity(0.08) : Color.secondary.opacity(0.06))
+                    .fill(isSelected ? Color.clickStickBlue.opacity(OpacityLevel.subtleFill) : Color.secondary.opacity(OpacityLevel.subtleFill))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .stroke(isSelected ? Color.clickStickBlue : .clear, lineWidth: 1.5)
+                    .stroke(isSelected ? Color.clickStickBlue : .clear, lineWidth: BorderWidth.regular)
             )
         }
         .buttonStyle(.plain)
@@ -243,19 +244,19 @@ struct PaywallView: View {
             VStack(spacing: Spacing.xs) {
                 HStack {
                     Rectangle()
-                        .fill(Color.secondary.opacity(0.2))
+                        .fill(Color.secondary.opacity(OpacityLevel.subtleBorder))
                         .frame(height: 0.5)
                     Text("or", comment: "Separator between subscription and one-time options")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                     Rectangle()
-                        .fill(Color.secondary.opacity(0.2))
+                        .fill(Color.secondary.opacity(OpacityLevel.subtleBorder))
                         .frame(height: 0.5)
                 }
                 .accessibilityHidden(true)
 
                 HStack(spacing: Spacing.sm) {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text("Just need a little?", comment: "One-time pack heading")
                             .font(.caption.weight(.medium))
                         Text("1 KB of instant typing, no subscription", comment: "One-time pack description")
@@ -277,7 +278,7 @@ struct PaywallView: View {
                 .padding(Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
-                        .fill(Color.secondary.opacity(0.04))
+                        .fill(Color.secondary.opacity(OpacityLevel.faintFill))
                 )
             }
             .accessibilityElement(children: .combine)
@@ -383,7 +384,7 @@ struct PaywallView: View {
         .padding(Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .fill(Color.secondary.opacity(0.04))
+                .fill(Color.secondary.opacity(OpacityLevel.faintFill))
         )
         .accessibilityElement(children: .combine)
     }

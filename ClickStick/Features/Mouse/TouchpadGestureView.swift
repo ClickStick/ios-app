@@ -100,9 +100,9 @@ class TouchpadView: UIView {
         layer.insertSublayer(gradientLayer, at: 0)
         self.gradientLayer = gradientLayer
 
-        layer.cornerRadius = 20
-        layer.borderWidth = 1.5
-        layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
+        layer.cornerRadius = CornerRadius.extraLarge
+        layer.borderWidth = BorderWidth.regular
+        layer.borderColor = UIColor.separator.withAlphaComponent(OpacityLevel.border).cgColor
 
         // Inner shadow effect
         layer.shadowColor = UIColor.black.cgColor
@@ -135,8 +135,8 @@ class TouchpadView: UIView {
     }
 
     private func updateColors() {
-        layer.borderColor = UIColor.separator.withAlphaComponent(0.3).cgColor
-        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.4).cgColor
+        layer.borderColor = UIColor.separator.withAlphaComponent(OpacityLevel.border).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(OpacityLevel.border).cgColor
         gradientLayer?.colors = [
             UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
             UIColor.secondarySystemBackground.cgColor
@@ -148,9 +148,9 @@ class TouchpadView: UIView {
     }
 
     private func setupCrosshair() {
-        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.4).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(OpacityLevel.border).cgColor
         crosshairLayer.fillColor = UIColor.clear.cgColor
-        crosshairLayer.lineWidth = 1
+        crosshairLayer.lineWidth = BorderWidth.thin
         crosshairLayer.opacity = 0
         layer.addSublayer(crosshairLayer)
     }
@@ -197,12 +197,13 @@ class TouchpadView: UIView {
     }
 
     private func hideCrosshair() {
-        let fadeOut = CABasicAnimation(keyPath: "opacity")
-        fadeOut.fromValue = crosshairLayer.opacity
-        fadeOut.toValue = 0
-        fadeOut.duration = 0.2
-        crosshairLayer.add(fadeOut, forKey: "fadeOut")
         crosshairLayer.opacity = 0
+        guard !UIAccessibility.isReduceMotionEnabled else { return }
+        let fadeOut = CABasicAnimation(keyPath: "opacity")
+        fadeOut.fromValue = 1
+        fadeOut.toValue = 0
+        fadeOut.duration = Motion.regular
+        crosshairLayer.add(fadeOut, forKey: "fadeOut")
     }
 
     private func updateCrosshairPath() {

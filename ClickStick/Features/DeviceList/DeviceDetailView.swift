@@ -11,6 +11,7 @@ struct DeviceDetailView: View {
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var alertError: AlertError?
     @State private var rotationAngle: Double = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
@@ -72,7 +73,7 @@ struct DeviceDetailView: View {
         VStack(spacing: Spacing.lg) {
             ZStack {
                 Circle()
-                    .stroke(Color.clickStickBlue.opacity(0.2), lineWidth: 4)
+                    .stroke(Color.clickStickBlue.opacity(OpacityLevel.subtleBorder), lineWidth: 4)
                     .frame(width: 80, height: 80)
 
                 Circle()
@@ -86,7 +87,7 @@ struct DeviceDetailView: View {
             }
 
             Image(systemName: "cable.connector.horizontal")
-                .font(.system(size: 28, weight: .medium))
+                .font(.system(size: IconSize.medium, weight: .medium))
                 .foregroundStyle(Color.clickStickBlue)
 
             VStack(spacing: Spacing.xs) {
@@ -98,6 +99,7 @@ struct DeviceDetailView: View {
             }
         }
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
                 rotationAngle = 360
             }
@@ -113,11 +115,11 @@ struct DeviceDetailView: View {
             // Icon with gradient
             ZStack {
                 Circle()
-                    .fill(Color.secondary.opacity(0.1))
+                    .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "cable.connector.horizontal")
-                    .font(.system(size: 40, weight: .medium))
+                    .font(.system(size: IconSize.large, weight: .medium))
                     .foregroundStyle(.secondary)
             }
 

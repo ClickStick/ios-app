@@ -7,6 +7,7 @@ import SwiftUI
 
 struct DeviceRowView: View {
     let device: DeviceModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: Spacing.sm) {
@@ -26,7 +27,7 @@ struct DeviceRowView: View {
     private var deviceIcon: some View {
         ZStack {
             Circle()
-                .fill(iconBackgroundColor.opacity(0.15))
+                .fill(iconBackgroundColor.opacity(OpacityLevel.accentFill))
                 .frame(width: 44, height: 44)
 
             Image(systemName: device.isDemoDevice ? "testtube.2" : "cable.connector.horizontal")
@@ -35,11 +36,11 @@ struct DeviceRowView: View {
         }
         .overlay(
             Circle()
-                .stroke(iconColor.opacity(device.isConnecting ? 0.45 : 0), lineWidth: 2)
-                .scaleEffect(device.isConnecting ? 1.3 : 1.0)
+                .stroke(iconColor.opacity(device.isConnecting ? 0.45 : 0), lineWidth: BorderWidth.thick)
+                .scaleEffect(device.isConnecting && !reduceMotion ? 1.3 : 1.0)
                 .opacity(device.isConnecting ? 1 : 0)
                 .animation(
-                    device.isConnecting
+                    device.isConnecting && !reduceMotion
                         ? .easeInOut(duration: 1.0).repeatForever(autoreverses: true)
                         : .default,
                     value: device.isConnecting

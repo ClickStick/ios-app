@@ -24,7 +24,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: Spacing.lg) {
+            VStack(spacing: Spacing.md) {
                 headerView
                 textPreview
                 layoutPicker
@@ -50,7 +50,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
                 Spacer()
 
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.easeInOut(duration: Motion.regular)) {
                         viewModel.toggleTextVisibility()
                     }
                 } label: {
@@ -71,11 +71,11 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
                 .padding(Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
-                        .fill(Color.secondary.opacity(0.08))
+                        .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
-                        .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                        .stroke(Color.secondary.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thin)
                 )
                 .accessibilityLabel("Text to type")
                 .accessibilityValue(viewModel.isTextVisible
@@ -131,7 +131,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
         VStack(spacing: Spacing.sm) {
             HStack(spacing: Spacing.sm) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(Color.clickStickOrange)
                 Text("No paired devices found")
                     .font(.subheadline)
                 Spacer()
@@ -145,7 +145,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
         .padding(Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .fill(Color.orange.opacity(0.1))
+                .fill(Color.clickStickOrange.opacity(OpacityLevel.subtleFill))
         )
         .accessibilityElement(children: .combine)
     }
@@ -163,7 +163,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
                 HStack(spacing: Spacing.xxs) {
                     if device.isConnected {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(Color.clickStickGreen)
                     } else if device.isConnecting {
                         ProgressView()
                             .controlSize(.mini)
@@ -183,14 +183,14 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
                 Button("Connect") {
                     viewModel.connectDevice()
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.secondary)
                 .controlSize(.small)
             }
         }
         .padding(Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .fill(Color.secondary.opacity(0.08))
+                .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(device.displayName), \(viewModel.deviceStatusMessage)")
@@ -221,7 +221,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
                         if device.isConnected {
                             HStack(spacing: Spacing.xxs) {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
+                                    .foregroundStyle(Color.clickStickGreen)
                                 Text("Connected")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -298,7 +298,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
             }
             .buttonStyle(.primary)
             .disabled(!viewModel.canType)
-            .opacity(viewModel.canType ? 1 : 0.6)
+            .opacity(viewModel.canType ? 1 : OpacityLevel.disabled)
             .accessibilityHint(viewModel.canType
                 ? "Double tap to type the text"
                 : "Connect to a device first")

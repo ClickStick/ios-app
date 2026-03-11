@@ -45,6 +45,7 @@ struct MouseView: View {
                 Image(systemName: "hand.draw")
                     .font(.headline)
                     .foregroundStyle(Color.clickStickBlue)
+                    .accessibilityHidden(true)
                 Text("Touchpad")
                     .font(.headline)
             }
@@ -62,8 +63,9 @@ struct MouseView: View {
     }
 
     private func instructionItem(icon: String, text: String) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Spacing.xxs) {
             Image(systemName: icon)
+                .accessibilityHidden(true)
             Text(text)
         }
     }
@@ -112,6 +114,7 @@ struct MouseView: View {
         HStack(spacing: Spacing.xs) {
             Image(systemName: "lightbulb.fill")
                 .foregroundStyle(Color.clickStickOrange)
+                .accessibilityHidden(true)
             Text("Two-finger tap on touchpad = right click")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -119,8 +122,8 @@ struct MouseView: View {
         .padding(.horizontal, Spacing.md)
         .padding(.vertical, Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.small)
-                .fill(Color.clickStickOrange.opacity(0.1))
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .fill(Color.clickStickOrange.opacity(OpacityLevel.subtleFill))
         )
     }
 

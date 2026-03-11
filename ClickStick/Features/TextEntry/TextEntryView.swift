@@ -107,13 +107,13 @@ struct TextEntryView: View {
                 .padding(Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
-                        .fill(Color.secondary.opacity(0.08))
+                        .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
                         .stroke(
-                            isTextFieldFocused ? Color.clickStickBlue : Color.secondary.opacity(0.2),
-                            lineWidth: isTextFieldFocused ? 2 : 1
+                            isTextFieldFocused ? Color.clickStickBlue : Color.secondary.opacity(OpacityLevel.subtleBorder),
+                            lineWidth: isTextFieldFocused ? BorderWidth.thick : BorderWidth.thin
                         )
                 )
                 .focused($isTextFieldFocused)
@@ -141,7 +141,7 @@ struct TextEntryView: View {
                             viewModel.clearText()
                         }
                     } label: {
-                        HStack(spacing: 4) {
+                        HStack(spacing: Spacing.xxs) {
                             Image(systemName: "xmark.circle.fill")
                             Text("Clear", comment: "Clear text button")
                         }
@@ -253,11 +253,11 @@ struct TextEntryView: View {
                         Text(viewModel.quotaStatusText)
                             .font(.caption)
                     }
-                    .foregroundStyle(viewModel.isThrottled ? .orange : .secondary)
+                    .foregroundStyle(viewModel.isThrottled ? Color.clickStickOrange : .secondary)
 
                     Spacer()
 
-                    HStack(spacing: 2) {
+                    HStack(spacing: Spacing.xxs) {
                         Text("Upgrade", comment: "Upgrade link label")
                             .font(.caption.weight(.medium))
                         Image(systemName: "chevron.right")
@@ -269,11 +269,11 @@ struct TextEntryView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(Color.secondary.opacity(0.15))
+                            .fill(Color.secondary.opacity(OpacityLevel.accentFill))
 
                         Capsule()
                             .fill(viewModel.isThrottled
-                                ? Color.orange
+                                ? Color.clickStickOrange
                                 : Color.clickStickGreen)
                             .frame(width: max(0, geometry.size.width * viewModel.quotaProgress))
                     }
@@ -283,7 +283,7 @@ struct TextEntryView: View {
             .padding(Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(Color.secondary.opacity(0.06))
+                    .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
             )
         }
         .buttonStyle(.plain)

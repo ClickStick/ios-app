@@ -50,8 +50,8 @@ struct NoDeviceSelectedView: View {
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.sm)
             .background(
-                Capsule()
-                    .fill(Color.clickStickBlue.opacity(0.1))
+                RoundedRectangle(cornerRadius: CornerRadius.large)
+                    .fill(Color.clickStickBlue.opacity(OpacityLevel.subtleFill))
             )
         }
     }

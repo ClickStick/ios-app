@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
+import DesignSystem
 import SwiftUI
 import VisionKit
 

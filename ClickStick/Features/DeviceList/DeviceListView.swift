@@ -178,20 +178,13 @@ struct DeviceListView: View {
     }
 }
 
-#Preview("With Announcements") {
-    NavigationStack {
-        DeviceListView(viewModel: DeviceListViewModel(
-            service: ClickStickService(),
-            urlOpener: URLOpener()
-        ))
-    }
-}
-
-#Preview("With Devices") {
-    NavigationStack {
-        DeviceListView(viewModel: DeviceListViewModel(
-            service: ClickStickService(),
-            urlOpener: URLOpener()
-        ))
+#Preview {
+    let service = ClickStickService()
+    service.isDemoMode = true
+    let viewModel = DeviceListViewModel(service: service, urlOpener: URLOpener())
+    viewModel.hasShownWelcome = false
+    viewModel.hasDismissedDemoPrompt = false
+    return NavigationStack {
+        DeviceListView(viewModel: viewModel)
     }
 }

@@ -56,6 +56,7 @@ struct AnnouncementBannerView: View {
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.white)
             }
+            .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 if let title = configuration.title {
@@ -79,6 +80,7 @@ struct AnnouncementBannerView: View {
                             Text(actionTitle)
                             Image(systemName: "arrow.right")
                                 .font(.caption)
+                                .accessibilityHidden(true)
                         }
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(configuration.style.accentColor)
@@ -105,6 +107,7 @@ struct AnnouncementBannerView: View {
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss")
             }
         }
         .padding(Spacing.md)
@@ -129,24 +132,25 @@ extension View {
                     removal: .opacity.combined(with: .scale(scale: 0.95, anchor: .top))
                 )
             )
-            .listRowInsets(EdgeInsets(top: Spacing.xs, leading: Spacing.md, bottom: Spacing.xs, trailing: Spacing.md))
+            .listRowInsets(EdgeInsets(top: Spacing.xs, leading: 1, bottom: Spacing.xs, trailing: 1))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
     }
 }
 
 #Preview {
-    VStack(spacing: 16) {
-        AnnouncementBannerView(
-            configuration: .welcome,
-            onAction: {},
-            onDismiss: {}
-        )
-        AnnouncementBannerView(
-            configuration: .demo,
-            onAction: {},
-            onDismiss: {}
-        )
+    List {
+        Section {
+            AnnouncementBannerView(
+                configuration: .welcome,
+                onAction: {},
+                onDismiss: {}
+            ).announcementRow(id: "welcome")
+            AnnouncementBannerView(
+                configuration: .demo,
+                onAction: {},
+                onDismiss: {}
+            ).announcementRow(id: "demo")
+        }
     }
-    .padding(24)
 }

@@ -19,7 +19,7 @@ public struct FeatureIcon: View {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: [Color.clickStickBlue.opacity(0.15), Color.clickStickTeal.opacity(0.1)],
+                        colors: [Color.clickStickBlue.opacity(OpacityLevel.accentFill), Color.clickStickTeal.opacity(OpacityLevel.subtleFill)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -30,6 +30,7 @@ public struct FeatureIcon: View {
                 .font(.system(size: iconSize, weight: .medium))
                 .foregroundStyle(LinearGradient.clickStickGradient)
         }
+        .accessibilityHidden(true)
     }
 }
 

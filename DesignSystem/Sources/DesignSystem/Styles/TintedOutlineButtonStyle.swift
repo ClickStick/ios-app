@@ -25,7 +25,7 @@ public struct TintedOutlineButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(color.opacity(OpacityLevel.subtleBorder), lineWidth: 1)
             )
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .opacity(currentOpacity(isPressed: configuration.isPressed))
             .animation(.easeInOut(duration: Motion.quick), value: configuration.isPressed)
     }

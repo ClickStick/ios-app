@@ -27,9 +27,9 @@ public struct PrimaryButtonStyle: ButtonStyle {
                             )
                     )
             )
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.easeInOut(duration: Motion.regular), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .opacity(configuration.isPressed ? OpacityLevel.pressed : 1.0)
+            .animation(.easeInOut(duration: Motion.quick), value: configuration.isPressed)
     }
 }
 

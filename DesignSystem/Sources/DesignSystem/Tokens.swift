@@ -27,11 +27,26 @@ public enum Motion {
 }
 
 public enum OpacityLevel {
-    public static let subtleFill: Double = 0.1
+    public static let faintFill: Double = 0.04
+    public static let subtleFill: Double = 0.08
     public static let accentFill: Double = 0.15
-    public static let subtleBorder: Double = 0.3
+    public static let subtleBorder: Double = 0.2
+    public static let border: Double = 0.3
     public static let pressed: Double = 0.85
     public static let disabled: Double = 0.5
+}
+
+public enum BorderWidth {
+    public static let thin: CGFloat = 1
+    public static let regular: CGFloat = 1.5
+    public static let thick: CGFloat = 2
+}
+
+public enum IconSize {
+    public static let small: CGFloat = 16
+    public static let medium: CGFloat = 28
+    public static let large: CGFloat = 40
+    public static let extraLarge: CGFloat = 48
 }
 
 public extension LinearGradient {

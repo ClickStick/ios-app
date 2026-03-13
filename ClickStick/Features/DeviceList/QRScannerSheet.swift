@@ -2,6 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 #if !targetEnvironment(macCatalyst)
+import AVFoundation
 import DesignSystem
 import SwiftUI
 import VisionKit
@@ -11,11 +12,12 @@ struct QRScannerSheet: View {
     let onScan: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var alertError: AlertError?
+    @State private var cameraAuthorizationStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
 
     var body: some View {
         NavigationStack {
             Group {
-                if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
+                if cameraAuthorizationStatus == .authorized {
                     QRCodeScannerView(
                         onScan: onScan,
                         onStartError: { error in
@@ -29,44 +31,77 @@ struct QRScannerSheet: View {
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Camera viewfinder for scanning QR code")
                     .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
+                } else if cameraAuthorizationStatus == .notDetermined {
+                    Color.clear
                 } else {
-                    ContentUnavailableView {
-                        VStack(spacing: Spacing.md) {
-                            FeatureIcon(systemName: "camera.fill")
-                            Text("Camera Not Available")
-                                .font(.title2.weight(.semibold))
-                        }
-                    } description: {
-                        Text("This device doesn't support camera scanning. Please enter the key manually.")
-                    } actions: {
-                        Button("Dismiss") {
-                            dismiss()
-                        }
-                        .buttonStyle(.primary)
-                        .padding(.horizontal, Spacing.xxl)
-                    }
-                    .accessibilityElement(children: .combine)
+                    CameraPermissionDeniedView()
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Scan QR Code")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+                    if cameraAuthorizationStatus == .authorized {
+                        Text("Scan QR Code")
+                            .font(.headline)
+                            .foregroundStyle(Color.white)
+                            .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+                    } else {
+                        Text("Scan QR Code")
+                            .font(.headline)
+                    }
                 }
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
+                    if cameraAuthorizationStatus == .authorized {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .accessibilityLabel("Cancel scanning")
+                    } else {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .accessibilityLabel("Cancel scanning")
                     }
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
-                    .accessibilityLabel("Cancel scanning")
                 }
             }
         }
         .errorAlert($alertError)
+        .task {
+            if cameraAuthorizationStatus == .notDetermined {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                cameraAuthorizationStatus = granted ? .authorized : .denied
+            }
+        }
+    }
+}
+
+// MARK: - Camera Permission Denied View
+
+private struct CameraPermissionDeniedView: View {
+    var body: some View {
+        VStack(spacing: Spacing.lg) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: IconSize.extraLarge))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            VStack(spacing: Spacing.xs) {
+                Text(String(localized: "Camera Access Required", comment: "Camera permission denied title"))
+                    .font(.title3.bold())
+                    .multilineTextAlignment(.center)
+                Text(String(localized: "To scan the QR code, allow ClickStick to access your camera in Settings.", comment: "Camera permission denied message"))
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            Button(String(localized: "Open Settings", comment: "Button to open iOS Settings app")) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .buttonStyle(.primary)
+            .accessibilityHint(String(localized: "Opens the iOS Settings app to allow camera access", comment: "Accessibility hint for Open Settings button"))
+        }
+        .padding(Spacing.xl)
     }
 }
 

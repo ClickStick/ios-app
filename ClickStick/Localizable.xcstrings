@@ -1128,54 +1128,55 @@
         }
       }
     },
-    "Camera Not Available" : {
+    "Camera Access Required" : {
+      "comment" : "Camera permission denied title",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kamera není k dispozici"
+            "value" : "Vyžadován přístup ke kameře"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kamera nicht verfügbar"
+            "value" : "Kamerazugriff erforderlich"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cámara no disponible"
+            "value" : "Acceso a la cámara requerido"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appareil photo non disponible"
+            "value" : "Accès à la caméra requis"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カメラが利用できません"
+            "value" : "カメラアクセスが必要です"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aparat niedostępny"
+            "value" : "Wymagany dostęp do kamery"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Câmera não disponível"
+            "value" : "Acesso à câmera necessário"
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kamera nie je k dispozícii"
+            "value" : "Vyžaduje sa prístup ku kamere"
           }
         }
       }
@@ -5883,6 +5884,7 @@
       }
     },
     "Open Settings" : {
+      "comment" : "Button to open iOS Settings app",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -6035,6 +6037,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Otvorí kameru na skenovanie QR kódu z ClickSticku"
+          }
+        }
+      }
+    },
+    "Opens the iOS Settings app to allow camera access" : {
+      "comment" : "Accessibility hint for Open Settings button",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otevře aplikaci Nastavení iOS pro povolení přístupu ke kameře"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet die iOS-Einstellungen, um den Kamerazugriff zu erlauben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la aplicación de Ajustes de iOS para permitir el acceso a la cámara"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre l'application Réglages iOS pour autoriser l'accès à la caméra"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iOSの設定アプリを開いてカメラアクセスを許可します"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwiera aplikację Ustawienia iOS, aby zezwolić na dostęp do kamery"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre o aplicativo Ajustes do iOS para permitir o acesso à câmera"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otvorí aplikáciu Nastavenia iOS na povolenie prístupu ku kamere"
           }
         }
       }
@@ -6300,59 +6355,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Na začiatok pripojte ClickStick."
-          }
-        }
-      }
-    },
-    "Point camera at QR code" : {
-      "comment" : "Instruction text shown below the QR scanner viewfinder",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Namiřte kameru na QR kód"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kamera auf QR-Code richten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apunte la cámara al código QR"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pointez la caméra vers le code QR"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRコードにカメラを向ける"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skieruj aparat na kod QR"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aponte a câmera para o código QR"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Namierte kameru na QR kód"
           }
         }
       }
@@ -8839,58 +8841,6 @@
         }
       }
     },
-    "This device doesn't support camera scanning. Please enter the key manually." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toto zařízení nepodporuje skenování kamerou. Zadejte klíč ručně."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieses Gerät unterstützt kein Kamera-Scannen. Bitte den Schlüssel manuell eingeben."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este dispositivo no admite escaneo de cámara. Por favor, introduce la clave manualmente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cet appareil ne prend pas en charge la numérisation par caméra. Veuillez saisir la clé manuellement."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このデバイスはカメラスキャンに対応していません。キーを手動で入力してください。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To urządzenie nie obsługuje skanowania aparatem. Wprowadź klucz ręcznie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este dispositivo não suporta escaneamento por câmera. Por favor, insira a chave manualmente."
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toto zariadenie nepodporuje skenovanie kamerou. Zadajte kľúč ručne."
-          }
-        }
-      }
-    },
     "This text will be sent at human speed. %lld full-speed bytes remain." : {
       "comment" : "Quota indicator accessibility when text exceeds quota",
       "localizations" : {
@@ -8940,6 +8890,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tento text sa odošle ľudskou rýchlosťou. Zostáva %lld bajtov plnej rýchlosti."
+          }
+        }
+      }
+    },
+    "To scan the QR code, allow ClickStick to access your camera in Settings." : {
+      "comment" : "Camera permission denied message",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chcete-li naskenovat QR kód, povolte ClickSticku přístup ke kameře v Nastavení."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um den QR-Code zu scannen, erlauben Sie ClickStick den Zugriff auf Ihre Kamera in den Einstellungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para escanear el código QR, permita a ClickStick acceder a tu cámara en Ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour scanner le code QR, autorisez ClickStick à accéder à votre caméra dans Réglages."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードをスキャンするには、設定でClickStickにカメラへのアクセスを許可してください。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby zeskanować kod QR, zezwól ClickStick na dostęp do kamery w Ustawieniach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para escanear o código QR, permita que o ClickStick acesse sua câmera em Ajustes."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ak chcete naskenovať QR kód, povoľte ClickSticku prístup ku kamere v Nastaveniach."
           }
         }
       }

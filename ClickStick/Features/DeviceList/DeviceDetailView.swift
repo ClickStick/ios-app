@@ -73,14 +73,14 @@ struct DeviceDetailView: View {
         VStack(spacing: Spacing.lg) {
             ZStack {
                 Circle()
-                    .stroke(Color.clickStickBlue.opacity(OpacityLevel.subtleBorder), lineWidth: 4)
+                    .stroke(Color.clickStickBlue.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thick)
                     .frame(width: 80, height: 80)
 
                 Circle()
                     .trim(from: 0, to: 0.7)
                     .stroke(
                         LinearGradient.clickStickGradient,
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                        style: StrokeStyle(lineWidth: BorderWidth.thick, lineCap: .round)
                     )
                     .frame(width: 80, height: 80)
                     .rotationEffect(.degrees(rotationAngle - 90))

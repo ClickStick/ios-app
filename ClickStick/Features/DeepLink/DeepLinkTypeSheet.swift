@@ -74,7 +74,7 @@ struct DeepLinkTypeSheet: View {
         .padding(Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .fill(Color.clickStickBlue.opacity(0.1))
+                .fill(Color.clickStickBlue.opacity(OpacityLevel.accentFill))
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Request from \(viewModel.sourceAppName)")

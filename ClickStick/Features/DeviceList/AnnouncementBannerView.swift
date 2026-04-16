@@ -50,10 +50,10 @@ struct AnnouncementBannerView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 40, height: 40)
+                    .frame(width: IconSize.large, height: IconSize.large)
 
                 configuration.image
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: IconSize.inline, weight: .semibold))
                     .foregroundStyle(.white)
             }
             .accessibilityHidden(true)
@@ -76,7 +76,7 @@ struct AnnouncementBannerView: View {
                     Button {
                         onAction()
                     } label: {
-                        HStack(spacing: 4) {
+                        HStack(spacing: Spacing.xxs) {
                             Text(actionTitle)
                             Image(systemName: "arrow.right")
                                 .font(.caption)
@@ -102,7 +102,7 @@ struct AnnouncementBannerView: View {
                         .padding(Spacing.xs)
                         .background(
                             Circle()
-                                .fill(Color.secondary.opacity(0.1))
+                                .fill(Color.secondary.opacity(OpacityLevel.accentFill))
                         )
                         .contentShape(Circle())
                 }
@@ -111,11 +111,11 @@ struct AnnouncementBannerView: View {
             }
         }
         .padding(Spacing.md)
-        .background(Color(white: 0.5).opacity(0.08))
+        .background(Color(white: 0.5).opacity(OpacityLevel.subtleFill))
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
         .overlay(
             RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+                .stroke(Color.primary.opacity(OpacityLevel.accentFill), lineWidth: BorderWidth.thin)
         )
     }
 }

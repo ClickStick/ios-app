@@ -12,7 +12,7 @@ struct PaywallView: View {
     @State private var selectedProductID: String?
     @State private var isPurchasing: Bool = false
     @State private var isLoadingProducts: Bool = false
-    @State private var purchaseError: String?
+    @State private var alertError: AlertError?
     @State private var purchaseSucceeded: Bool = false
 
     private var subscriptionProducts: [Product] {
@@ -79,6 +79,7 @@ struct PaywallView: View {
                 ensureSelectedSubscriptionIfNeeded()
             }
         }
+        .errorAlert($alertError)
     }
 
     // MARK: - Header
@@ -86,7 +87,7 @@ struct PaywallView: View {
     private var headerSection: some View {
         VStack(spacing: Spacing.xs) {
             Image(systemName: "bolt.fill")
-                .font(.system(size: 32))
+                .font(.system(size: IconSize.header))
                 .foregroundStyle(LinearGradient.clickStickGradient)
                 .accessibilityHidden(true)
 
@@ -173,7 +174,7 @@ struct PaywallView: View {
                                 .font(.caption2.weight(.bold))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, Spacing.xxs)
-                                .padding(.vertical, 1)
+                                .padding(.vertical, BorderWidth.thin)
                                 .background(Capsule().fill(Color.clickStickBlue))
                         }
                     }
@@ -291,14 +292,6 @@ struct PaywallView: View {
 
     private var ctaSection: some View {
         VStack(spacing: Spacing.xs) {
-            if let error = purchaseError {
-                Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .accessibilityLabel(String(localized: "Purchase error: \(error)", comment: "Purchase error accessibility"))
-            }
-
             if purchaseSucceeded {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "checkmark.circle.fill")
@@ -418,7 +411,7 @@ struct PaywallView: View {
 
     private func purchase(_ product: Product) async {
         isPurchasing = true
-        purchaseError = nil
+        alertError = nil
         do {
             let success = try await premiumService.purchase(product)
             if success {
@@ -431,7 +424,7 @@ struct PaywallView: View {
                 return
             }
         } catch {
-            purchaseError = error.localizedDescription
+            alertError = AlertError(error: error)
         }
         isPurchasing = false
     }

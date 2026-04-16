@@ -131,7 +131,7 @@ struct DeviceSetupSheet: View {
 
     private var aliasSection: some View {
         Section {
-            TextField(String("Device nickname (optional)"), text: $deviceAlias)
+            TextField(String(localized: "Device nickname (optional)", comment: "Device alias placeholder"), text: $deviceAlias)
                 .accessibilityLabel("Device nickname")
                 .accessibilityHint("Optional friendly name for this device")
         } header: {

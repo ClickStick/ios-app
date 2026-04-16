@@ -9,6 +9,8 @@ struct ShareExtensionView: View {
     let onCancel: () -> Void
     let onComplete: () -> Void
 
+    @State private var showConnectionError = false
+
     var body: some View {
         NavigationStack {
             TypeTextContentView(viewModel: viewModel, onDismiss: onComplete)
@@ -30,6 +32,21 @@ struct ShareExtensionView: View {
                 }
         }
         .interactiveDismissDisabled()
+        .onChange(of: viewModel.connectionError) { _, error in
+            if error != nil {
+                showConnectionError = true
+            }
+        }
+        .alert(
+            String(localized: "Connection Error", comment: "Share extension error alert title"),
+            isPresented: $showConnectionError
+        ) {
+            Button(String(localized: "OK", comment: "Alert dismiss button")) {}
+        } message: {
+            if let error = viewModel.connectionError {
+                Text(error)
+            }
+        }
     }
 }
 

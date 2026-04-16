@@ -122,11 +122,11 @@ class ShareViewController: UIViewController {
 
     private func showError(message: String) {
         let alert = UIAlertController(
-            title: "Cannot Share",
+            title: String(localized: "Cannot Share", comment: "Share extension error alert title"),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: String(localized: "OK", comment: "Alert dismiss button"), style: .default) { [weak self] _ in
             self?.cancel()
         })
         present(alert, animated: true)

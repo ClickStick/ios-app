@@ -28,8 +28,33 @@ struct MouseView: View {
             .accessibilityAddTraits(.allowsDirectInteraction)
 
             clickButtons
+                .disabled(!device.isConnected)
 
             hintText
+
+            if !device.isConnected && !device.isConnecting {
+                VStack(spacing: Spacing.sm) {
+                    Image(systemName: "cable.connector.horizontal")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    Text("Device disconnected")
+                        .font(.subheadline.weight(.medium))
+                    Text("Touchpad gestures are paused.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(Spacing.lg)
+                .background(
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .fill(Color.clickStickOrange.opacity(OpacityLevel.subtleFill))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .stroke(Color.clickStickOrange.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thin)
+                )
+                .accessibilityElement(children: .combine)
+            }
 
             Spacer()
         }

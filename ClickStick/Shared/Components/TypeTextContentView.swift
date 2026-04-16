@@ -46,6 +46,7 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
                     Text("Text to type")
                         .font(.headline)
                 }
+                .accessibilityAddTraits(.isHeader)
 
                 Spacer()
 
@@ -298,7 +299,6 @@ struct TypeTextContentView<ViewModel: TypeTextViewModel, Header: View>: View {
             }
             .buttonStyle(.primary)
             .disabled(!viewModel.canType)
-            .opacity(viewModel.canType ? 1 : OpacityLevel.disabled)
             .accessibilityHint(viewModel.canType
                 ? "Double tap to type the text"
                 : "Connect to a device first")

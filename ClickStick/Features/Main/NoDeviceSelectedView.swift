@@ -53,6 +53,10 @@ struct NoDeviceSelectedView: View {
                 RoundedRectangle(cornerRadius: CornerRadius.large)
                     .fill(Color.clickStickBlue.opacity(OpacityLevel.subtleFill))
             )
+        } else if hasDevices {
+            Text("Tap a device in the sidebar to begin.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 }

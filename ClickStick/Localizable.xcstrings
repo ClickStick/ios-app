@@ -1499,6 +1499,60 @@
         }
       }
     },
+    "Cannot Share" : {
+      "comment" : "Share extension error alert title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nelze sdílet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen nicht möglich"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede compartir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de partager"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共有できません"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można udostępnić"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não é possível compartilhar"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie je možné zdieľať"
+          }
+        }
+      }
+    },
     "Choose a plan" : {
       "comment" : "Paywall section header",
       "localizations" : {
@@ -2080,6 +2134,60 @@
         }
       }
     },
+    "Connection Error" : {
+      "comment" : "Share extension error alert title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba připojení"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindungsfehler"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error de conexión"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur de connexion"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続エラー"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd połączenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erro de conexão"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba pripojenia"
+          }
+        }
+      }
+    },
     "Connection in progress" : {
       "comment" : "Accessibility hint",
       "localizations" : {
@@ -2656,6 +2764,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prezývka zariadenia"
+          }
+        }
+      }
+    },
+    "Device nickname (optional)" : {
+      "comment" : "Device alias placeholder",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přezdívka zařízení (volitelné)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerätename (optional)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apodo del dispositivo (opcional)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Surnom de l'appareil (facultatif)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デバイスのニックネーム（任意）"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa urządzenia (opcjonalne)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apelido do dispositivo (opcional)"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prezývka zariadenia (voliteľné)"
           }
         }
       }
@@ -6467,6 +6628,7 @@
     },
     "Purchase error: %@" : {
       "comment" : "Purchase error accessibility",
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -8471,6 +8633,58 @@
         }
       }
     },
+    "Tap a device in the sidebar to begin." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klepněte na zařízení v postranním panelu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippen Sie auf ein Gerät in der Seitenleiste, um zu beginnen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca un dispositivo en la barra lateral para comenzar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez un appareil dans la barre latérale pour commencer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サイドバーのデバイスをタップして開始してください。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dotknij urządzenie na pasku bocznym, aby rozpocząć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque em um dispositivo na barra lateral para começar."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ťuknite na zariadenie v bočnom paneli."
+          }
+        }
+      }
+    },
     "Tap Connect to start using this device." : {
       "localizations" : {
         "cs" : {
@@ -8894,6 +9108,58 @@
         }
       }
     },
+    "This will remove the saved authentication key. You'll need to set up the device again to reconnect." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tímto odstraníte uložený ověřovací klíč. Pro opětovné připojení bude nutné zařízení znovu nastavit."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dadurch wird der gespeicherte Authentifizierungsschlüssel entfernt. Sie müssen das Gerät erneut einrichten, um es wieder zu verbinden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto eliminará la clave de autenticación guardada. Necesitarás configurar el dispositivo de nuevo para reconectarte."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cela supprimera la clé d'authentification enregistrée. Vous devrez reconfigurer l'appareil pour vous reconnecter."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存された認証キーが削除されます。再接続するにはデバイスを再設定する必要があります。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spowoduje to usunięcie zapisanego klucza uwierzytelniania. Aby ponownie się połączyć, konieczne będzie ponowne skonfigurowanie urządzenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isso removerá a chave de autenticação salva. Você precisará configurar o dispositivo novamente para reconectar."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tým sa odstráni uložený overovací kľúč. Na opätovné pripojenie bude potrebné zariadenie znova nastaviť."
+          }
+        }
+      }
+    },
     "To scan the QR code, allow ClickStick to access your camera in Settings." : {
       "comment" : "Camera permission denied message",
       "localizations" : {
@@ -9049,6 +9315,58 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oblasť touchpadu"
+          }
+        }
+      }
+    },
+    "Touchpad gestures are paused." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesta touchpadu jsou pozastavena."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchpad-Gesten sind pausiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los gestos del touchpad están en pausa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les gestes du pavé tactile sont en pause."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タッチパッドのジェスチャーが一時停止中です。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesty touchpada są wstrzymane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os gestos do touchpad estão pausados."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestá touchpadu sú pozastavené."
           }
         }
       }

@@ -117,7 +117,7 @@ struct TextEntryView: View {
                         )
                 )
                 .focused($isTextFieldFocused)
-                .animation(.easeInOut(duration: 0.2), value: isTextFieldFocused)
+                .animation(.easeInOut(duration: Motion.regular), value: isTextFieldFocused)
                 .accessibilityLabel(String(localized: "Text to send", comment: "Text editor accessibility label"))
                 .accessibilityHint(String(localized: "Enter the text you want to type on the connected device", comment: "Text editor accessibility hint"))
                 .accessibilityValue(viewModel.isEmpty

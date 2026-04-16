@@ -44,8 +44,11 @@ public enum BorderWidth {
 
 public enum IconSize {
     public static let small: CGFloat = 16
+    public static let inline: CGFloat = 18
     public static let medium: CGFloat = 28
+    public static let header: CGFloat = 32
     public static let large: CGFloat = 40
+    public static let row: CGFloat = 44
     public static let extraLarge: CGFloat = 48
 }
 

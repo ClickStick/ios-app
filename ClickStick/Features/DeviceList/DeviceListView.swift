@@ -8,6 +8,7 @@ import SwiftUI
 struct DeviceListView: View {
     @Bindable var viewModel: DeviceListViewModel
     @Environment(\.appRouter) private var router
+    @State private var deviceToForget: DeviceModel?
 
     var body: some View {
         List(selection: Binding(
@@ -42,6 +43,25 @@ struct DeviceListView: View {
             }
         }
         .errorAlert($viewModel.alertError)
+        .confirmationDialog(
+            "Forget Device",
+            isPresented: Binding(
+                get: { deviceToForget != nil },
+                set: { if !$0 { deviceToForget = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Forget Device", role: .destructive) {
+                if let device = deviceToForget {
+                    if viewModel.forgetDevice(device, selectedDeviceID: router.selectedDeviceID) {
+                        router.deselectDevice()
+                    }
+                    deviceToForget = nil
+                }
+            }
+        } message: {
+            Text("This will remove the saved authentication key. You'll need to set up the device again to reconnect.")
+        }
     }
 
     // MARK: - Announcements
@@ -138,7 +158,7 @@ struct DeviceListView: View {
         Button {
             viewModel.toggleScanning()
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: Spacing.xs) {
                 if viewModel.isScanning {
                     ProgressView()
                         .controlSize(.small)
@@ -160,9 +180,7 @@ struct DeviceListView: View {
     @ViewBuilder
     private func deviceContextMenu(for device: DeviceModel) -> some View {
         Button(role: .destructive) {
-            if viewModel.forgetDevice(device, selectedDeviceID: router.selectedDeviceID) {
-                router.deselectDevice()
-            }
+            deviceToForget = device
         } label: {
             Label(String(localized: "Forget Device"), systemImage: "trash")
         }

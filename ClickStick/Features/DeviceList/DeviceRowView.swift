@@ -28,10 +28,10 @@ struct DeviceRowView: View {
         ZStack {
             Circle()
                 .fill(iconBackgroundColor.opacity(OpacityLevel.accentFill))
-                .frame(width: 44, height: 44)
+                .frame(width: IconSize.row, height: IconSize.row)
 
             Image(systemName: device.isDemoDevice ? "testtube.2" : "cable.connector.horizontal")
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: IconSize.inline, weight: .medium))
                 .foregroundStyle(iconColor)
         }
         .overlay(

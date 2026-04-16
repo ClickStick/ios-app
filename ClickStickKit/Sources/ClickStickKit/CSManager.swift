@@ -69,8 +69,14 @@ extension CSManager {
         }
         let state = centralManager.state
         guard state == .poweredOn else {
-            log.error("Cannot scan, BLE is not powered on")
-            notifyFailure(makeBluetoothError(for: state))
+            if state == .unknown {
+                // Transient state during app launch; centralManagerDidUpdateState will
+                // call startScanning() once BLE is ready. Don't report an error.
+                log.debug("Cannot scan yet, BLE state is unknown — waiting for centralManagerDidUpdateState")
+            } else {
+                log.error("Cannot scan, BLE is not powered on")
+                notifyFailure(makeBluetoothError(for: state))
+            }
             return
         }
 

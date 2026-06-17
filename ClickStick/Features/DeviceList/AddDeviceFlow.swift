@@ -2,7 +2,6 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
-import DesignSystem
 import SwiftUI
 
 // MARK: - Add Device (scanning) modal
@@ -18,11 +17,11 @@ struct AddDeviceScanSheet: View {
         NavigationStack {
             DiscoveryStateBlock(isScanning: viewModel.isScanning)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.clickStickGroupedBackground)
+                .background(Color.groupedBackground)
                 .safeAreaInset(edge: .bottom) {
                     bottomButton
-                        .padding(.horizontal, Spacing.lg)
-                        .padding(.bottom, Spacing.sm)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 12)
                 }
                 .navigationTitle("Add Device")
                 .navigationBarTitleDisplayMode(.inline)
@@ -42,12 +41,12 @@ struct AddDeviceScanSheet: View {
         if viewModel.isScanning {
             AnyView(
                 Button("Stop") { viewModel.stopScanning() }
-                    .buttonStyle(.secondary(tint: .primary))
+                    .buttonStyle(AppSecondaryButtonStyle())
             )
         } else {
             AnyView(
                 Button("Scan again") { viewModel.startScanning() }
-                    .buttonStyle(.primary)
+                    .buttonStyle(AppPrimaryButtonStyle())
             )
         }
     }
@@ -73,25 +72,25 @@ struct FoundDevicesSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            RadioWaveIconView(tint: .clickStickOrange, size: 80)
-                .padding(.top, Spacing.xxxl + Spacing.xl)
+            foundIcon
+                .padding(.top, 64)
 
-            VStack(spacing: Spacing.xs) {
+            VStack(spacing: 8) {
                 Text(title)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.title2.weight(.bold))
                     .foregroundStyle(.primary)
 
                 Text("Select your device carefully. Connect only to a device you recognize and trust.")
-                    .font(.system(size: 17))
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .multilineTextAlignment(.center)
             .frame(maxWidth: 330)
-            .padding(.top, Spacing.xl)
+            .padding(.top, 24)
 
             ScrollView {
-                VStack(spacing: Spacing.xl) {
+                VStack(spacing: 24) {
                     ForEach(rows) { row in
                         Button {
                             if let device = row.device { onConnect(device) }
@@ -101,21 +100,34 @@ struct FoundDevicesSheet: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, Spacing.xxl)
-                .padding(.top, Spacing.xxxl + Spacing.lg)
+                .padding(.horizontal, 32)
+                .padding(.top, 60)
             }
 
             Button("Stop", action: onStop)
-                .buttonStyle(.secondary(tint: .primary))
-                .padding(.horizontal, Spacing.lg)
-                .padding(.bottom, Spacing.lg)
+                .buttonStyle(AppSecondaryButtonStyle())
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.clickStickCardBackground)
+        .background(Color.cardBackground)
         .presentationDetents([.large])
-        .presentationCornerRadius(CornerRadius.modal)
+        .presentationCornerRadius(40)
         .presentationDragIndicator(.hidden)
         .accessibilityElement(children: .contain)
+    }
+
+    private var foundIcon: some View {
+        ZStack {
+            Circle().fill(Color(.systemOrange).opacity(0.14))
+
+            Image(systemName: "antenna.radiowaves.left.and.right")
+                .symbolRenderingMode(.monochrome)
+                .font(.system(size: 80 * 0.42, weight: .semibold))
+                .foregroundStyle(Color(.systemOrange))
+        }
+        .frame(width: 80, height: 80)
+        .accessibilityHidden(true)
     }
 }
 
@@ -127,24 +139,24 @@ private struct DiscoveryStateBlock: View {
     let isScanning: Bool
 
     var body: some View {
-        VStack(spacing: Spacing.xxxl) {
+        VStack(spacing: 40) {
             animation
 
-            VStack(spacing: Spacing.xs) {
+            VStack(spacing: 8) {
                 Text(title)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.title2.weight(.bold))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(subtitle)
-                    .font(.system(size: 17))
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .multilineTextAlignment(.center)
             .frame(maxWidth: 300)
         }
-        .padding(.horizontal, Spacing.lg)
+        .padding(.horizontal, 20)
         .accessibilityElement(children: .combine)
     }
 
@@ -152,7 +164,7 @@ private struct DiscoveryStateBlock: View {
         if isScanning {
             BluetoothDiscoveryAnimationView(size: 184)
         } else {
-            DiscoveryRadarView(isActive: false, size: 184, tint: .clickStickBlue, style: .pausedRadar)
+            ScanRadarView(showsSweep: false, tint: .accentBlue, size: 184)
         }
     }
 
@@ -200,22 +212,22 @@ private struct DiscoveryDeviceRow: View {
     let row: DiscoveryDeviceRowModel
 
     var body: some View {
-        HStack(alignment: .center, spacing: Spacing.md) {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(row.name)
-                    .font(.system(size: 19))
+                    .font(.body)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 Text(rssiText)
-                    .font(.system(size: 17))
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
 
-            Spacer(minLength: Spacing.sm)
+            Spacer(minLength: 12)
 
-            SignalStrengthView(
+            SignalBarsView(
                 strength: normalizedSignalStrength,
                 activeColor: signalColor
             )
@@ -239,7 +251,7 @@ private struct DiscoveryDeviceRow: View {
     }
 
     private var signalColor: Color {
-        row.rssi <= -80 ? .clickStickDestructive : .clickStickBlue
+        row.rssi <= -80 ? Color(.systemRed) : .accentBlue
     }
 }
 

@@ -2,7 +2,7 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
-import DesignSystem
+import Foundation
 import SwiftUI
 
 enum DeviceListStartupAction: Equatable {
@@ -20,6 +20,7 @@ struct DeviceListView: View {
     @State private var pendingStage: AddDeviceStage?
     @State private var compromisedDevice: DeviceModel?
     @State private var reauthPendingDevice: DeviceModel?
+    @State private var pendingConnectedDeviceID: UUID?
 
     init(
         viewModel: DeviceListViewModel,
@@ -31,12 +32,36 @@ struct DeviceListView: View {
 
     var body: some View {
         ZStack {
-            Color.clickStickGroupedBackground
+            Color.groupedBackground
                 .ignoresSafeArea()
 
             content
         }
-        .toolbar(.hidden, for: .navigationBar)
+        .navigationTitle("Devices")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            if !viewModel.devices.isEmpty {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    HeaderIconButton(
+                        systemName: "gearshape",
+                        foreground: .primary,
+                        background: .mutedFill,
+                        accessibilityLabel: "Settings"
+                    ) {
+                        isShowingSettings = true
+                    }
+
+                    HeaderIconButton(
+                        systemName: "plus",
+                        foreground: .white,
+                        background: .accentBlue,
+                        accessibilityLabel: "Add device"
+                    ) {
+                        presentAddDevice()
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $isShowingSettings) {
             SettingsView()
         }
@@ -79,9 +104,13 @@ struct DeviceListView: View {
         }
         .onChange(of: viewModel.deviceRequiringAuthentication) { _, device in
             if let device, router.presentedSheet == nil {
+                pendingConnectedDeviceID = nil
                 viewModel.prepareDeviceForSetup(device)
                 router.showDeviceSetup(for: device)
             }
+        }
+        .onChange(of: deviceConnectionSnapshots) { _, _ in
+            resolvePendingConnectedDeviceSelection()
         }
         .onChange(of: startupAction, initial: true) { _, action in
             handleStartupAction(action)
@@ -113,91 +142,76 @@ struct DeviceListView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.devices.isEmpty {
-            DiscoveryScreen {
-                standardHeader(showsActions: false)
-            } center: {
-                emptyState
-            } bottom: {
-                Button("Scan for devices") { presentAddDevice() }
-                    .buttonStyle(.primary)
-            }
+            emptyStateScreen
         } else {
             deviceListScreen
         }
     }
 
+    // A compromised device is not its own section — it belongs in the section
+    // matching its connection status and is simply rendered red (see DeviceRowView).
+
     private var connectedDevices: [DeviceModel] {
-        viewModel.devices.filter { $0.isConnected && !$0.isCompromised }
+        viewModel.devices.filter { $0.isConnected }
     }
 
     /// Disconnected devices that are currently advertising and can be connected to.
+    /// A connecting device stays here too; only its row subtitle changes to "Connecting...".
     private var availableDevices: [DeviceModel] {
-        viewModel.devices.filter { !$0.isConnected && $0.isConnectable && !$0.isCompromised }
+        viewModel.devices.filter { device in
+            !device.isConnected && (device.isConnectable || device.isConnecting)
+        }
     }
 
     /// Disconnected devices that are no longer advertising (out of range).
     private var outOfRangeDevices: [DeviceModel] {
-        viewModel.devices.filter { !$0.isConnected && !$0.isConnectable && !$0.isCompromised }
-    }
-
-    /// Devices that failed session validation and may be compromised.
-    private var compromisedDevices: [DeviceModel] {
-        viewModel.devices.filter(\.isCompromised)
-    }
-
-    // MARK: - Header
-
-    private func standardHeader(showsActions: Bool) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            HStack(spacing: Spacing.sm) {
-                Spacer()
-
-                if showsActions {
-                    HeaderIconButton(
-                        systemName: "gearshape",
-                        foreground: .primary,
-                        background: .clickStickMutedFill,
-                        accessibilityLabel: "Settings"
-                    ) {
-                        isShowingSettings = true
-                    }
-
-                    HeaderIconButton(
-                        systemName: "plus",
-                        foreground: .white,
-                        background: .clickStickBlue,
-                        accessibilityLabel: "Add device"
-                    ) {
-                        presentAddDevice()
-                    }
-                }
-            }
-            .frame(height: ComponentSize.iconButton)
-
-            Text("Devices")
-                .font(.system(size: 34, weight: .bold))
-                .tracking(-0.136)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        viewModel.devices.filter { device in
+            !device.isConnected && !device.isConnecting && !device.isConnectable
         }
-        .padding(.horizontal, Spacing.lg)
-        .padding(.top, Spacing.xs)
+    }
+
+    private var deviceConnectionSnapshots: [DeviceConnectionSnapshot] {
+        viewModel.devices.map { device in
+            DeviceConnectionSnapshot(
+                id: device.id,
+                isConnected: device.isConnected,
+                isConnecting: device.isConnecting,
+                needsAuthentication: device.needsAuthentication,
+                isCompromised: device.isCompromised,
+                lastErrorTimestamp: device.lastErrorTimestamp
+            )
+        }
     }
 
     // MARK: - Empty State
 
-    private var emptyState: some View {
-        VStack(spacing: Spacing.xxxl) {
-            VStack(spacing: Spacing.md) {
-                RadioWaveIconView(tint: .clickStickBlue, size: 80)
+    private var emptyStateScreen: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 20)
+            emptyState
+            Spacer(minLength: 20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .safeAreaInset(edge: .bottom) {
+            Button("Scan for devices") { presentAddDevice() }
+                .buttonStyle(AppPrimaryButtonStyle())
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
+        }
+    }
 
-                VStack(spacing: Spacing.xs) {
+    private var emptyState: some View {
+        VStack(spacing: 40) {
+            VStack(spacing: 16) {
+                emptyStateIcon
+
+                VStack(spacing: 8) {
                     Text("No devices found")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
 
                     Text("Make sure your ClickStick is plugged in and Bluetooth is on")
-                        .font(.system(size: 17))
+                        .font(.body)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -208,79 +222,65 @@ struct DeviceListView: View {
                 viewModel.openGettingStarted()
             } label: {
                 Text("How does ClickStick work?")
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.clickStickBlue)
+                    .font(.body)
+                    .foregroundStyle(Color.accentBlue)
             }
             .buttonStyle(.plain)
         }
         .multilineTextAlignment(.center)
-        .padding(.horizontal, Spacing.lg)
+        .padding(.horizontal, 20)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No devices found. Make sure your ClickStick is plugged in and Bluetooth is on")
+    }
+
+    private var emptyStateIcon: some View {
+        ZStack {
+            Circle()
+                .fill(Color.accentBlue.opacity(0.14))
+
+            Image(systemName: "antenna.radiowaves.left.and.right")
+                .symbolRenderingMode(.monochrome)
+                .font(.system(size: 80 * 0.42, weight: .semibold))
+                .foregroundStyle(Color.accentBlue)
+        }
+        .frame(width: 80, height: 80)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Device List
 
     private var deviceListScreen: some View {
-        VStack(spacing: 0) {
-            standardHeader(showsActions: true)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.xl + Spacing.xxs) {
-                    if !connectedDevices.isEmpty {
-                        deviceSection(title: String(localized: "Connected"), devices: connectedDevices)
-                    }
-
-                    if !availableDevices.isEmpty {
-                        deviceSection(title: String(localized: "Available"), devices: availableDevices)
-                    }
-
-                    if !outOfRangeDevices.isEmpty {
-                        deviceSection(title: String(localized: "Not in range"), devices: outOfRangeDevices)
-                    }
-
-                    if !compromisedDevices.isEmpty {
-                        compromisedSection
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                if !connectedDevices.isEmpty {
+                    deviceSection(title: String(localized: "Connected"), devices: connectedDevices)
                 }
-                .padding(.horizontal, Spacing.lg)
-                .padding(.top, Spacing.md)
-                .padding(.bottom, Spacing.xxl)
-            }
-        }
-    }
 
-    /// Compromised devices render as standalone red "Security warning" cards (no header);
-    /// tapping one opens the compromised-device warning sheet.
-    private var compromisedSection: some View {
-        VStack(spacing: Spacing.sm) {
-            ForEach(compromisedDevices) { device in
-                Button {
-                    compromisedDevice = device
-                } label: {
-                    DeviceRowView(device: device)
+                if !availableDevices.isEmpty {
+                    deviceSection(title: String(localized: "Available"), devices: availableDevices)
                 }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    deviceContextMenu(for: device)
+
+                if !outOfRangeDevices.isEmpty {
+                    deviceSection(title: String(localized: "Not in range"), devices: outOfRangeDevices)
                 }
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
         }
     }
 
     private func deviceSection(title: String, devices: [DeviceModel]) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, Spacing.xs)
+                .padding(.horizontal, 8)
 
-            VStack(spacing: Spacing.sm) {
+            VStack(spacing: 12) {
                 ForEach(devices) { device in
                     Button {
-                        if viewModel.connectDevice(device) {
-                            router.selectDevice(device)
-                        }
+                        onSelect(device)
                     } label: {
                         DeviceRowView(
                             device: device,
@@ -293,6 +293,16 @@ struct DeviceListView: View {
                     }
                 }
             }
+        }
+    }
+
+    /// A compromised device opens the warning sheet instead of connecting,
+    /// regardless of which status section it appears in.
+    private func onSelect(_ device: DeviceModel) {
+        if device.isCompromised {
+            compromisedDevice = device
+        } else {
+            handleDeviceTap(device)
         }
     }
 
@@ -336,6 +346,48 @@ struct DeviceListView: View {
         router.showDeviceSetup(for: device)
     }
 
+    private func handleDeviceTap(_ device: DeviceModel) {
+        switch device.connectionState {
+        case .connectedAuthorized:
+            router.selectDevice(device)
+        case .disconnected:
+            viewModel.connectDevice(device)
+            if device.isKnownDevice {
+                pendingConnectedDeviceID = device.id
+                resolvePendingConnectedDeviceSelection()
+            }
+        case .serviceDiscovery:
+            pendingConnectedDeviceID = device.id
+        case .connectedUnauthorized:
+            if device.needsAuthentication {
+                pendingConnectedDeviceID = nil
+                viewModel.prepareDeviceForSetup(device)
+                router.showDeviceSetup(for: device)
+            } else {
+                pendingConnectedDeviceID = device.id
+            }
+        }
+    }
+
+    private func resolvePendingConnectedDeviceSelection() {
+        guard let pendingConnectedDeviceID else { return }
+
+        guard let device = viewModel.device(for: pendingConnectedDeviceID) else {
+            self.pendingConnectedDeviceID = nil
+            return
+        }
+
+        if device.isConnected {
+            router.selectDevice(device)
+            self.pendingConnectedDeviceID = nil
+        } else if device.connectionState == .disconnected
+            || device.needsAuthentication
+            || device.isCompromised
+            || device.lastError != nil {
+            self.pendingConnectedDeviceID = nil
+        }
+    }
+
     private func connectFromFound(_ device: DeviceModel) {
         if viewModel.connectDevice(device) {
             router.selectDevice(device)
@@ -375,40 +427,13 @@ struct DeviceListView: View {
     }
 }
 
-// MARK: - Discovery Scaffold
-
-/// Shared layout for the empty state: a top header, vertically centered content,
-/// and a caller-provided bottom action button pinned above the safe area.
-private struct DiscoveryScreen<Header: View, Center: View, Bottom: View>: View {
-    @ViewBuilder let header: Header
-    @ViewBuilder let center: Center
-    @ViewBuilder let bottom: Bottom
-
-    init(
-        @ViewBuilder header: () -> Header,
-        @ViewBuilder center: () -> Center,
-        @ViewBuilder bottom: () -> Bottom
-    ) {
-        self.header = header()
-        self.center = center()
-        self.bottom = bottom()
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            header
-
-            Spacer(minLength: Spacing.lg)
-            center
-            Spacer(minLength: Spacing.lg)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .safeAreaInset(edge: .bottom) {
-            bottom
-                .padding(.horizontal, Spacing.lg)
-                .padding(.bottom, Spacing.sm)
-        }
-    }
+private struct DeviceConnectionSnapshot: Equatable {
+    let id: UUID
+    let isConnected: Bool
+    let isConnecting: Bool
+    let needsAuthentication: Bool
+    let isCompromised: Bool
+    let lastErrorTimestamp: Date?
 }
 
 private struct HeaderIconButton: View {
@@ -421,9 +446,9 @@ private struct HeaderIconButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 26, weight: .medium))
+                .font(.system(size: 20, weight: .medium))
                 .foregroundStyle(foreground)
-                .frame(width: ComponentSize.iconButton, height: ComponentSize.iconButton)
+                .frame(width: 36, height: 36)
                 .background(Circle().fill(background))
         }
         .buttonStyle(.plain)
@@ -446,19 +471,26 @@ private enum DeviceListPreviewFactory {
         return viewModel
     }
 
-    static func deviceList() -> DeviceListViewModel {
-        let service = ClickStickService()
-        service.isDemoMode = true
+    /// A device in every section: connected, available (incl. a weak-signal and a
+    /// connecting device), and not-in-range — plus one compromised device shown red
+    /// within its own status section.
+    static func populated() -> DeviceListViewModel {
+        let devices: [CSDevice] = [
+            .makePreview(name: "ClickStick 9F8C", state: .connected),
+            .makePreview(name: "TV Room", state: .available),
+            .makePreview(name: "ClickStick A2A1", state: .weakSignal),
+            .makePreview(name: "ClickStick B3D2", state: .connecting),
+            .makePreview(name: "Home Router", state: .outOfRange),
+            .makePreview(name: "ClickStick 107C", state: .outOfRange)
+        ]
+        let service = ClickStickService(manager: PreviewManager(devices: devices))
         let viewModel = DeviceListViewModel(service: service, urlOpener: URLOpener())
         viewModel.hasShownWelcome = true
         viewModel.hasDismissedDemoPrompt = true
-        return viewModel
-    }
 
-    static func deviceListWithCompromised() -> DeviceListViewModel {
-        let viewModel = deviceList()
-        if let device = viewModel.devices.first {
-            device.deviceDidDetectTampering(device.device)
+        // Flag one device as compromised so it renders red inside "Not in range".
+        if let compromised = viewModel.devices.first(where: { $0.displayName == "ClickStick 107C" }) {
+            compromised.deviceDidDetectTampering(compromised.device)
         }
         return viewModel
     }
@@ -466,23 +498,27 @@ private enum DeviceListPreviewFactory {
     private final class PreviewManager: CSManaging {
         var isDemoMode: Bool = false
         weak var delegate: CSManagerDelegate?
+        private let devices: [CSDevice]
+
+        init(devices: [CSDevice] = []) {
+            self.devices = devices
+        }
 
         func startScanning() {}
         func stopScanning() {}
-        func knownDevices() -> [CSDevice] { [] }
+        func knownDevices() -> [CSDevice] { devices }
     }
 }
 #endif
 
 #Preview("No Devices Found") {
-    DeviceListView(viewModel: DeviceListPreviewFactory.empty())
+    NavigationStack {
+        DeviceListView(viewModel: DeviceListPreviewFactory.empty())
+    }
 }
 
 #Preview("Device List") {
-    DeviceListView(viewModel: DeviceListPreviewFactory.deviceList())
-}
-
-
-#Preview("Compromised in List") {
-    DeviceListView(viewModel: DeviceListPreviewFactory.deviceListWithCompromised())
+    NavigationStack {
+        DeviceListView(viewModel: DeviceListPreviewFactory.populated())
+    }
 }

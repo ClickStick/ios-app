@@ -1,7 +1,6 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import DesignSystem
 import SwiftUI
 
 struct SettingsView: View {
@@ -12,7 +11,7 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color.clickStickGroupedBackground
+            Color.groupedBackground
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -48,7 +47,7 @@ struct SettingsView: View {
                             SettingsActionRow(
                                 icon: "cart",
                                 title: "Get your ClickStick at clickstick.io",
-                                titleColor: .clickStickBlue
+                                titleColor: .accentBlue
                             ) {
                                 URLOpener().openGettingStartedPage()
                             }
@@ -69,7 +68,7 @@ struct SettingsView: View {
                         }
 
                         Text("Version app \(appVersion)")
-                            .font(.system(size: 13, weight: .regular))
+                            .font(.footnote)
                             .foregroundStyle(.secondary.opacity(0.65))
                             .frame(maxWidth: .infinity)
                             .padding(.top, 2)
@@ -82,13 +81,13 @@ struct SettingsView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
-        .presentationBackground(Color.clickStickGroupedBackground)
+        .presentationBackground(Color.groupedBackground)
     }
 
     private var header: some View {
         ZStack {
             Text("Settings")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.headline)
                 .frame(maxWidth: .infinity)
 
             HStack {
@@ -96,8 +95,12 @@ struct SettingsView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(.regularMaterial))
                 }
-                .buttonStyle(.glassIcon(size: ComponentSize.iconButton))
+                .buttonStyle(.plain)
                 .accessibilityLabel("Close settings")
 
                 Spacer()
@@ -119,7 +122,7 @@ private struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 16)
 
@@ -128,7 +131,7 @@ private struct SettingsSection<Content: View>: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color.clickStickCardBackground)
+                    .fill(Color.cardBackground)
             )
         }
     }
@@ -143,10 +146,10 @@ private struct SettingsToggleRow: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 17, weight: .regular))
+                    .font(.body)
                     .foregroundStyle(.primary)
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .regular))
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
@@ -154,7 +157,7 @@ private struct SettingsToggleRow: View {
 
             Toggle(title, isOn: $isOn)
                 .labelsHidden()
-                .tint(.clickStickGreen)
+                .tint(Color(.systemGreen))
         }
         .frame(minHeight: 60)
         .padding(.horizontal, 16)
@@ -176,14 +179,14 @@ private struct SettingsNavigationRow: View {
                 .accessibilityHidden(true)
 
             Text(title)
-                .font(.system(size: 17, weight: .regular))
+                .font(.body)
                 .foregroundStyle(.primary)
 
             Spacer(minLength: 12)
 
             if let value {
                 Text(value)
-                    .font(.system(size: 17, weight: .regular))
+                    .font(.body)
                     .foregroundStyle(.secondary)
             } else {
                 Image(systemName: "chevron.right")
@@ -213,7 +216,7 @@ private struct SettingsActionRow: View {
                     .accessibilityHidden(true)
 
                 Text(title)
-                    .font(.system(size: 17, weight: .regular))
+                    .font(.body)
                     .foregroundStyle(titleColor)
 
                 Spacer(minLength: 12)
@@ -229,8 +232,8 @@ private struct SettingsActionRow: View {
 private struct SettingsDivider: View {
     var body: some View {
         Rectangle()
-            .fill(Color.clickStickSeparator)
-            .frame(height: BorderWidth.hairline)
+            .fill(Color(.separator))
+            .frame(height: 0.5)
             .padding(.leading, 16)
             .padding(.trailing, 20)
     }

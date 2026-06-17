@@ -32,8 +32,12 @@ internal final class CSMockDevice: CSDevice {
         _isConnectable = true
     }
 
+    /// When set, the mock reports this fixed RSSI instead of a random one.
+    /// Used by SwiftUI previews so a device can stay e.g. weak-signal.
+    var _pinnedRSSI: Int?
+
     override func _requestRSSIRefresh() {
-        let newRSSI = Int.random(in: -65...(-55))
+        let newRSSI = _pinnedRSSI ?? Int.random(in: -65...(-55))
         csManagerDidUpdateProperties(name: _name, rssi: newRSSI, isConnectable: _isConnectable)
         _lastSeen = .now // mock device is always visible
     }

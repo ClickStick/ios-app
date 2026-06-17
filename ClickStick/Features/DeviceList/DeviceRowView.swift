@@ -2,27 +2,25 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
-import DesignSystem
 import SwiftUI
 
 struct DeviceRowView: View {
     let device: DeviceModel
     var isSelected: Bool = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                HStack(spacing: Spacing.xxs) {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
                     Text(device.displayName)
-                        .font(.clickStickBodyEmphasized)
-                        .foregroundStyle(device.isCompromised ? Color.clickStickDestructive : .primary)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(device.isCompromised ? Color(.systemRed) : .primary)
                         .lineLimit(1)
 
                     if device.isCompromised {
                         Image(systemName: "exclamationmark.circle")
-                            .font(.clickStickCallout)
-                            .foregroundStyle(Color.clickStickDestructive)
+                            .font(.body)
+                            .foregroundStyle(Color(.systemRed))
                             .accessibilityHidden(true)
                     }
                 }
@@ -30,10 +28,10 @@ struct DeviceRowView: View {
                 statusLine
             }
 
-            Spacer(minLength: Spacing.sm)
+            Spacer(minLength: 12)
 
             if !isOutOfRange && !device.isCompromised {
-                SignalStrengthView(
+                SignalBarsView(
                     strength: normalizedSignalStrength,
                     activeColor: signalColor
                 )
@@ -41,43 +39,35 @@ struct DeviceRowView: View {
             }
 
             Image(systemName: "ellipsis")
-                .font(.system(size: IconSize.inline, weight: .semibold))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
         }
-        .padding(.horizontal, Spacing.md)
+        .padding(.horizontal, 16)
         .frame(minHeight: 78)
-        .clickStickCard(
-            background: cardBackground,
-            cornerRadius: CornerRadius.extraLarge,
-            borderColor: cardBorderColor,
-            borderWidth: device.isCompromised ? BorderWidth.regular : BorderWidth.hairline
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(cardBackground)
         )
-        .overlay(alignment: .leading) {
-            if device.isConnecting && !reduceMotion {
-                RoundedRectangle(cornerRadius: CornerRadius.extraLarge, style: .continuous)
-                    .stroke(Color.clickStickBlue.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thick)
-                    .scaleEffect(1.015)
-                    .opacity(0.8)
-                    .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: device.isConnecting)
-                    .accessibilityHidden(true)
-            }
-        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(cardBorderColor ?? .clear, lineWidth: cardBorderColor == nil ? 0 : (device.isCompromised ? 1.5 : 0.5))
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityHint(accessibilityHint)
     }
 
     private var statusLine: some View {
-        HStack(spacing: Spacing.xxs) {
+        HStack(spacing: 4) {
             Text(statusDescription)
-                .font(.clickStickCallout)
+                .font(.body)
                 .foregroundStyle(statusColor)
                 .lineLimit(1)
 
             if device.isConnected && !device.isCompromised {
                 Circle()
-                    .fill(Color.clickStickGreen)
+                    .fill(Color(.systemGreen))
                     .frame(width: 7, height: 7)
                     .accessibilityHidden(true)
             }
@@ -85,22 +75,22 @@ struct DeviceRowView: View {
     }
 
     private var statusColor: Color {
-        (device.isCompromised || device.lastError != nil) ? Color.clickStickDestructive : Color.secondary
+        (device.isCompromised || device.lastError != nil) ? Color(.systemRed) : Color.secondary
     }
 
     private var cardBackground: Color {
         if isSelected {
-            return Color.clickStickBlue.opacity(OpacityLevel.tintedFill)
+            return Color.accentBlue.opacity(0.12)
         }
-        return Color.clickStickCardBackground
+        return Color.cardBackground
     }
 
     private var cardBorderColor: Color? {
         if device.isCompromised {
-            return Color.clickStickDestructive
+            return Color(.systemRed)
         }
         if isSelected {
-            return Color.clickStickBlue.opacity(OpacityLevel.subtleBorder)
+            return Color.accentBlue.opacity(0.2)
         }
         return nil
     }
@@ -126,6 +116,9 @@ struct DeviceRowView: View {
             if isOutOfRange {
                 return String(localized: "Out of range", comment: "Device row status")
             }
+            if isWeakSignal {
+                return String(localized: "Weak signal", comment: "Device row status")
+            }
             return device.isKnownDevice
                 ? String(localized: "Tap to connect", comment: "Device row status")
                 : String(localized: "Tap to set up", comment: "Device row status")
@@ -136,6 +129,15 @@ struct DeviceRowView: View {
     /// it shows an "Out of range" status and hides the signal indicator.
     private var isOutOfRange: Bool {
         device.connectionState == .disconnected && !device.isConnectable
+    }
+
+    /// A connectable but faint device (RSSI ≤ -85 dBm): shown with a "Weak signal"
+    /// status and red signal bars.
+    private var isWeakSignal: Bool {
+        device.connectionState == .disconnected
+            && device.isConnectable
+            && device.rssi > -200
+            && device.rssi <= -85
     }
 
     private var normalizedSignalStrength: Double {
@@ -150,9 +152,12 @@ struct DeviceRowView: View {
 
     private var signalColor: Color {
         if device.isConnected {
-            return .clickStickBlue
+            return .accentBlue
         }
-        return device.isConnectable ? .clickStickBlue : .secondary
+        if isWeakSignal {
+            return Color(.systemRed)
+        }
+        return device.isConnectable ? .accentBlue : .secondary
     }
 
     // MARK: - Accessibility
@@ -187,12 +192,15 @@ struct DeviceRowView: View {
 
 // MARK: - Previews
 
-#Preview {
-    VStack(spacing: Spacing.sm) {
+#Preview("All states") {
+    VStack(spacing: 12) {
         DeviceRowView(device: .preview, isSelected: true)
-        DeviceRowView(device: .previewDisconnected)
+        DeviceRowView(device: .preview("TV Room", .available))
+        DeviceRowView(device: .previewWeakSignal)
+        DeviceRowView(device: .preview("ClickStick B3D2", .connecting))
+        DeviceRowView(device: .preview("Home Router", .outOfRange))
         DeviceRowView(device: .previewCompromised)
     }
     .padding()
-    .background(Color.clickStickGroupedBackground)
+    .background(Color.groupedBackground)
 }

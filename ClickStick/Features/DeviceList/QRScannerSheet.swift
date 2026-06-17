@@ -3,7 +3,6 @@
 
 #if !targetEnvironment(macCatalyst)
 import AVFoundation
-import DesignSystem
 import SwiftUI
 import VisionKit
 internal import Vision
@@ -91,7 +90,7 @@ struct QRScannerSheet: View {
     private var setupFailureOverlay: some View {
         ZStack(alignment: .bottom) {
             Color.black
-                .opacity(OpacityLevel.scrim)
+                .opacity(0.35)
                 .ignoresSafeArea()
 
             SetupFailurePanel(
@@ -107,8 +106,8 @@ struct QRScannerSheet: View {
                     isShowingSetupFailure = false
                 }
             )
-            .padding(.horizontal, Spacing.xs)
-            .padding(.bottom, Spacing.xs)
+            .padding(.horizontal, 8)
+            .padding(.bottom, 8)
         }
         .transition(.opacity)
     }
@@ -159,66 +158,69 @@ private struct QRScannerChrome: View {
         VStack(spacing: 0) {
             scannerHeader
 
-            Spacer(minLength: Spacing.xxxl)
+            Spacer(minLength: 40)
 
             QRFocusFrame()
                 .frame(width: 272, height: 272)
 
-            Spacer(minLength: Spacing.xxxl)
+            Spacer(minLength: 40)
 
             Text("Point your camera at the QR code\non your ClickStick")
-                .font(.clickStickBody)
+                .font(.subheadline)
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
-                .shadow(color: .black.opacity(OpacityLevel.prominentBorder), radius: 4, y: 1)
+                .shadow(color: .black.opacity(0.45), radius: 4, y: 1)
 
             ScannerHelpCard()
-                .padding(.top, Spacing.xxxl)
+                .padding(.top, 40)
 
-            Spacer(minLength: Spacing.xxl)
+            Spacer(minLength: 32)
 
             Button(action: onToggleTorch) {
                 Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
-                    .font(.system(size: IconSize.tab, weight: .medium))
+                    .font(.system(size: 22, weight: .medium))
                     .foregroundStyle(.white)
-                    .frame(width: ComponentSize.largeIconButton, height: ComponentSize.largeIconButton)
+                    .frame(width: 52, height: 52)
                     .overlay(
                         Circle()
-                            .stroke(Color.white, lineWidth: BorderWidth.thick)
+                            .stroke(Color.white, lineWidth: 2)
                     )
             }
             .buttonStyle(.plain)
             .disabled(!canToggleTorch)
-            .opacity(canToggleTorch ? 1 : OpacityLevel.disabled)
+            .opacity(canToggleTorch ? 1 : 0.5)
             .accessibilityLabel(isTorchOn ? "Turn flashlight off" : "Turn flashlight on")
         }
-        .padding(.horizontal, Spacing.lg)
-        .padding(.top, Spacing.lg)
-        .padding(.bottom, Spacing.xl)
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 24)
+        // The scanner chrome floats over the camera feed and always renders in a
+        // light appearance, regardless of the system color scheme.
+        .environment(\.colorScheme, .light)
     }
 
     private var scannerHeader: some View {
         ZStack {
             Text("Add Device")
-                .font(.clickStickBodyEmphasized)
+                .font(.body.weight(.semibold))
                 .foregroundStyle(.white)
-                .shadow(color: .black.opacity(OpacityLevel.prominentBorder), radius: 3, y: 1)
+                .shadow(color: .black.opacity(0.45), radius: 3, y: 1)
                 .frame(maxWidth: .infinity)
 
             HStack {
                 Button("Cancel") {
                     onCancel()
                 }
-                .font(.clickStickBody)
+                .font(.body)
                 .foregroundStyle(.primary)
-                .frame(minWidth: 96, minHeight: ComponentSize.iconButton)
+                .frame(minWidth: 96, minHeight: 44)
                 .background(
                     Capsule(style: .continuous)
-                        .fill(Color.clickStickGlassFill)
+                        .fill(Color.white.opacity(0.78))
                 )
                 .overlay(
                     Capsule(style: .continuous)
-                        .stroke(Color.white.opacity(OpacityLevel.border), lineWidth: BorderWidth.hairline)
+                        .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
                 )
                 .accessibilityLabel("Cancel scanning")
 
@@ -234,12 +236,12 @@ private struct QRFocusFrame: View {
             .stroke(
                 Color.white,
                 style: StrokeStyle(
-                    lineWidth: BorderWidth.thick * 3,
+                    lineWidth: 6,
                     lineCap: .round,
                     lineJoin: .round
                 )
             )
-            .shadow(color: .black.opacity(OpacityLevel.subtleBorder), radius: 4, y: 1)
+            .shadow(color: .black.opacity(0.2), radius: 4, y: 1)
             .accessibilityHidden(true)
     }
 }
@@ -247,7 +249,7 @@ private struct QRFocusFrame: View {
 private struct QRFocusCorners: Shape {
     func path(in rect: CGRect) -> Path {
         let cornerLength = min(rect.width, rect.height) * 0.2
-        let radius = CornerRadius.extraLarge
+        let radius: CGFloat = 20
         var path = Path()
 
         // Top left
@@ -292,38 +294,38 @@ private struct QRFocusCorners: Shape {
 
 private struct ScannerHelpCard: View {
     var body: some View {
-        HStack(alignment: .top, spacing: Spacing.sm) {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: "info.circle")
                 .font(.body.weight(.medium))
                 .foregroundStyle(.primary)
-                .frame(width: IconSize.tab, alignment: .center)
+                .frame(width: 22, alignment: .center)
                 .padding(.top, 2)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Find the QR code")
-                    .font(.clickStickBody)
+                    .font(.subheadline)
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text("It's displayed on your ClickStick screen")
-                    .font(.clickStickCallout)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, Spacing.md)
-        .padding(.vertical, Spacing.sm)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: CornerRadius.control, style: .continuous))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.control, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color.white.opacity(0.28))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: CornerRadius.control, style: .continuous)
-                .stroke(Color.white.opacity(OpacityLevel.prominentBorder), lineWidth: BorderWidth.hairline)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.white.opacity(0.45), lineWidth: 0.5)
         )
         .accessibilityElement(children: .combine)
     }
@@ -337,45 +339,45 @@ private struct SetupFailurePanel: View {
     var body: some View {
         VStack(spacing: 0) {
             failureIcon
-                .padding(.top, Spacing.xxxl)
+                .padding(.top, 40)
 
-            VStack(spacing: Spacing.xs) {
+            VStack(spacing: 8) {
                 Text("Setup failed")
-                    .font(.clickStickTitle)
+                    .font(.title2.weight(.bold))
                     .multilineTextAlignment(.center)
 
                 Text("Could not authenticate this device.\nMake sure you scanned the correct QR\ncode from your ClickStick.")
-                    .font(.clickStickBody)
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.top, Spacing.lg)
+            .padding(.top, 20)
 
-            VStack(spacing: Spacing.sm) {
+            VStack(spacing: 12) {
                 Button("Help article") {
                     onHelpArticle()
                 }
-                .buttonStyle(.secondary(tint: .primary))
+                .buttonStyle(AppSecondaryButtonStyle())
 
                 Button("Enter key manually") {
                     onManualEntry()
                 }
-                .buttonStyle(.secondary(tint: .primary))
+                .buttonStyle(AppSecondaryButtonStyle())
 
                 Button("Try again") {
                     onTryAgain()
                 }
-                .buttonStyle(.primary)
+                .buttonStyle(AppPrimaryButtonStyle())
             }
-            .padding(.horizontal, Spacing.lg)
-            .padding(.top, Spacing.xxxl)
-            .padding(.bottom, Spacing.xxxl)
+            .padding(.horizontal, 20)
+            .padding(.top, 40)
+            .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.sheet, style: .continuous)
-                .fill(Color.clickStickCardBackground)
+            RoundedRectangle(cornerRadius: 34, style: .continuous)
+                .fill(Color.cardBackground)
         )
         .accessibilityElement(children: .contain)
     }
@@ -383,12 +385,12 @@ private struct SetupFailurePanel: View {
     private var failureIcon: some View {
         ZStack {
             Circle()
-                .fill(Color.clickStickDestructive.opacity(OpacityLevel.tintedFill))
+                .fill(Color(.systemRed).opacity(0.12))
                 .frame(width: 80, height: 80)
 
             Image(systemName: "exclamationmark.circle")
-                .font(.system(size: IconSize.large, weight: .semibold))
-                .foregroundStyle(Color.clickStickDestructive)
+                .font(.system(size: 40, weight: .semibold))
+                .foregroundStyle(Color(.systemRed))
         }
         .accessibilityHidden(true)
     }
@@ -401,22 +403,17 @@ private struct CameraPermissionDeniedView: View {
     let message: LocalizedStringKey
 
     var body: some View {
-        VStack(spacing: Spacing.lg) {
+        VStack(spacing: 20) {
             Spacer()
 
-            FeatureIcon(
-                systemName: "camera.fill",
-                size: 96,
-                iconSize: IconSize.large,
-                tint: .secondary
-            )
+            deniedIcon
 
-            VStack(spacing: Spacing.xs) {
+            VStack(spacing: 8) {
                 Text(title)
-                    .font(.clickStickTitle)
+                    .font(.title2.weight(.bold))
                     .multilineTextAlignment(.center)
                 Text(message)
-                    .font(.clickStickBody)
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -425,13 +422,28 @@ private struct CameraPermissionDeniedView: View {
             Button("Open Settings") {
                 URLOpener().openCameraPermissions()
             }
-            .buttonStyle(.primary)
-            .padding(.top, Spacing.sm)
+            .buttonStyle(AppPrimaryButtonStyle())
+            .padding(.top, 12)
 
             Spacer()
         }
-        .padding(Spacing.lg)
-        .clickStickScreenBackground()
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.groupedBackground.ignoresSafeArea())
+    }
+
+    private var deniedIcon: some View {
+        ZStack {
+            Circle()
+                .fill(Color.secondary.opacity(0.12))
+                .frame(width: 96, height: 96)
+
+            Image(systemName: "camera.fill")
+                .symbolRenderingMode(.hierarchical)
+                .font(.system(size: 40, weight: .semibold))
+                .foregroundStyle(.secondary)
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -563,7 +575,7 @@ private struct QRScannerPreview: View {
             if isShowingSetupFailure {
                 ZStack(alignment: .bottom) {
                     Color.black
-                        .opacity(OpacityLevel.scrim)
+                        .opacity(0.35)
                         .ignoresSafeArea()
 
                     SetupFailurePanel(
@@ -571,8 +583,8 @@ private struct QRScannerPreview: View {
                         onManualEntry: {},
                         onTryAgain: { isShowingSetupFailure = false }
                     )
-                    .padding(.horizontal, Spacing.xs)
-                    .padding(.bottom, Spacing.xs)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 8)
                 }
             }
         }
@@ -592,13 +604,13 @@ private struct QRScannerPreviewCameraView: View {
                 endPoint: .bottomTrailing
             )
 
-            RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color.black.opacity(0.35))
                 .frame(width: 280, height: 120)
                 .rotationEffect(.degrees(12))
                 .offset(x: 86, y: -254)
 
-            RoundedRectangle(cornerRadius: CornerRadius.pill, style: .continuous)
+            RoundedRectangle(cornerRadius: 999, style: .continuous)
                 .fill(Color.white.opacity(0.32))
                 .frame(width: 360, height: 140)
                 .rotationEffect(.degrees(-18))

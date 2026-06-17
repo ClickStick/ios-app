@@ -1,7 +1,6 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import DesignSystem
 import SwiftUI
 
 struct OnboardingView: View {
@@ -28,7 +27,7 @@ struct OnboardingView: View {
 
             VStack(spacing: 0) {
                 OnboardingPageIndicator(pageCount: Self.pageCount, currentPage: currentPage)
-                    .safeAreaPadding(.top, Spacing.xl)
+                    .safeAreaPadding(.top, 24)
 
                 TabView(selection: $currentPage) {
                     OnboardingIntroPage(
@@ -53,20 +52,19 @@ struct OnboardingView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             OnboardingBottomBar(
-                currentPage: currentPage,
+                isLastPage: currentPage == Self.pageCount - 1,
                 selectedMode: selectedMode,
                 onPrimaryAction: primaryAction,
                 onGetClickStick: onGetClickStick
             )
-            .padding(.horizontal, Spacing.lg)
-            .padding(.bottom, Spacing.md)
-            .background(Color.clear)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
         }
     }
 
     private func primaryAction() {
         if currentPage < Self.pageCount - 1 {
-            withAnimation(.easeInOut(duration: Motion.expressive)) {
+            withAnimation(.easeInOut(duration: 0.35)) {
                 currentPage += 1
             }
             return
@@ -102,7 +100,7 @@ private struct OnboardingBackground: View {
             .init(color: Color(red: 0.92, green: 0.96, blue: 1), location: 0),
             .init(color: Color(red: 0.68, green: 0.82, blue: 0.98), location: 0.2),
             .init(color: Color(red: 0.91, green: 0.94, blue: 0.98), location: 0.42),
-            .init(color: Color.clickStickGroupedBackground, location: 0.72)
+            .init(color: Color.groupedBackground, location: 0.72)
         ]
     }
 
@@ -110,7 +108,7 @@ private struct OnboardingBackground: View {
         [
             .init(color: Color(red: 0.05, green: 0.09, blue: 0.15), location: 0),
             .init(color: Color(red: 0.08, green: 0.16, blue: 0.28), location: 0.24),
-            .init(color: Color.clickStickGroupedBackground, location: 0.72)
+            .init(color: Color.groupedBackground, location: 0.72)
         ]
     }
 }
@@ -121,11 +119,11 @@ private struct OnboardingIntroPage: View {
     let illustrationName: String
 
     var body: some View {
-        VStack(spacing: Spacing.xxxl) {
+        VStack(spacing: 40) {
             OnboardingTextBlock(title: title, subtitle: subtitle)
-                .padding(.horizontal, Spacing.lg)
+                .padding(.horizontal, 20)
 
-            Spacer(minLength: Spacing.xl)
+            Spacer(minLength: 24)
 
             Image(illustrationName)
                 .resizable()
@@ -134,9 +132,9 @@ private struct OnboardingIntroPage: View {
                 .layoutPriority(1)
                 .accessibilityHidden(true)
 
-            Spacer(minLength: Spacing.xl)
+            Spacer(minLength: 24)
         }
-        .padding(.top, Spacing.xxxl)
+        .padding(.top, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
     }
@@ -146,20 +144,20 @@ private struct OnboardingStartPage: View {
     @Binding var selectedMode: OnboardingStartMode
 
     var body: some View {
-        VStack(spacing: Spacing.xxxl) {
+        VStack(spacing: 40) {
             OnboardingTextBlock(
                 title: "Get Started",
                 subtitle: "Choose how you'd like to begin. You can always switch modes later."
             )
-            .padding(.horizontal, Spacing.lg)
+            .padding(.horizontal, 20)
 
-            Spacer(minLength: Spacing.xl)
+            Spacer(minLength: 24)
 
-            VStack(spacing: Spacing.md) {
+            VStack(spacing: 16) {
                 OnboardingModeCard(
                     mode: .addDevice,
                     selectedMode: $selectedMode,
-                    icon: Image("dongle.usb"),
+                    icon: Image("DongleIcon"),
                     title: "I already have a ClickStick",
                     subtitle: "Add and pair a nearby device."
                 )
@@ -172,11 +170,11 @@ private struct OnboardingStartPage: View {
                     subtitle: "Try the app without hardware."
                 )
             }
-            .padding(.horizontal, Spacing.lg)
+            .padding(.horizontal, 20)
 
-            Spacer(minLength: Spacing.xl)
+            Spacer(minLength: 24)
         }
-        .padding(.top, Spacing.xxxl)
+        .padding(.top, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -186,7 +184,7 @@ private struct OnboardingTextBlock: View {
     let subtitle: LocalizedStringKey
 
     var body: some View {
-        VStack(spacing: Spacing.lg) {
+        VStack(spacing: 20) {
             Text(title)
                 .font(.largeTitle.weight(.bold))
                 .foregroundStyle(.primary)
@@ -195,7 +193,7 @@ private struct OnboardingTextBlock: View {
 
             Text(subtitle)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(2)
                 .fixedSize(horizontal: false, vertical: true)
@@ -205,21 +203,21 @@ private struct OnboardingTextBlock: View {
 }
 
 private struct OnboardingBottomBar: View {
-    let currentPage: Int
+    let isLastPage: Bool
     let selectedMode: OnboardingStartMode
     let onPrimaryAction: () -> Void
     let onGetClickStick: () -> Void
 
     var body: some View {
-        VStack(spacing: Spacing.lg) {
+        VStack(spacing: 20) {
             Button(primaryTitle, action: onPrimaryAction)
-                .buttonStyle(.primary)
+                .buttonStyle(AppPrimaryButtonStyle())
 
             // Always laid out so the primary button keeps a constant position
             // across pages; only revealed on the final page.
             Button("Get your ClickStick at clickstick.io", action: onGetClickStick)
-                .font(.title3)
-                .foregroundStyle(Color.clickStickBlue)
+                .font(.body)
+                .foregroundStyle(Color.accentBlue)
                 .multilineTextAlignment(.center)
                 .buttonStyle(.plain)
                 .fixedSize(horizontal: false, vertical: true)
@@ -230,12 +228,8 @@ private struct OnboardingBottomBar: View {
         }
     }
 
-    private var isLastPage: Bool {
-        currentPage == 2
-    }
-
     private var primaryTitle: LocalizedStringKey {
-        if currentPage < 2 {
+        if !isLastPage {
             return "Continue"
         }
 
@@ -252,16 +246,16 @@ private struct OnboardingPageIndicator: View {
     let pageCount: Int
     let currentPage: Int
 
-    @ScaledMetric(relativeTo: .body) private var dotLength = Spacing.xs
-    @ScaledMetric(relativeTo: .body) private var activeLength = Spacing.xl
+    @ScaledMetric(relativeTo: .body) private var dotLength: CGFloat = 8
+    @ScaledMetric(relativeTo: .body) private var activeLength: CGFloat = 24
 
     var body: some View {
-        HStack(spacing: Spacing.sm) {
+        HStack(spacing: 12) {
             ForEach(0..<pageCount, id: \.self) { page in
                 Capsule(style: .continuous)
-                    .fill(page == currentPage ? Color.clickStickBlue : Color.clickStickBlue.opacity(0.32))
+                    .fill(page == currentPage ? Color.accentBlue : Color.accentBlue.opacity(0.32))
                     .frame(width: page == currentPage ? activeLength : dotLength, height: dotLength)
-                    .animation(.easeInOut(duration: Motion.regular), value: currentPage)
+                    .animation(.easeInOut(duration: 0.2), value: currentPage)
             }
         }
         .accessibilityElement(children: .ignore)
@@ -280,33 +274,37 @@ private struct OnboardingModeCard: View {
 
     var body: some View {
         Button {
-            withAnimation(.easeInOut(duration: Motion.regular)) {
+            withAnimation(.easeInOut(duration: 0.2)) {
                 selectedMode = mode
             }
         } label: {
-            HStack(alignment: .center, spacing: Spacing.md) {
+            HStack(alignment: .center, spacing: 16) {
                 OnboardingModeIcon(icon: icon, isSelected: isSelected)
 
-                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.headline)
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.primary)
+                        // Keep the title clear of the corner selection indicator.
+                        .padding(.trailing, 28)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.body)
+                        .foregroundStyle(Color.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-
-                OnboardingSelectionIndicator(isSelected: isSelected)
             }
-            .padding(Spacing.lg)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(cardBackground)
             .overlay(cardBorder)
-            .contentShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
+            .overlay(alignment: .topTrailing) {
+                OnboardingSelectionIndicator(isSelected: isSelected)
+                    .padding(12)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
@@ -314,15 +312,15 @@ private struct OnboardingModeCard: View {
     }
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
-            .fill(isSelected ? Color.clickStickCardBackground : Color.clickStickCardBackground.opacity(0.56))
+        RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .fill(isSelected ? Color.cardBackground : Color.cardBackground.opacity(0.56))
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
+        RoundedRectangle(cornerRadius: 24, style: .continuous)
             .stroke(
-                isSelected ? Color.clickStickBlue : Color.secondary.opacity(OpacityLevel.subtleBorder),
-                lineWidth: isSelected ? BorderWidth.thick : BorderWidth.regular
+                isSelected ? Color.accentBlue : Color.secondary.opacity(0.2),
+                lineWidth: isSelected ? 2 : 1.5
             )
     }
 }
@@ -331,16 +329,18 @@ private struct OnboardingModeIcon: View {
     let icon: Image
     let isSelected: Bool
 
-    @ScaledMetric(relativeTo: .body) private var iconContainerSize = ComponentSize.largeIconButton
+    @ScaledMetric(relativeTo: .body) private var iconContainerSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .body) private var glyphSize: CGFloat = 28
 
     var body: some View {
-        RoundedRectangle(cornerRadius: CornerRadius.extraLarge, style: .continuous)
-            .fill(isSelected ? Color.clickStickBlue : Color.clickStickMutedFill)
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .fill(isSelected ? Color.accentBlue : Color.mutedFill)
             .frame(width: iconContainerSize, height: iconContainerSize)
             .overlay {
                 icon
-                    .symbolRenderingMode(.hierarchical)
-                    .font(.title2.weight(.semibold))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: glyphSize, height: glyphSize)
                     .foregroundStyle(isSelected ? Color.white : Color.secondary)
             }
             .accessibilityHidden(true)
@@ -350,16 +350,16 @@ private struct OnboardingModeIcon: View {
 private struct OnboardingSelectionIndicator: View {
     let isSelected: Bool
 
-    @ScaledMetric(relativeTo: .body) private var indicatorSize = IconSize.medium
+    @ScaledMetric(relativeTo: .body) private var indicatorSize: CGFloat = 20
 
     var body: some View {
         Circle()
-            .stroke(isSelected ? Color.clickStickBlue : Color.secondary.opacity(OpacityLevel.prominentBorder), lineWidth: BorderWidth.thick)
+            .stroke(isSelected ? Color.accentBlue : Color.secondary.opacity(0.45), lineWidth: 2)
             .frame(width: indicatorSize, height: indicatorSize)
             .overlay {
                 if isSelected {
                     Circle()
-                        .fill(Color.clickStickBlue)
+                        .fill(Color.accentBlue)
                         .padding(indicatorSize / 5)
                 }
             }
@@ -371,4 +371,13 @@ private struct OnboardingSelectionIndicator: View {
 
 #Preview {
     OnboardingView(onComplete: { _ in }, onGetClickStick: {})
+}
+
+#Preview("Get Started page") {
+    @Previewable @State var mode: OnboardingStartMode = .addDevice
+    ZStack {
+        OnboardingBackground()
+            .ignoresSafeArea()
+        OnboardingStartPage(selectedMode: $mode)
+    }
 }

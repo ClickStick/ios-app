@@ -47,5 +47,15 @@ extension DeviceModel {
         device.deviceDidDetectTampering(device.device)
         return device
     }
+
+    /// Deterministic preview device fixed in a given display state.
+    static func preview(_ name: String, _ state: CSDevice.PreviewState) -> DeviceModel {
+        DeviceModel(device: .makePreview(name: name, state: state))
+    }
+
+    /// A connectable device with a faint signal ("Weak signal").
+    static var previewWeakSignal: DeviceModel {
+        preview("ClickStick A2A1", .weakSignal)
+    }
 }
 #endif

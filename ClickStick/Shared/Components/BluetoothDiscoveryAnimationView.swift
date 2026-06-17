@@ -1,7 +1,6 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import DesignSystem
 import Lottie
 import SwiftUI
 
@@ -14,12 +13,7 @@ struct BluetoothDiscoveryAnimationView: View {
     var body: some View {
         Group {
             if reduceMotion {
-                DiscoveryRadarView(
-                    isActive: isPlaying,
-                    size: size,
-                    tint: .clickStickBlue,
-                    style: isPlaying ? .radar : .pausedRadar
-                )
+                ScanRadarView(showsSweep: isPlaying, tint: .accentBlue, size: size)
             } else {
                 LottieView {
                     try await DotLottieFile.named("Bluetooth", bundle: .main)
@@ -35,10 +29,10 @@ struct BluetoothDiscoveryAnimationView: View {
 }
 
 #Preview("Bluetooth Discovery Animation") {
-    VStack(spacing: Spacing.xl) {
+    VStack(spacing: 24) {
         BluetoothDiscoveryAnimationView(size: 184)
         BluetoothDiscoveryAnimationView(size: 184, isPlaying: false)
     }
     .padding()
-    .background(Color.clickStickGroupedBackground)
+    .background(Color.groupedBackground)
 }

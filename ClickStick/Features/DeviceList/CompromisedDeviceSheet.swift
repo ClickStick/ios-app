@@ -1,7 +1,6 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import DesignSystem
 import SwiftUI
 
 /// Warning shown when a device's session data failed to validate (possible tampering).
@@ -18,49 +17,40 @@ struct CompromisedDeviceSheet: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(Color.clickStickDestructive.opacity(OpacityLevel.tintedFill))
+                    .fill(Color(.systemRed).opacity(0.12))
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "exclamationmark.circle")
                     .font(.system(size: 40, weight: .regular))
-                    .foregroundStyle(Color.clickStickDestructive)
+                    .foregroundStyle(Color(.systemRed))
             }
-            .padding(.top, Spacing.xl)
+            .padding(.top, 24)
             .accessibilityHidden(true)
 
             Text("Device compromised")
-                .font(.system(size: 22, weight: .bold))
+                .font(.title2.weight(.bold))
                 .foregroundStyle(.primary)
-                .padding(.top, Spacing.md)
+                .padding(.top, 16)
 
             Text("\(deviceName) may have been modified while unattended. Connecting could expose your data.")
-                .font(.system(size: 17))
+                .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: 300)
-                .padding(.top, Spacing.sm)
+                .padding(.top, 12)
 
-            VStack(spacing: Spacing.sm) {
-                Button(action: onRemove) {
-                    Text("Remove device")
-                        .font(.clickStickBodyEmphasized)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, minHeight: ComponentSize.buttonHeight)
-                        .background(
-                            RoundedRectangle(cornerRadius: CornerRadius.pill, style: .continuous)
-                                .fill(Color.clickStickDestructive)
-                        )
-                }
-                .buttonStyle(.plain)
+            VStack(spacing: 12) {
+                Button("Remove device", action: onRemove)
+                    .buttonStyle(AppPrimaryButtonStyle(fill: Color(.systemRed)))
 
                 Button("Connect anyway", action: onConnectAnyway)
-                    .buttonStyle(.secondary(tint: .primary))
+                    .buttonStyle(AppSecondaryButtonStyle())
             }
-            .padding(.top, Spacing.xl)
+            .padding(.top, 24)
         }
-        .padding(.horizontal, Spacing.lg)
-        .padding(.bottom, Spacing.lg)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 20)
         .frame(maxWidth: .infinity)
         .background {
             GeometryReader { proxy in
@@ -71,13 +61,13 @@ struct CompromisedDeviceSheet: View {
             }
         }
         .presentationDetents([.height(contentHeight)])
-        .presentationBackground(Color.clickStickElevatedBackground)
+        .presentationBackground(Color(.secondarySystemGroupedBackground))
         .accessibilityElement(children: .contain)
     }
 }
 
 #Preview("Device Compromised") {
-    Color.clickStickGroupedBackground
+    Color.groupedBackground
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             CompromisedDeviceSheet(
@@ -86,4 +76,15 @@ struct CompromisedDeviceSheet: View {
                 onConnectAnyway: {}
             )
         }
+}
+
+// Direct content preview (the sheet-presented preview above can't be snapshotted).
+#Preview("Compromised content") {
+    CompromisedDeviceSheet(
+        deviceName: "ClickStick 9F8C",
+        onRemove: {},
+        onConnectAnyway: {}
+    )
+    .frame(maxHeight: .infinity, alignment: .bottom)
+    .background(Color(.secondarySystemGroupedBackground).ignoresSafeArea())
 }

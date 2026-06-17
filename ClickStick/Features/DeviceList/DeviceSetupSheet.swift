@@ -2,7 +2,6 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
-import DesignSystem
 import SwiftUI
 import VisionKit
 
@@ -40,15 +39,15 @@ struct DeviceSetupSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.xxl) {
+                VStack(alignment: .leading, spacing: 32) {
                     deviceInformationSection
                     authenticationKeySection
                 }
-                .padding(.horizontal, Spacing.lg)
-                .padding(.top, Spacing.xxxl)
-                .padding(.bottom, Spacing.xxl)
+                .padding(.horizontal, 20)
+                .padding(.top, 40)
+                .padding(.bottom, 32)
             }
-            .clickStickScreenBackground()
+            .background(Color.groupedBackground)
             .safeAreaInset(edge: .bottom) {
                 connectButton
             }
@@ -65,7 +64,7 @@ struct DeviceSetupSheet: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
-        .presentationBackground(Color.clickStickGroupedBackground)
+        .presentationBackground(Color.groupedBackground)
 #if !targetEnvironment(macCatalyst)
         .sheet(isPresented: $showingScanner) {
             QRScannerSheet(
@@ -99,7 +98,7 @@ struct DeviceSetupSheet: View {
                 SetupInfoRow(title: "Device Name", value: device.name)
 
                 Divider()
-                    .padding(.leading, Spacing.md)
+                    .padding(.leading, 16)
 
                 SetupInfoRow(
                     title: "Device ID",
@@ -111,9 +110,9 @@ struct DeviceSetupSheet: View {
     }
 
     private var authenticationKeySection: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
+        VStack(alignment: .leading, spacing: 12) {
             setupSection(title: "Authentication Key") {
-                HStack(spacing: Spacing.sm) {
+                HStack(spacing: 12) {
                     TextField("Enter 32-character hex key", text: $authKeyText)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
@@ -132,29 +131,29 @@ struct DeviceSetupSheet: View {
                             showingScanner = true
                         } label: {
                             Image(systemName: "qrcode.viewfinder")
-                                .font(.system(size: IconSize.inline, weight: .medium))
-                                .foregroundStyle(Color.clickStickBlue)
-                                .frame(width: ComponentSize.minimumHitTarget, height: ComponentSize.minimumHitTarget)
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundStyle(Color.accentBlue)
+                                .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Scan QR code")
                         .accessibilityHint("Opens camera to scan the QR code from your ClickStick")
                     }
                 }
-                .padding(.leading, Spacing.md)
-                .padding(.trailing, canShowScanner ? Spacing.xs : Spacing.md)
+                .padding(.leading, 16)
+                .padding(.trailing, canShowScanner ? 8 : 16)
                 .frame(minHeight: 60)
             }
 
             if let validationError {
                 Text(validationError)
-                    .font(.clickStickCaption)
-                    .foregroundStyle(Color.clickStickDestructive)
+                    .font(.footnote)
+                    .foregroundStyle(Color(.systemRed))
                     .accessibilityLabel("Error: \(validationError)")
             }
 
             Text("Scan the QR code on your ClickStick's screen or enter the 32-character hex key manually.")
-                .font(.clickStickCallout)
+                .font(.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -164,16 +163,16 @@ struct DeviceSetupSheet: View {
         title: LocalizedStringKey,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.clickStickBodyEmphasized)
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, Spacing.md)
+                .padding(.horizontal, 16)
 
             content()
                 .background(
-                    RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
-                        .fill(Color.clickStickCardBackground)
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(Color.cardBackground)
                 )
         }
     }
@@ -182,10 +181,10 @@ struct DeviceSetupSheet: View {
         Button("Connect") {
             submitAuthKey()
         }
-        .buttonStyle(.primary)
+        .buttonStyle(AppPrimaryButtonStyle())
         .disabled(!isValidAuthKey)
-        .padding(.horizontal, Spacing.lg)
-        .padding(.bottom, Spacing.sm)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 12)
         .accessibilityLabel("Connect to device")
         .accessibilityHint(isValidAuthKey
             ? String(localized: "Double-tap to connect", comment: "Accessibility hint")
@@ -221,21 +220,21 @@ private struct SetupInfoRow: View {
     var accessibilityValue: String?
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
+        HStack(spacing: 16) {
             Text(title)
-                .font(.clickStickBody)
+                .font(.body)
                 .foregroundStyle(.primary)
 
-            Spacer(minLength: Spacing.md)
+            Spacer(minLength: 16)
 
             Text(value)
-                .font(.clickStickBody)
+                .font(.body)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
         .frame(minHeight: 50)
-        .padding(.horizontal, Spacing.md)
+        .padding(.horizontal, 16)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityValue == nil ? Text(title) + Text(", \(value)") : Text(title) + Text(", \(accessibilityValue!)"))
     }

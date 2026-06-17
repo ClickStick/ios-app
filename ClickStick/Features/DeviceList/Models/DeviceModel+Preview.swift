@@ -40,5 +40,12 @@ extension DeviceModel {
         }
         fatalError("Demo mode should provide mock devices")
     }
+
+    /// A preview device flagged as compromised (failed session validation).
+    static var previewCompromised: DeviceModel {
+        let device = previewDisconnected
+        device.deviceDidDetectTampering(device.device)
+        return device
+    }
 }
 #endif

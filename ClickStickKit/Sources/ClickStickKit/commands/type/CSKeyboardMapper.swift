@@ -21,6 +21,28 @@ public enum CSKeyboardLayout: CaseIterable, CustomStringConvertible {
         }
     }
 
+    /// Returns the distinct characters in `text` that cannot be typed with this layout,
+    /// in order of first appearance. Whitespace and newlines are always typable.
+    ///
+    /// Use this to warn the user before sending (e.g. "US-QWERTY can't type: Щ").
+    public func unsupportedCharacters(in text: String) -> [Character] {
+        let mapper = LayoutMapper(layout: self)
+        var seen = Set<Character>()
+        var result: [Character] = []
+        for scalar in text.unicodeScalars where mapper.mapScalar(scalar) == nil {
+            let character = Character(scalar)
+            if seen.insert(character).inserted {
+                result.append(character)
+            }
+        }
+        return result
+    }
+
+    /// Whether every character in `text` can be typed with this layout.
+    public func canType(_ text: String) -> Bool {
+        unsupportedCharacters(in: text).isEmpty
+    }
+
     /// Converts text to HID key codes for a given keyboard layout.
     /// By default, `includeUnknown` is true: unknown characters are replaced with question marks.
     /// If `includeUnknown` is false, unknown characters are skipped.

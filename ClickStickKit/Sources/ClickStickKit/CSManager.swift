@@ -38,6 +38,7 @@ final public class CSManager: NSObject {
 
     private var devicesByUUID: [UUID: CSDevice] = [:]
     private var discoveredPeripherals: Set<UUID> = []
+    private var isScanRequested = false
 
     // MARK: Initialization
 
@@ -64,6 +65,8 @@ final public class CSManager: NSObject {
 // MARK: Public API
 extension CSManager {
     public func startScanning() {
+        isScanRequested = true
+
         if centralManager.isScanning {
             return
         }
@@ -71,10 +74,11 @@ extension CSManager {
         guard state == .poweredOn else {
             if state == .unknown {
                 // Transient state during app launch; centralManagerDidUpdateState will
-                // call startScanning() once BLE is ready. Don't report an error.
+                // start scanning only if the user has requested it. Don't report an error.
                 log.debug("Cannot scan yet, BLE state is unknown — waiting for centralManagerDidUpdateState")
             } else {
                 log.error("Cannot scan, BLE is not powered on")
+                isScanRequested = false
                 notifyFailure(makeBluetoothError(for: state))
             }
             return
@@ -94,6 +98,7 @@ extension CSManager {
     }
 
     public func stopScanning() {
+        isScanRequested = false
         if centralManager.isScanning {
             centralManager.stopScan()
         }
@@ -167,17 +172,19 @@ extension CSManager: CBCentralManagerDelegate {
         switch central.state {
         case .poweredOn:
             log.debug("Central manager state: poweredOn")
-            startScanning()
+            if isScanRequested {
+                startScanning()
+            }
             // Ready to work
         case .poweredOff:
             log.debug("Central manager state: poweredOff")
-            notifyFailure(.bluetoothUnavailable(reason: .poweredOff))
+            notifyFailureIfScanRequested(.bluetoothUnavailable(reason: .poweredOff))
         case .unsupported:
             log.error("Central manager state: unsupported")
-            notifyFailure(.bluetoothUnavailable(reason: .unsupported))
+            notifyFailureIfScanRequested(.bluetoothUnavailable(reason: .unsupported))
         case .unauthorized:
             log.error("Central manager state: unauthorized")
-            notifyFailure(.bluetoothUnavailable(reason: .permissionDenied))
+            notifyFailureIfScanRequested(.bluetoothUnavailable(reason: .permissionDenied))
         case .resetting:
             // TODO: Might need to pause scans or reconnects if they were ongoing.
             log.debug("Central manager state: resetting — temporary loss of BLE. Waiting for recovery...")
@@ -188,8 +195,14 @@ extension CSManager: CBCentralManagerDelegate {
         @unknown default:
             let description = String(describing: central.state)
             log.warning("Unexpected central manager state: \(description)")
-            notifyFailure(.bluetoothUnavailable(reason: .unknown))
+            notifyFailureIfScanRequested(.bluetoothUnavailable(reason: .unknown))
         }
+    }
+
+    private func notifyFailureIfScanRequested(_ error: CSError) {
+        guard isScanRequested else { return }
+        isScanRequested = false
+        notifyFailure(error)
     }
 
     public func centralManager(

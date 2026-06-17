@@ -10,6 +10,7 @@
 		7571A5CD2F359CD500CD7E3F /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7571A5C32F359CD500CD7E3F /* ShareExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F361F8462F3D1CBD00FFE720 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = F361F8452F3D1CBD00FFE720 /* DesignSystem */; };
 		F361F8482F3D1CC200FFE720 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = F361F8472F3D1CC200FFE720 /* DesignSystem */; };
+		F37010602FE2746C00ACF45D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F370105F2FE2746C00ACF45D /* Lottie */; };
 		F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */; };
 		F3EA2B8C2F3B1BCB001070A5 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3EA2B8B2F3B1BCB001070A5 /* ClickStickKit */; };
 /* End PBXBuildFile section */
@@ -75,8 +76,6 @@
 				Features/DeviceList/Models/DeviceModel.swift,
 				Shared/Components/TypeTextContentView.swift,
 				Shared/Components/TypeTextViewModel.swift,
-				Shared/Models/TypingSpeed.swift,
-				Shared/Services/PremiumService.swift,
 			);
 			target = 7571A5C22F359CD500CD7E3F /* ShareExtension */;
 		};
@@ -130,6 +129,7 @@
 			files = (
 				F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */,
 				F361F8462F3D1CBD00FFE720 /* DesignSystem in Frameworks */,
+				F37010602FE2746C00ACF45D /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +238,7 @@
 			packageProductDependencies = (
 				F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */,
 				F361F8452F3D1CBD00FFE720 /* DesignSystem */,
+				F370105F2FE2746C00ACF45D /* Lottie */,
 			);
 			productName = ClickStick;
 			productReference = F3F4AC672F21670600158155 /* ClickStick.app */;
@@ -271,20 +272,13 @@
 			knownRegions = (
 				en,
 				Base,
-				sk,
-				de,
-				cs,
-				es,
-				ja,
-				fr,
-				"pt-BR",
-				pl,
 			);
 			mainGroup = F3F4AC5E2F21670600158155;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F3DBABB02F238D3A009D1CC2 /* XCLocalSwiftPackageReference "ClickStickKit" */,
 				F361F8492F3D1E0400FFE720 /* XCLocalSwiftPackageReference "DesignSystem" */,
+				F370105E2FE2745D00ACF45D /* XCRemoteSwiftPackageReference "lottie-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F3F4AC682F21670600158155 /* Products */;
@@ -721,6 +715,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		F370105E2FE2745D00ACF45D /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = exactVersion;
+				version = 4.6.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		F361F8452F3D1CBD00FFE720 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -731,6 +736,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F361F8492F3D1E0400FFE720 /* XCLocalSwiftPackageReference "DesignSystem" */;
 			productName = DesignSystem;
+		};
+		F370105F2FE2746C00ACF45D /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F370105E2FE2745D00ACF45D /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
 		};
 		F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */ = {
 			isa = XCSwiftPackageProductDependency;

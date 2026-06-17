@@ -8,14 +8,14 @@ import VisionKit
 
 struct DeviceSetupSheet: View {
     let device: DeviceModel
-    let onComplete: (CSAppAuthKey, String?) -> Void
+    let onComplete: (CSAppAuthKey, String?) -> Bool
 
     @Environment(\.dismiss) private var dismiss
 
     @State private var authKeyText: String = ""
-    @State private var deviceAlias: String = ""
     @State private var showingScanner: Bool = false
     @State private var validationError: String?
+    @State private var didRequestInitialScan = false
 
     private var isCameraScanningAvailable: Bool {
 #if targetEnvironment(macCatalyst)
@@ -25,16 +25,32 @@ struct DeviceSetupSheet: View {
 #endif
     }
 
+    private var canShowScanner: Bool {
+#if targetEnvironment(macCatalyst)
+        return false
+#else
+        return true
+#endif
+    }
+
     private var shouldAutoScan: Bool {
         !device.isDemoDevice && isCameraScanningAvailable
     }
 
     var body: some View {
         NavigationStack {
-            Form {
-                deviceInfoSection
-                authKeySection
-                aliasSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.xxl) {
+                    deviceInformationSection
+                    authenticationKeySection
+                }
+                .padding(.horizontal, Spacing.lg)
+                .padding(.top, Spacing.xxxl)
+                .padding(.bottom, Spacing.xxl)
+            }
+            .clickStickScreenBackground()
+            .safeAreaInset(edge: .bottom) {
+                connectButton
             }
             .navigationTitle("Setup Device")
             .navigationBarTitleDisplayMode(.inline)
@@ -45,103 +61,142 @@ struct DeviceSetupSheet: View {
                     }
                     .accessibilityLabel("Cancel device setup")
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Connect") {
-                        submitAuthKey()
-                    }
-                    .disabled(!isValidAuthKey)
-                    .accessibilityLabel("Connect to device")
-                    .accessibilityHint(isValidAuthKey
-                        ? String(localized: "Double-tap to connect", comment: "Accessibility hint")
-                        : String(localized: "Enter a valid authentication key first", comment: "Accessibility hint"))
-                }
             }
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(Color.clickStickGroupedBackground)
 #if !targetEnvironment(macCatalyst)
-            .sheet(isPresented: $showingScanner) {
-                QRScannerSheet { scannedKey in
+        .sheet(isPresented: $showingScanner) {
+            QRScannerSheet(
+                onScan: { scannedKey in
                     authKeyText = scannedKey
                     showingScanner = false
-                    // Auto-submit if valid
                     if isValidAuthKey {
                         submitAuthKey()
                     }
+                },
+                onManualEntry: {
+                    showingScanner = false
                 }
-            }
+            )
+        }
 #endif
-            .onAppear {
-                deviceAlias = device.name
-                // Auto-open QR scanner for non-demo devices
-                if shouldAutoScan {
-                    showingScanner = true
-                }
+        .onAppear {
+            guard !didRequestInitialScan else { return }
+            didRequestInitialScan = true
+            if shouldAutoScan {
+                showingScanner = true
             }
         }
     }
 
     // MARK: - Sections
 
-    private var deviceInfoSection: some View {
-        Section {
-            LabeledContent("Device Name", value: device.name)
-                .accessibilityElement(children: .combine)
-            LabeledContent("Device ID", value: String(device.id.uuidString.prefix(8)) + "...")
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Device ID: \(device.id.uuidString)")
-        } header: {
-            Text("Device Information")
+    private var deviceInformationSection: some View {
+        setupSection(title: "Device Information") {
+            VStack(spacing: 0) {
+                SetupInfoRow(title: "Device Name", value: device.name)
+
+                Divider()
+                    .padding(.leading, Spacing.md)
+
+                SetupInfoRow(
+                    title: "Device ID",
+                    value: abbreviatedDeviceID,
+                    accessibilityValue: device.id.uuidString
+                )
+            }
         }
     }
 
-    private var authKeySection: some View {
-        Section {
-            HStack {
-                TextField("Enter 32-character hex key", text: $authKeyText)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .textContentType(.oneTimeCode)
-                    .keyboardType(.asciiCapable)
-                    .font(.system(.body, design: .monospaced))
-                    .accessibilityLabel("Authentication key input")
-                    .accessibilityHint("Enter the 32-character hex key from your ClickStick")
+    private var authenticationKeySection: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            setupSection(title: "Authentication Key") {
+                HStack(spacing: Spacing.sm) {
+                    TextField("Enter 32-character hex key", text: $authKeyText)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .textContentType(.oneTimeCode)
+                        .keyboardType(.asciiCapable)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundStyle(.primary)
+                        .accessibilityLabel("Authentication key input")
+                        .accessibilityHint("Enter the 32-character hex key from your ClickStick")
+                        .onChange(of: authKeyText) { _, _ in
+                            validationError = nil
+                        }
 
-                if isCameraScanningAvailable {
-                    Button {
-                        showingScanner = true
-                    } label: {
-                        Image(systemName: "qrcode.viewfinder")
+                    if canShowScanner {
+                        Button {
+                            showingScanner = true
+                        } label: {
+                            Image(systemName: "qrcode.viewfinder")
+                                .font(.system(size: IconSize.inline, weight: .medium))
+                                .foregroundStyle(Color.clickStickBlue)
+                                .frame(width: ComponentSize.minimumHitTarget, height: ComponentSize.minimumHitTarget)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Scan QR code")
+                        .accessibilityHint("Opens camera to scan the QR code from your ClickStick")
                     }
-                    .buttonStyle(.borderless)
-                    .accessibilityLabel("Scan QR code")
-                    .accessibilityHint("Opens camera to scan the QR code from your ClickStick")
                 }
+                .padding(.leading, Spacing.md)
+                .padding(.trailing, canShowScanner ? Spacing.xs : Spacing.md)
+                .frame(minHeight: 60)
             }
 
-            if let error = validationError {
-                Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .accessibilityLabel(String(localized: "Error: \(error)", comment: "Accessibility label"))
+            if let validationError {
+                Text(validationError)
+                    .font(.clickStickCaption)
+                    .foregroundStyle(Color.clickStickDestructive)
+                    .accessibilityLabel("Error: \(validationError)")
             }
-        } header: {
-            Text("Authentication Key")
-        } footer: {
+
             Text("Scan the QR code on your ClickStick's screen or enter the 32-character hex key manually.")
+                .font(.clickStickCallout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
-    private var aliasSection: some View {
-        Section {
-            TextField(String(localized: "Device nickname (optional)", comment: "Device alias placeholder"), text: $deviceAlias)
-                .accessibilityLabel("Device nickname")
-                .accessibilityHint("Optional friendly name for this device")
-        } header: {
-            Text("Nickname")
-        } footer: {
-            Text("Give your device a friendly name for easy identification.")
+    private func setupSection<Content: View>(
+        title: LocalizedStringKey,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(title)
+                .font(.clickStickBodyEmphasized)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, Spacing.md)
+
+            content()
+                .background(
+                    RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
+                        .fill(Color.clickStickCardBackground)
+                )
         }
+    }
+
+    private var connectButton: some View {
+        Button("Connect") {
+            submitAuthKey()
+        }
+        .buttonStyle(.primary)
+        .disabled(!isValidAuthKey)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.bottom, Spacing.sm)
+        .accessibilityLabel("Connect to device")
+        .accessibilityHint(isValidAuthKey
+            ? String(localized: "Double-tap to connect", comment: "Accessibility hint")
+            : String(localized: "Enter a valid authentication key first", comment: "Accessibility hint"))
     }
 
     // MARK: - Validation
+
+    private var abbreviatedDeviceID: String {
+        String(device.id.uuidString.prefix(8)) + "..."
+    }
 
     private var isValidAuthKey: Bool {
         CSAppAuthKey.fromHexString(authKeyText) != nil
@@ -154,15 +209,40 @@ struct DeviceSetupSheet: View {
         }
 
         validationError = nil
-        let alias = deviceAlias.isEmpty ? nil : deviceAlias
-        onComplete(authKey, alias)
+        if onComplete(authKey, nil) {
+            dismiss()
+        }
+    }
+}
+
+private struct SetupInfoRow: View {
+    let title: LocalizedStringKey
+    let value: String
+    var accessibilityValue: String?
+
+    var body: some View {
+        HStack(spacing: Spacing.md) {
+            Text(title)
+                .font(.clickStickBody)
+                .foregroundStyle(.primary)
+
+            Spacer(minLength: Spacing.md)
+
+            Text(value)
+                .font(.clickStickBody)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
+        .frame(minHeight: 50)
+        .padding(.horizontal, Spacing.md)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityValue == nil ? Text(title) + Text(", \(value)") : Text(title) + Text(", \(accessibilityValue!)"))
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    DeviceSetupSheet(device: .preview) { authKey, alias in
-        print("Auth key: \(authKey), Alias: \(alias ?? "none")")
-    }
+    DeviceSetupSheet(device: .previewDisconnected) { _, _ in true }
 }

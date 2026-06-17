@@ -7,11 +7,18 @@ import SwiftUI
 
 struct DeviceDetailView: View {
     let device: DeviceModel
-    @Environment(\.premiumService) private var premiumService
+
+    @Environment(\.appRouter) private var router
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedTab: DeviceFeatureTab = .textEntry
+    @State private var textEntryViewModel: TextEntryViewModel
     @State private var alertError: AlertError?
     @State private var rotationAngle: Double = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    init(device: DeviceModel) {
+        self.device = device
+        _textEntryViewModel = State(initialValue: TextEntryViewModel(device: device))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,13 +30,8 @@ struct DeviceDetailView: View {
                 disconnectedContent
             }
         }
-        .navigationTitle(device.displayName)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                connectionButton
-            }
-        }
+        .clickStickScreenBackground()
+        .toolbar(.hidden, for: .navigationBar)
         .errorAlert($alertError)
         .onChange(of: device.lastErrorTimestamp) { _, _ in
             if let error = device.lastError {
@@ -41,30 +43,109 @@ struct DeviceDetailView: View {
     // MARK: - Connected Content
 
     private var connectedContent: some View {
-        TabView(selection: $selectedTab) {
-            if availableTabs.contains(.textEntry) {
-                TextEntryView(device: device, premiumService: premiumService)
-                    .tabItem {
-                        Label(DeviceFeatureTab.textEntry.localizedTitle,
-                              systemImage: DeviceFeatureTab.textEntry.icon)
-                    }
-                    .tag(DeviceFeatureTab.textEntry)
+        VStack(spacing: 0) {
+            header
+
+            TabView(selection: $selectedTab) {
+                if availableTabs.contains(.textEntry) {
+                    TextEntryView(viewModel: textEntryViewModel)
+                        .tabItem {
+                            Label(DeviceFeatureTab.textEntry.localizedTitle, systemImage: DeviceFeatureTab.textEntry.icon)
+                        }
+                        .tag(DeviceFeatureTab.textEntry)
+                }
+
+                if availableTabs.contains(.snippets) {
+                    snippetsPlaceholder
+                        .tabItem {
+                            Label(DeviceFeatureTab.snippets.localizedTitle, systemImage: DeviceFeatureTab.snippets.icon)
+                        }
+                        .tag(DeviceFeatureTab.snippets)
+                }
+
+                if availableTabs.contains(.mouse) {
+                    MouseView(device: device)
+                        .tabItem {
+                            Label(DeviceFeatureTab.mouse.localizedTitle, systemImage: DeviceFeatureTab.mouse.icon)
+                        }
+                        .tag(DeviceFeatureTab.mouse)
+                }
             }
-            if availableTabs.contains(.mouse) {
-                MouseView(device: device)
-                    .tabItem {
-                        Label(DeviceFeatureTab.mouse.localizedTitle,
-                              systemImage: DeviceFeatureTab.mouse.icon)
+            .tint(.clickStickBlue)
+            .toolbarBackground(Color.clickStickGroupedBackground, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+        }
+    }
+
+    private var header: some View {
+        ZStack {
+            Text(device.displayName)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .padding(.horizontal, Spacing.xxxl)
+
+            HStack {
+                Button {
+                    router.deselectDevice()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.circle)
+                .accessibilityLabel(String(localized: "Back", comment: "Back button accessibility"))
+
+                Spacer()
+
+                if selectedTab == .textEntry {
+                    Button {
+                        textEntryViewModel.requestSend()
+                    } label: {
+                        Image(systemName: "arrow.up")
+                            .font(.title2.weight(.semibold))
                     }
-                    .tag(DeviceFeatureTab.mouse)
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .disabled(!textEntryViewModel.canSend)
+                    .opacity(textEntryViewModel.canSend ? 1 : OpacityLevel.disabled)
+                    .accessibilityLabel(String(localized: "Send text", comment: "Header send button accessibility"))
+                } else {
+                    Image(systemName: "arrow.up")
+                        .hidden()
+                }
             }
         }
+        .padding(.horizontal, Spacing.xl)
+        .padding(.top, Spacing.lg)
+        .padding(.bottom, Spacing.xl)
     }
 
     private var availableTabs: [DeviceFeatureTab] {
         DeviceFeatureTab.allCases.filter { tab in
-            device.features.contains(tab.feature)
+            guard let feature = tab.feature else { return true }
+            return device.features.contains(feature)
         }
+    }
+
+    private var snippetsPlaceholder: some View {
+        VStack(spacing: Spacing.md) {
+            FeatureIcon(
+                systemName: "list.bullet",
+                size: IconSize.hero,
+                iconSize: IconSize.large,
+                tint: .clickStickBlue
+            )
+            Text("Snippets")
+                .font(.clickStickTitle)
+            Text("Snippet management will be added later.")
+                .font(.clickStickBody)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(Spacing.xl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Connecting Content
@@ -74,7 +155,7 @@ struct DeviceDetailView: View {
             ZStack {
                 Circle()
                     .stroke(Color.clickStickBlue.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thick)
-                    .frame(width: 80, height: 80)
+.frame(maxWidth: IconSize.hero, maxHeight: IconSize.hero)
 
                 Circle()
                     .trim(from: 0, to: 0.7)
@@ -82,12 +163,12 @@ struct DeviceDetailView: View {
                         LinearGradient.clickStickGradient,
                         style: StrokeStyle(lineWidth: BorderWidth.thick, lineCap: .round)
                     )
-                    .frame(width: 80, height: 80)
+.frame(maxWidth: IconSize.hero, maxHeight: IconSize.hero)
                     .rotationEffect(.degrees(rotationAngle - 90))
             }
 
             Image(systemName: "cable.connector.horizontal")
-                .font(.system(size: IconSize.medium, weight: .medium))
+.font(.title2)
                 .foregroundStyle(Color.clickStickBlue)
 
             VStack(spacing: Spacing.xs) {
@@ -98,6 +179,7 @@ struct DeviceDetailView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             guard !reduceMotion else { return }
             withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
@@ -112,29 +194,25 @@ struct DeviceDetailView: View {
 
     private var disconnectedContent: some View {
         VStack(spacing: Spacing.xl) {
-            // Icon with gradient
-            ZStack {
-                Circle()
-                    .fill(Color.secondary.opacity(OpacityLevel.subtleFill))
-                    .frame(width: 100, height: 100)
-
-                Image(systemName: "cable.connector.horizontal")
-                    .font(.system(size: IconSize.large, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
+            FeatureIcon(
+                systemName: "cable.connector.horizontal",
+                size: IconSize.hero,
+                iconSize: IconSize.large,
+                tint: .clickStickBlue
+            )
 
             VStack(spacing: Spacing.xs) {
                 Text("Disconnected")
-                    .font(.title2.weight(.semibold))
+                    .font(.clickStickTitle)
 
                 if let error = device.lastError {
                     Text(error.localizedDescription)
-                        .font(.subheadline)
+                        .font(.clickStickBody)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 } else {
                     Text("Tap Connect to start using this device.")
-                        .font(.subheadline)
+                        .font(.clickStickBody)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 }
@@ -149,48 +227,22 @@ struct DeviceDetailView: View {
                 }
             }
             .buttonStyle(.primary)
-            .frame(width: 200)
+
         }
         .padding(Spacing.xl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Device disconnected")
         .accessibilityHint("Double-tap the connect button to reconnect")
-    }
-
-    // MARK: - Connection Button
-
-    private var connectionButton: some View {
-        Group {
-            if device.isConnected {
-                Button("Disconnect", role: .destructive) {
-                    device.disconnect()
-                }
-                .accessibilityLabel("Disconnect from device")
-            } else if device.isConnecting {
-                Button("Cancel") {
-                    device.disconnect()
-                }
-                .accessibilityLabel("Cancel connection")
-            } else {
-                Button("Connect") {
-                    device.connect()
-                }
-                .accessibilityLabel("Connect to device")
-            }
-        }
     }
 }
 
 // MARK: - Preview
 
 #Preview("Connected") {
-    NavigationStack {
-        DeviceDetailView(device: .preview)
-    }
+    DeviceDetailView(device: .preview)
 }
 
 #Preview("Disconnected") {
-    NavigationStack {
-        DeviceDetailView(device: .previewDisconnected)
-    }
+    DeviceDetailView(device: .previewDisconnected)
 }

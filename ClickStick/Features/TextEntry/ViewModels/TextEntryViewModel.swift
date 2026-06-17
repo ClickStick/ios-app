@@ -8,114 +8,80 @@ import Observation
 @Observable
 @MainActor
 final class TextEntryViewModel {
+    /// Sends longer than this show the "Sending…" progress sheet; shorter sends
+    /// just flash a "Sent" toast. Arbitrary threshold — tuned for feel, not a limit.
+    private static let progressSheetThreshold = 50
+
+    // MARK: - Progress sheet state
+
+    enum ProgressState: Equatable {
+        case sending(sent: Int, total: Int)
+        case sent
+        case stopped(sent: Int, total: Int)
+    }
+
     // MARK: - Dependencies
 
-    private let device: TextSendingDevice
-    private let premiumService: PremiumService
+    private let device: any TextSendingDevice
 
-    // MARK: - State
+    // MARK: - Input
 
     var text: String = ""
     var selectedLayout: CSKeyboardLayout = .usQWERTY
-    var isSending: Bool = false
-    var sendingProgress: Double?
-    var alertError: AlertError?
-    var showPaywallAfterSend: Bool = false
+    var selectedOS: TypingOS = .windows
+
+    // MARK: - Output state
+
+    private(set) var isSending: Bool = false
+    /// Non-nil while the progress sheet should be presented (long sends).
+    private(set) var progress: ProgressState?
+    /// Drives the unsupported-characters confirmation sheet (set on Send attempt).
+    private(set) var unsupportedPrompt: [Character]?
+    /// Drives the "Connection lost" sheet.
+    var showConnectionLost: Bool = false
+    /// Drives the brief "Sent to …" toast (short sends).
+    private(set) var showSentToast: Bool = false
 
     private var sendTask: Task<Void, Never>?
 
-    // MARK: - Computed Properties
-
-    var characterCount: Int { text.count }
-    var isEmpty: Bool { text.isEmpty }
-    var isConnected: Bool { device.isConnected }
-
-    var canSend: Bool {
-        !isEmpty && !isSending && isConnected
-    }
-
-    var isThrottled: Bool {
-        // Use at least 1 byte so makeSendDecision reflects the actual subscription/quota state
-        // rather than its hardcoded human-speed fallback for the 0-byte edge case.
-        let byteCount = max(1, text.utf8.count)
-        if case .human = premiumService.typingSpeed(for: byteCount) { return true }
-        return false
-    }
-
-    var hasActiveSubscription: Bool {
-        premiumService.hasActiveSubscription
-    }
-
-    var remainingBytes: Int {
-        premiumService.remainingFullSpeedBytes ?? 0
-    }
-
-    var totalQuotaBytes: Int {
-        premiumService.totalFullSpeedBytes ?? 0
-    }
-
-    /// Quota progress from 0.0 (empty) to 1.0 (full), for the progress bar
-    var quotaProgress: Double {
-        guard totalQuotaBytes > 0 else { return 0 }
-        return Double(remainingBytes) / Double(totalQuotaBytes)
-    }
-
-    /// Whether to show the quota/speed indicator (hide for unlimited subscribers)
-    var showsQuotaIndicator: Bool {
-        !premiumService.isUnlimitedSubscription
-    }
-
-    var sendButtonTitle: String {
-        if isSending && isThrottled {
-            return String(localized: "Sending...", comment: "Sending in progress")
-        }
-        return isThrottled
-            ? String(localized: "Send at Human Speed", comment: "Throttled send button")
-            : String(localized: "Send Instantly", comment: "Full-speed send button")
-    }
-
-    var sendButtonIcon: String {
-        isThrottled ? "tortoise.fill" : "bolt.fill"
-    }
-
-    var quotaStatusText: String {
-        if isThrottled {
-            if remainingBytes == 0 {
-                return String(localized: "Human speed — no full-speed quota left", comment: "Quota indicator when no full-speed bytes are available")
-            }
-            return String(localized: "Human speed for this text (\(remainingBytes) bytes left)", comment: "Quota indicator when current text exceeds remaining full-speed quota")
-        }
-        return String(localized: "\(remainingBytes) bytes of full speed left", comment: "Quota indicator with remaining bytes")
-    }
-
-    var quotaAccessibilityLabel: String {
-        if isThrottled {
-            if remainingBytes == 0 {
-                return String(localized: "No full-speed quota remaining. Tap to upgrade.", comment: "Quota indicator accessibility when depleted")
-            }
-            return String(localized: "This text will be sent at human speed. \(remainingBytes) full-speed bytes remain.", comment: "Quota indicator accessibility when text exceeds quota")
-        }
-        return String(localized: "\(remainingBytes) bytes of full-speed quota remaining. Tap to upgrade.", comment: "Quota indicator accessibility with remaining bytes")
-    }
-
-    var buttonAccessibilityHint: String {
-        if isEmpty {
-            return String(localized: "Enter text first")
-        } else if !isConnected {
-            return String(localized: "Device not connected", comment: "Accessibility hint")
-        } else if isSending {
-            return String(localized: "Please wait", comment: "Accessibility hint")
-        } else {
-            return String(localized: "Double-tap to send \(characterCount) characters", comment: "Accessibility hint")
-        }
-    }
-
     // MARK: - Initialization
 
-    init(device: any TextSendingDevice, premiumService: PremiumService) {
+    init(device: any TextSendingDevice) {
         self.device = device
-        self.premiumService = premiumService
         self.selectedLayout = CSKeyboardLayout.fromSystemLocale()
+    }
+
+    // MARK: - Derived
+
+    var deviceName: String { device.displayName }
+    var isConnected: Bool { device.isConnected }
+    var isEmpty: Bool { text.isEmpty }
+    var characterCount: Int { text.count }
+
+    var canSend: Bool { !isEmpty && isConnected && !isSending }
+
+    /// Characters in the current text the selected layout cannot type.
+    var unsupportedCharacters: [Character] {
+        selectedLayout.unsupportedCharacters(in: text)
+    }
+
+    var hasUnsupportedCharacters: Bool { !unsupportedCharacters.isEmpty }
+
+    /// Inline warning under the text card, e.g. "US - QWERTY can't type: Щ".
+    var inlineUnsupportedMessage: String? {
+        guard hasUnsupportedCharacters else { return nil }
+        let characters = unsupportedCharacters.map(String.init).joined(separator: " ")
+        return String(localized: "\(selectedLayout.description) can't type: \(characters)",
+                      comment: "Inline unsupported characters warning")
+    }
+
+    /// Body for the unsupported-characters sheet.
+    var unsupportedPromptMessage: String? {
+        guard let unsupportedPrompt, !unsupportedPrompt.isEmpty else { return nil }
+        let characters = unsupportedPrompt.map(String.init).joined(separator: " ")
+        let layoutName = selectedLayout.description.replacingOccurrences(of: " - ", with: "-")
+        return String(localized: "\(characters) can't be typed with \(layoutName). They will be skipped.",
+                      comment: "Unsupported characters sheet message")
     }
 
     // MARK: - Actions
@@ -124,53 +90,129 @@ final class TextEntryViewModel {
         text = ""
     }
 
-    func setPreset(_ preset: TextPreset) {
-        text = preset.text
+    /// Entry point for the header send button.
+    func requestSend() {
+        guard canSend else { return }
+        if hasUnsupportedCharacters {
+            unsupportedPrompt = unsupportedCharacters
+            return
+        }
+        performSend()
     }
 
-    func sendText() {
-        guard canSend else { return }
+    func sendAnyway() {
+        unsupportedPrompt = nil
+        performSend(skipUnsupportedCharacters: true)
+    }
 
+    func dismissUnsupportedPrompt() {
+        unsupportedPrompt = nil
+    }
+
+    func cancelSend() {
+        if case .sending(let sent, let total) = progress {
+            progress = .stopped(sent: sent, total: total)
+        }
+        sendTask?.cancel()
+        sendTask = nil
+        isSending = false
+    }
+
+    func dismissProgressSheet() {
+        progress = nil
+    }
+
+    func dismissConnectionLost() {
+        showConnectionLost = false
+    }
+
+    func retryAfterConnectionLost() {
+        showConnectionLost = false
+        performSend()
+    }
+
+    // MARK: - Send
+
+    private func performSend(skipUnsupportedCharacters: Bool = false) {
+        let textToSend = skipUnsupportedCharacters ? typableText(from: text) : text
+        let total = textToSend.count
+        guard total > 0 else { return }
+
+        let showsSheet = total > Self.progressSheetThreshold
         isSending = true
-        sendingProgress = nil
-
-        let textToSend = text
-
-        let byteCount = textToSend.utf8.count
-        let hadFullSpeedBytesBeforeSend = premiumService.hasAnyFullSpeedBytes
-        let decision = premiumService.makeSendDecision(for: byteCount)
+        progress = showsSheet ? .sending(sent: 0, total: total) : nil
 
         sendTask = Task { [weak self] in
             guard let self else { return }
-
             do {
-                try await device.sendText(textToSend, layout: selectedLayout, speed: decision.speed) { progress in
-                    Task { @MainActor [weak self] in
-                        self?.sendingProgress = progress
+                if showsSheet {
+                    try await device.sendText(textToSend, layout: selectedLayout) { sent, total in
+                        // Only advance while actively sending; ignore late callbacks after stop.
+                        if case .sending = self.progress {
+                            self.progress = .sending(sent: sent, total: total)
+                        }
                     }
+                } else {
+                    try await device.sendText(textToSend, layout: selectedLayout)
                 }
-                premiumService.recordCompletedSend(decision)
-
-                if case .unlimited = decision.speed,
-                   hadFullSpeedBytesBeforeSend,
-                   !premiumService.hasActiveSubscription,
-                   !premiumService.hasAnyFullSpeedBytes {
-                    showPaywallAfterSend = true
-                }
+                handleSendSuccess(showsSheet: showsSheet)
             } catch is CancellationError {
-                // User cancelled — no quota charged, no error shown
+                // cancelSend() already transitioned `progress` to `.stopped`.
+                isSending = false
             } catch {
-                alertError = AlertError(error: error)
+                isSending = false
+                progress = nil
+                showConnectionLost = true
             }
-
-            isSending = false
-            sendingProgress = nil
             sendTask = nil
         }
     }
 
-    func cancelSend() {
-        sendTask?.cancel()
-        sendTask = nil
+    private func typableText(from text: String) -> String {
+        String(text.filter { selectedLayout.canType(String($0)) })
     }
+
+    private func handleSendSuccess(showsSheet: Bool) {
+        isSending = false
+        text = ""
+        if showsSheet {
+            progress = .sent
+            Task { [weak self] in
+                try? await Task.sleep(for: .seconds(1.2))
+                guard let self, case .sent = self.progress else { return }
+                self.progress = nil
+            }
+        } else {
+            flashSentToast()
+        }
+    }
+
+    private func flashSentToast() {
+        showSentToast = true
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            self?.showSentToast = false
+        }
+    }
+
+#if DEBUG
+    func configureForPreview(
+        text: String = "",
+        isToastVisible: Bool = false,
+        progress: ProgressState? = nil,
+        isConnectionLost: Bool = false,
+        presentsSheets: Bool = true
+    ) {
+        self.selectedLayout = .usQWERTY
+        self.selectedOS = .windows
+        self.text = text
+        self.showSentToast = isToastVisible
+        self.progress = presentsSheets ? progress : nil
+        self.showConnectionLost = presentsSheets && isConnectionLost
+        self.unsupportedPrompt = nil
+        if presentsSheets, progress == nil, !isConnectionLost, hasUnsupportedCharacters {
+            unsupportedPrompt = unsupportedCharacters
+        }
+    }
+#endif
 }

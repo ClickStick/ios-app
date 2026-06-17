@@ -8,6 +8,9 @@ public protocol CSDeviceObserver: AnyObject {
     func deviceDidUpdateProperties(_ device: CSDevice)
     func deviceConnectionStateUpdated(_ device: CSDevice)
     func deviceNeedsAuthentication(_ device: CSDevice)
+    /// Called when a known device's session data fails to validate (bad signature/MAC),
+    /// i.e. `CSDeviceSession.parse()` returned nil — the device may have been tampered with.
+    func deviceDidDetectTampering(_ device: CSDevice)
     func deviceDidFail(_ device: CSDevice, with error: CSError)
     func deviceDidDisconnect(_ device: CSDevice, with error: CSError?)
 }
@@ -17,6 +20,7 @@ public extension CSDeviceObserver {
     func deviceDidUpdateProperties(_ device: CSDevice) {}
     func deviceConnectionStateUpdated(_ device: CSDevice) {}
     func deviceNeedsAuthentication(_ device: CSDevice) {}
+    func deviceDidDetectTampering(_ device: CSDevice) {}
     func deviceDidFail(_ device: CSDevice, with error: CSError) {}
     func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {}
 }

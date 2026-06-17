@@ -111,6 +111,14 @@ final class DeviceListViewModel {
         }
     }
 
+    func completeOnboarding(enableDemoMode: Bool) {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            service.isDemoMode = enableDemoMode
+            hasShownWelcome = true
+            hasDismissedDemoPrompt = true
+        }
+    }
+
     func openGettingStarted() {
         urlOpener.openGettingStartedPage()
     }

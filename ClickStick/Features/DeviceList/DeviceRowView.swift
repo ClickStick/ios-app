@@ -7,125 +7,152 @@ import SwiftUI
 
 struct DeviceRowView: View {
     let device: DeviceModel
+    var isSelected: Bool = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: Spacing.sm) {
-            deviceIcon
-            deviceInfo
-            Spacer()
-            connectionStatusBadge
+        HStack(spacing: Spacing.md) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                HStack(spacing: Spacing.xxs) {
+                    Text(device.displayName)
+                        .font(.clickStickBodyEmphasized)
+                        .foregroundStyle(device.isCompromised ? Color.clickStickDestructive : .primary)
+                        .lineLimit(1)
+
+                    if device.isCompromised {
+                        Image(systemName: "exclamationmark.circle")
+                            .font(.clickStickCallout)
+                            .foregroundStyle(Color.clickStickDestructive)
+                            .accessibilityHidden(true)
+                    }
+                }
+
+                statusLine
+            }
+
+            Spacer(minLength: Spacing.sm)
+
+            if !isOutOfRange && !device.isCompromised {
+                SignalStrengthView(
+                    strength: normalizedSignalStrength,
+                    activeColor: signalColor
+                )
+                .frame(width: 24)
+            }
+
+            Image(systemName: "ellipsis")
+                .font(.system(size: IconSize.inline, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
-        .padding(.vertical, Spacing.xs)
+        .padding(.horizontal, Spacing.md)
+        .frame(minHeight: 78)
+        .clickStickCard(
+            background: cardBackground,
+            cornerRadius: CornerRadius.extraLarge,
+            borderColor: cardBorderColor,
+            borderWidth: device.isCompromised ? BorderWidth.regular : BorderWidth.hairline
+        )
+        .overlay(alignment: .leading) {
+            if device.isConnecting && !reduceMotion {
+                RoundedRectangle(cornerRadius: CornerRadius.extraLarge, style: .continuous)
+                    .stroke(Color.clickStickBlue.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thick)
+                    .scaleEffect(1.015)
+                    .opacity(0.8)
+                    .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: device.isConnecting)
+                    .accessibilityHidden(true)
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityHint(accessibilityHint)
     }
 
-    // MARK: - Device Icon
-
-    private var deviceIcon: some View {
-        ZStack {
-            Circle()
-                .fill(iconBackgroundColor.opacity(OpacityLevel.accentFill))
-                .frame(width: IconSize.row, height: IconSize.row)
-
-            Image(systemName: device.isDemoDevice ? "testtube.2" : "cable.connector.horizontal")
-                .font(.system(size: IconSize.inline, weight: .medium))
-                .foregroundStyle(iconColor)
-        }
-        .overlay(
-            Circle()
-                .stroke(iconColor.opacity(device.isConnecting ? 0.45 : 0), lineWidth: BorderWidth.thick)
-                .scaleEffect(device.isConnecting && !reduceMotion ? 1.3 : 1.0)
-                .opacity(device.isConnecting ? 1 : 0)
-                .animation(
-                    device.isConnecting && !reduceMotion
-                        ? .easeInOut(duration: 1.0).repeatForever(autoreverses: true)
-                        : .default,
-                    value: device.isConnecting
-                )
-        )
-        .accessibilityHidden(true)
-    }
-
-    private var iconColor: Color {
-        if device.isConnected {
-            return .clickStickGreen
-        } else if device.isConnecting {
-            return .clickStickBlue
-        } else {
-            return .secondary
-        }
-    }
-
-    private var iconBackgroundColor: Color {
-        if device.isConnected {
-            return .clickStickGreen
-        } else if device.isConnecting {
-            return .clickStickBlue
-        } else if device.isKnownDevice {
-            return .clickStickBlue
-        } else {
-            return .secondary
-        }
-    }
-
-    // MARK: - Device Info
-
-    private var deviceInfo: some View {
-        VStack(alignment: .leading, spacing: Spacing.xxs) {
-            HStack(spacing: Spacing.xs) {
-                Text(device.displayName)
-                    .font(.headline)
-                    .lineLimit(1)
-
-                if device.isKnownDevice && !device.isDemoDevice {
-                    Image(systemName: "star.fill")
-                        .font(.caption2)
-                        .foregroundStyle(Color.clickStickOrange)
-                }
-            }
-
+    private var statusLine: some View {
+        HStack(spacing: Spacing.xxs) {
             Text(statusDescription)
-                .font(.subheadline)
-                .foregroundStyle(device.lastError != nil ? .red : .secondary)
+                .font(.clickStickCallout)
+                .foregroundStyle(statusColor)
                 .lineLimit(1)
+
+            if device.isConnected && !device.isCompromised {
+                Circle()
+                    .fill(Color.clickStickGreen)
+                    .frame(width: 7, height: 7)
+                    .accessibilityHidden(true)
+            }
         }
     }
 
-    /// Status description matching the demo app: error message, or connection state + RSSI
+    private var statusColor: Color {
+        (device.isCompromised || device.lastError != nil) ? Color.clickStickDestructive : Color.secondary
+    }
+
+    private var cardBackground: Color {
+        if isSelected {
+            return Color.clickStickBlue.opacity(OpacityLevel.tintedFill)
+        }
+        return Color.clickStickCardBackground
+    }
+
+    private var cardBorderColor: Color? {
+        if device.isCompromised {
+            return Color.clickStickDestructive
+        }
+        if isSelected {
+            return Color.clickStickBlue.opacity(OpacityLevel.subtleBorder)
+        }
+        return nil
+    }
+
+    /// Status description matching the redesigned device list.
     private var statusDescription: String {
+        if device.isCompromised {
+            return String(localized: "Security warning", comment: "Compromised device status")
+        }
+
         if let error = device.lastError {
             return error.localizedDescription
         }
 
-        var parts: [String] = []
-        parts.append(device.connectionState.description)
-        if device.isFresh {
-            parts.append("RSSI: \(device.rssi)")
-        }
-        return parts.joined(separator: " • ")
-    }
-
-    // MARK: - Connection Status Badge
-
-    private var connectionStatusBadge: some View {
-        StatusBadge(status: statusBadgeState)
-            .accessibilityHidden(true)
-    }
-
-    private var statusBadgeState: StatusBadge.Status {
         switch device.connectionState {
-        case .disconnected:
-            return .disconnected
-        case .serviceDiscovery:
-            return .connecting
-        case .connectedUnauthorized:
-            return .unauthorized
         case .connectedAuthorized:
-            return .connected
+            return String(localized: "Connected", comment: "Device row status")
+        case .connectedUnauthorized:
+            return String(localized: "Setup required", comment: "Device row status")
+        case .serviceDiscovery:
+            return String(localized: "Connecting...", comment: "Device row status")
+        case .disconnected:
+            if isOutOfRange {
+                return String(localized: "Out of range", comment: "Device row status")
+            }
+            return device.isKnownDevice
+                ? String(localized: "Tap to connect", comment: "Device row status")
+                : String(localized: "Tap to set up", comment: "Device row status")
         }
+    }
+
+    /// A disconnected device that is no longer advertising is treated as out of range:
+    /// it shows an "Out of range" status and hides the signal indicator.
+    private var isOutOfRange: Bool {
+        device.connectionState == .disconnected && !device.isConnectable
+    }
+
+    private var normalizedSignalStrength: Double {
+        guard device.rssi > -200 else {
+            return device.isConnected ? 0.85 : 0.55
+        }
+
+        // Approximate BLE RSSI range: -95 dBm (weak) ... -40 dBm (excellent).
+        let normalized = (Double(device.rssi) + 95) / 55
+        return min(max(normalized, 0.15), 1.0)
+    }
+
+    private var signalColor: Color {
+        if device.isConnected {
+            return .clickStickBlue
+        }
+        return device.isConnectable ? .clickStickBlue : .secondary
     }
 
     // MARK: - Accessibility
@@ -158,11 +185,14 @@ struct DeviceRowView: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
 #Preview {
-    List {
-        DeviceRowView(device: .preview)
+    VStack(spacing: Spacing.sm) {
+        DeviceRowView(device: .preview, isSelected: true)
         DeviceRowView(device: .previewDisconnected)
+        DeviceRowView(device: .previewCompromised)
     }
+    .padding()
+    .background(Color.clickStickGroupedBackground)
 }

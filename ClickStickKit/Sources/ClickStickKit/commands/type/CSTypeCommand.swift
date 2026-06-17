@@ -80,7 +80,11 @@ extension CSDevice {
         layout: CSKeyboardLayout,
         completion: CSCommandCompletion?
     ) {
-        let keyCodes = layout.getKeyCodes(for: text)
+        let keyCodes = layout.getKeyCodes(for: text, includeUnknown: false)
+        guard !keyCodes.isEmpty else {
+            completion?(.success(()))
+            return
+        }
 
         // If text is too long, we split it into several typing commands
         let chunkSize = CSTypeCommand.getMaxKeyCodeCount(forCommandSize: _maxCommandSize)

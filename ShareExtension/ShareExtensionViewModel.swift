@@ -15,7 +15,6 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
     // MARK: - Dependencies
 
     private let manager: CSManager
-    private let premiumService: PremiumService
 
     // MARK: - TypeTextViewModel Conformance
 
@@ -53,10 +52,6 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
     init(sharedText: String, manager: CSManager = .shared) {
         self.text = sharedText
         self.manager = manager
-        self.premiumService = PremiumService(
-            defaults: UserDefaults(suiteName: PremiumService.appGroupID) ?? .standard,
-            autoSyncStoreKit: false
-        )
         self.selectedLayout = CSKeyboardLayout.fromSystemLocale()
 
         manager.delegate = self
@@ -124,13 +119,10 @@ final class ShareExtensionViewModel: TypeTextViewModel, CSManagerDelegate {
         guard let device = selectedDevice, canType else { return false }
 
         isSending = true
-        let byteCount = text.utf8.count
-        let decision = premiumService.makeSendDecision(for: byteCount)
-        log.info("Sending \(self.characterCount) characters via Share Extension (premium: \(self.premiumService.isPremium))")
+        log.info("Sending \(self.characterCount) characters via Share Extension")
 
         do {
-            try await device.sendText(text, layout: selectedLayout, speed: decision.speed)
-            premiumService.recordCompletedSend(decision)
+            try await device.sendText(text, layout: selectedLayout)
             log.info("Share Extension text sent successfully")
             isSending = false
             return true

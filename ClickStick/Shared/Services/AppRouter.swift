@@ -23,14 +23,11 @@ final class AppRouter {
 
     enum Sheet: Identifiable {
         case deviceSetup(DeviceModel)
-        case paywall
 
         var id: String {
             switch self {
             case .deviceSetup(let device):
                 return "deviceSetup-\(device.id)"
-            case .paywall:
-                return "paywall"
             }
         }
     }
@@ -47,10 +44,6 @@ final class AppRouter {
 
     func showDeviceSetup(for device: DeviceModel) {
         presentedSheet = .deviceSetup(device)
-    }
-
-    func showPaywall() {
-        presentedSheet = .paywall
     }
 
     func dismissSheet() {

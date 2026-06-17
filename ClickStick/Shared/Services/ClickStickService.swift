@@ -70,14 +70,16 @@ final class ClickStickService: CSManagerDelegate {
         devices.first { $0.id == id }
     }
 
+    #if DEBUG
+    func setPreviewScanning(_ isScanning: Bool) {
+        self.isScanning = isScanning
+    }
+    #endif
+
     // MARK: - CSManagerDelegate
 
     func didDiscover(device: CSDevice, in manager: CSManager) {
         log.debug("Discovered device: \(device.uuid)")
-        // If we're discovering devices, we must be scanning
-        if !isScanning {
-            isScanning = true
-        }
         // Clear any previous Bluetooth error since discovery means BT is working
         if bluetoothError != nil {
             bluetoothError = nil

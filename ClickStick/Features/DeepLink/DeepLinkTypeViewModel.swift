@@ -16,7 +16,6 @@ final class DeepLinkTypeViewModel: TypeTextViewModel {
 
     private let service: ClickStickService
     private let deepLinkHandler: DeepLinkHandler
-    private let premiumService: PremiumService
     let request: TypeRequest
 
     // MARK: - TypeTextViewModel Conformance
@@ -47,11 +46,10 @@ final class DeepLinkTypeViewModel: TypeTextViewModel {
 
     // MARK: - Initialization
 
-    init(request: TypeRequest, service: ClickStickService, deepLinkHandler: DeepLinkHandler, premiumService: PremiumService) {
+    init(request: TypeRequest, service: ClickStickService, deepLinkHandler: DeepLinkHandler) {
         self.request = request
         self.service = service
         self.deepLinkHandler = deepLinkHandler
-        self.premiumService = premiumService
         self.selectedLayout = request.effectiveLayout
 
         // Auto-select device based on request or find first connected/known device
@@ -92,13 +90,10 @@ final class DeepLinkTypeViewModel: TypeTextViewModel {
         guard let device = selectedDevice, canType else { return false }
 
         isSending = true
-        let byteCount = text.utf8.count
-        let decision = premiumService.makeSendDecision(for: byteCount)
         log.info("Sending \(self.characterCount) characters via deep link")
 
         do {
-            try await device.sendText(text, layout: selectedLayout, speed: decision.speed)
-            premiumService.recordCompletedSend(decision)
+            try await device.sendText(text, layout: selectedLayout)
             log.info("Deep link text sent successfully")
             deepLinkHandler.callSuccessURL(for: request)
             isSending = false

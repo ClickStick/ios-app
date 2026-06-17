@@ -8,26 +8,36 @@ public struct TintedOutlineButtonStyle: ButtonStyle {
 
     private let color: Color
     private let cornerRadius: CGFloat
+    private let minHeight: CGFloat?
 
-    public init(color: Color, cornerRadius: CGFloat = CornerRadius.medium) {
+    public init(
+        color: Color,
+        cornerRadius: CGFloat = CornerRadius.control,
+        minHeight: CGFloat? = nil
+    ) {
         self.color = color
         self.cornerRadius = cornerRadius
+        self.minHeight = minHeight
     }
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundStyle(color)
+            .font(.clickStickBodyEmphasized)
+            .foregroundStyle(isEnabled ? color : Color.secondary)
+            .frame(minHeight: minHeight)
             .background(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(color.opacity(OpacityLevel.subtleFill))
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(color.opacity(OpacityLevel.tintedFill))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(color.opacity(OpacityLevel.subtleBorder), lineWidth: 1)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(color.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thin)
             )
-            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .opacity(currentOpacity(isPressed: configuration.isPressed))
             .animation(.easeInOut(duration: Motion.quick), value: configuration.isPressed)
+            .animation(.easeInOut(duration: Motion.quick), value: isEnabled)
     }
 
     private func currentOpacity(isPressed: Bool) -> Double {
@@ -41,19 +51,26 @@ public struct TintedOutlineButtonStyle: ButtonStyle {
 public extension ButtonStyle where Self == TintedOutlineButtonStyle {
     static func tintedOutline(
         color: Color,
-        cornerRadius: CGFloat = CornerRadius.medium
+        cornerRadius: CGFloat = CornerRadius.control,
+        minHeight: CGFloat? = nil
     ) -> TintedOutlineButtonStyle {
-        TintedOutlineButtonStyle(color: color, cornerRadius: cornerRadius)
+        TintedOutlineButtonStyle(color: color, cornerRadius: cornerRadius, minHeight: minHeight)
     }
 }
 
 #Preview {
-    VStack(spacing: 16) {
+    VStack(spacing: Spacing.md) {
         Button("Left Click") {}
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .buttonStyle(.tintedOutline(color: .clickStickBlue))
         Button("Right Click") {}
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .buttonStyle(.tintedOutline(color: .clickStickTeal))
         Button("Disabled") {}
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .buttonStyle(.tintedOutline(color: .clickStickBlue))
             .disabled(true)
     }

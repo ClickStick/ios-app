@@ -10,61 +10,42 @@ internal import Vision
 
 struct QRScannerSheet: View {
     let onScan: (String) -> Void
+    let onManualEntry: () -> Void
+
     @Environment(\.dismiss) private var dismiss
     @State private var alertError: AlertError?
     @State private var cameraAuthorizationStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    @State private var isTorchOn = false
+    @State private var isShowingSetupFailure: Bool
+
+    init(
+        onScan: @escaping (String) -> Void,
+        onManualEntry: @escaping () -> Void = {},
+        showsSetupFailure: Bool = false
+    ) {
+        self.onScan = onScan
+        self.onManualEntry = onManualEntry
+        _isShowingSetupFailure = State(initialValue: showsSetupFailure)
+    }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if cameraAuthorizationStatus == .authorized {
-                    QRCodeScannerView(
-                        onScan: onScan,
-                        onStartError: { error in
-                            alertError = AlertError(
-                                title: String(localized: "Scanner Error", comment: "QR scanner error title"),
-                                error: error
-                            )
-                        }
-                    )
-                    .ignoresSafeArea()
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("Camera viewfinder for scanning QR code")
-                    .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
-                } else if cameraAuthorizationStatus == .notDetermined {
-                    Color.clear
-                } else {
-                    CameraPermissionDeniedView()
-                }
+        ZStack(alignment: .bottom) {
+            scannerContent
+
+            if shouldShowScannerChrome {
+                QRScannerChrome(
+                    isTorchOn: isTorchOn,
+                    canToggleTorch: canToggleTorch,
+                    onCancel: { dismiss() },
+                    onToggleTorch: { toggleTorch() }
+                )
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    if cameraAuthorizationStatus == .authorized {
-                        Text("Scan QR Code")
-                            .font(.headline)
-                            .foregroundStyle(Color.white)
-                            .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
-                    } else {
-                        Text("Scan QR Code")
-                            .font(.headline)
-                    }
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    if cameraAuthorizationStatus == .authorized {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                        .accessibilityLabel("Cancel scanning")
-                    } else {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                        .accessibilityLabel("Cancel scanning")
-                    }
-                }
+
+            if isShowingSetupFailure {
+                setupFailureOverlay
             }
         }
+        .presentationDragIndicator(.hidden)
         .errorAlert($alertError)
         .task {
             if cameraAuthorizationStatus == .notDetermined {
@@ -72,36 +53,385 @@ struct QRScannerSheet: View {
                 cameraAuthorizationStatus = granted ? .authorized : .denied
             }
         }
+        .onDisappear {
+            setTorch(on: false)
+        }
+    }
+
+    private var scannerContent: some View {
+        Group {
+            if cameraAuthorizationStatus == .authorized, isScannerAvailable {
+                QRCodeScannerView(
+                    onScan: onScan,
+                    onStartError: { error in
+                        alertError = AlertError(
+                            title: String(localized: "Scanner Error", comment: "QR scanner error title"),
+                            error: error
+                        )
+                    }
+                )
+                .ignoresSafeArea()
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Camera viewfinder for scanning QR code")
+                .accessibilityHint("Point the camera at the QR code on your ClickStick's screen")
+            } else if cameraAuthorizationStatus == .notDetermined {
+                Color.black
+                    .ignoresSafeArea()
+            } else {
+                CameraPermissionDeniedView(
+                    title: cameraAuthorizationStatus == .denied ? "Camera Access Required" : "Camera Unavailable",
+                    message: cameraAuthorizationStatus == .denied
+                        ? "To scan the QR code, allow ClickStick to access your camera in Settings."
+                        : "Enter the authentication key manually, or try again on a device with camera scanning support."
+                )
+            }
+        }
+    }
+
+    private var setupFailureOverlay: some View {
+        ZStack(alignment: .bottom) {
+            Color.black
+                .opacity(OpacityLevel.scrim)
+                .ignoresSafeArea()
+
+            SetupFailurePanel(
+                onHelpArticle: {
+                    URLOpener().openGettingStartedPage()
+                },
+                onManualEntry: {
+                    isShowingSetupFailure = false
+                    onManualEntry()
+                    dismiss()
+                },
+                onTryAgain: {
+                    isShowingSetupFailure = false
+                }
+            )
+            .padding(.horizontal, Spacing.xs)
+            .padding(.bottom, Spacing.xs)
+        }
+        .transition(.opacity)
+    }
+
+    private var shouldShowScannerChrome: Bool {
+        cameraAuthorizationStatus == .authorized && isScannerAvailable && !isShowingSetupFailure
+    }
+
+    private var isScannerAvailable: Bool {
+        DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+    }
+
+    private var canToggleTorch: Bool {
+        AVCaptureDevice.default(for: .video)?.hasTorch == true
+    }
+
+    private func toggleTorch() {
+        setTorch(on: !isTorchOn)
+    }
+
+    private func setTorch(on: Bool) {
+        guard let captureDevice = AVCaptureDevice.default(for: .video), captureDevice.hasTorch else { return }
+
+        do {
+            try captureDevice.lockForConfiguration()
+            defer { captureDevice.unlockForConfiguration() }
+            if on {
+                try captureDevice.setTorchModeOn(level: AVCaptureDevice.maxAvailableTorchLevel)
+            } else {
+                captureDevice.torchMode = .off
+            }
+            isTorchOn = on
+        } catch {
+            alertError = AlertError(title: String(localized: "Flashlight Error"), error: error)
+        }
+    }
+}
+
+// MARK: - Scanner Chrome
+
+private struct QRScannerChrome: View {
+    let isTorchOn: Bool
+    let canToggleTorch: Bool
+    let onCancel: () -> Void
+    let onToggleTorch: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            scannerHeader
+
+            Spacer(minLength: Spacing.xxxl)
+
+            QRFocusFrame()
+                .frame(width: 272, height: 272)
+
+            Spacer(minLength: Spacing.xxxl)
+
+            Text("Point your camera at the QR code\non your ClickStick")
+                .font(.clickStickBody)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(OpacityLevel.prominentBorder), radius: 4, y: 1)
+
+            ScannerHelpCard()
+                .padding(.top, Spacing.xxxl)
+
+            Spacer(minLength: Spacing.xxl)
+
+            Button(action: onToggleTorch) {
+                Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                    .font(.system(size: IconSize.tab, weight: .medium))
+                    .foregroundStyle(.white)
+                    .frame(width: ComponentSize.largeIconButton, height: ComponentSize.largeIconButton)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: BorderWidth.thick)
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(!canToggleTorch)
+            .opacity(canToggleTorch ? 1 : OpacityLevel.disabled)
+            .accessibilityLabel(isTorchOn ? "Turn flashlight off" : "Turn flashlight on")
+        }
+        .padding(.horizontal, Spacing.lg)
+        .padding(.top, Spacing.lg)
+        .padding(.bottom, Spacing.xl)
+    }
+
+    private var scannerHeader: some View {
+        ZStack {
+            Text("Add Device")
+                .font(.clickStickBodyEmphasized)
+                .foregroundStyle(.white)
+                .shadow(color: .black.opacity(OpacityLevel.prominentBorder), radius: 3, y: 1)
+                .frame(maxWidth: .infinity)
+
+            HStack {
+                Button("Cancel") {
+                    onCancel()
+                }
+                .font(.clickStickBody)
+                .foregroundStyle(.primary)
+                .frame(minWidth: 96, minHeight: ComponentSize.iconButton)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(Color.clickStickGlassFill)
+                )
+                .overlay(
+                    Capsule(style: .continuous)
+                        .stroke(Color.white.opacity(OpacityLevel.border), lineWidth: BorderWidth.hairline)
+                )
+                .accessibilityLabel("Cancel scanning")
+
+                Spacer()
+            }
+        }
+    }
+}
+
+private struct QRFocusFrame: View {
+    var body: some View {
+        QRFocusCorners()
+            .stroke(
+                Color.white,
+                style: StrokeStyle(
+                    lineWidth: BorderWidth.thick * 3,
+                    lineCap: .round,
+                    lineJoin: .round
+                )
+            )
+            .shadow(color: .black.opacity(OpacityLevel.subtleBorder), radius: 4, y: 1)
+            .accessibilityHidden(true)
+    }
+}
+
+private struct QRFocusCorners: Shape {
+    func path(in rect: CGRect) -> Path {
+        let cornerLength = min(rect.width, rect.height) * 0.2
+        let radius = CornerRadius.extraLarge
+        var path = Path()
+
+        // Top left
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY + cornerLength))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + radius))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.minX + radius, y: rect.minY),
+            control: CGPoint(x: rect.minX, y: rect.minY)
+        )
+        path.addLine(to: CGPoint(x: rect.minX + cornerLength, y: rect.minY))
+
+        // Top right
+        path.move(to: CGPoint(x: rect.maxX - cornerLength, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - radius, y: rect.minY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.maxX, y: rect.minY + radius),
+            control: CGPoint(x: rect.maxX, y: rect.minY)
+        )
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + cornerLength))
+
+        // Bottom right
+        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerLength))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - radius))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.maxX - radius, y: rect.maxY),
+            control: CGPoint(x: rect.maxX, y: rect.maxY)
+        )
+        path.addLine(to: CGPoint(x: rect.maxX - cornerLength, y: rect.maxY))
+
+        // Bottom left
+        path.move(to: CGPoint(x: rect.minX + cornerLength, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX + radius, y: rect.maxY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.minX, y: rect.maxY - radius),
+            control: CGPoint(x: rect.minX, y: rect.maxY)
+        )
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - cornerLength))
+
+        return path
+    }
+}
+
+private struct ScannerHelpCard: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: Spacing.sm) {
+            Image(systemName: "info.circle")
+                .font(.body.weight(.medium))
+                .foregroundStyle(.primary)
+                .frame(width: IconSize.tab, alignment: .center)
+                .padding(.top, 2)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text("Find the QR code")
+                    .font(.clickStickBody)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("It's displayed on your ClickStick screen")
+                    .font(.clickStickCallout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.sm)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: CornerRadius.control, style: .continuous))
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.control, style: .continuous)
+                .fill(Color.white.opacity(0.28))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.control, style: .continuous)
+                .stroke(Color.white.opacity(OpacityLevel.prominentBorder), lineWidth: BorderWidth.hairline)
+        )
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct SetupFailurePanel: View {
+    let onHelpArticle: () -> Void
+    let onManualEntry: () -> Void
+    let onTryAgain: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            failureIcon
+                .padding(.top, Spacing.xxxl)
+
+            VStack(spacing: Spacing.xs) {
+                Text("Setup failed")
+                    .font(.clickStickTitle)
+                    .multilineTextAlignment(.center)
+
+                Text("Could not authenticate this device.\nMake sure you scanned the correct QR\ncode from your ClickStick.")
+                    .font(.clickStickBody)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.top, Spacing.lg)
+
+            VStack(spacing: Spacing.sm) {
+                Button("Help article") {
+                    onHelpArticle()
+                }
+                .buttonStyle(.secondary(tint: .primary))
+
+                Button("Enter key manually") {
+                    onManualEntry()
+                }
+                .buttonStyle(.secondary(tint: .primary))
+
+                Button("Try again") {
+                    onTryAgain()
+                }
+                .buttonStyle(.primary)
+            }
+            .padding(.horizontal, Spacing.lg)
+            .padding(.top, Spacing.xxxl)
+            .padding(.bottom, Spacing.xxxl)
+        }
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.sheet, style: .continuous)
+                .fill(Color.clickStickCardBackground)
+        )
+        .accessibilityElement(children: .contain)
+    }
+
+    private var failureIcon: some View {
+        ZStack {
+            Circle()
+                .fill(Color.clickStickDestructive.opacity(OpacityLevel.tintedFill))
+                .frame(width: 80, height: 80)
+
+            Image(systemName: "exclamationmark.circle")
+                .font(.system(size: IconSize.large, weight: .semibold))
+                .foregroundStyle(Color.clickStickDestructive)
+        }
+        .accessibilityHidden(true)
     }
 }
 
 // MARK: - Camera Permission Denied View
 
 private struct CameraPermissionDeniedView: View {
+    let title: LocalizedStringKey
+    let message: LocalizedStringKey
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            Image(systemName: "camera.fill")
-                .font(.system(size: IconSize.extraLarge))
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
+            Spacer()
+
+            FeatureIcon(
+                systemName: "camera.fill",
+                size: 96,
+                iconSize: IconSize.large,
+                tint: .secondary
+            )
+
             VStack(spacing: Spacing.xs) {
-                Text(String(localized: "Camera Access Required", comment: "Camera permission denied title"))
-                    .font(.title3.bold())
+                Text(title)
+                    .font(.clickStickTitle)
                     .multilineTextAlignment(.center)
-                Text(String(localized: "To scan the QR code, allow ClickStick to access your camera in Settings.", comment: "Camera permission denied message"))
-                    .font(.body)
+                Text(message)
+                    .font(.clickStickBody)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
-            Button(String(localized: "Open Settings", comment: "Button to open iOS Settings app")) {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
+            .frame(maxWidth: 320)
+
+            Button("Open Settings") {
+                URLOpener().openCameraPermissions()
             }
             .buttonStyle(.primary)
-            .accessibilityHint(String(localized: "Opens the iOS Settings app to allow camera access", comment: "Accessibility hint for Open Settings button"))
+            .padding(.top, Spacing.sm)
+
+            Spacer()
         }
-        .padding(Spacing.xl)
+        .padding(Spacing.lg)
+        .clickStickScreenBackground()
     }
 }
 
@@ -118,8 +448,8 @@ struct QRCodeScannerView: UIViewControllerRepresentable {
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: false,
             isPinchToZoomEnabled: true,
-            isGuidanceEnabled: true,
-            isHighlightingEnabled: true
+            isGuidanceEnabled: false,
+            isHighlightingEnabled: false
         )
         scanner.delegate = context.coordinator
 
@@ -207,11 +537,81 @@ struct QRCodeScannerView: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
-#Preview {
-    QRScannerSheet { scannedKey in
-        print("Scanned: \(scannedKey)")
+private struct QRScannerPreview: View {
+    @State private var isShowingSetupFailure: Bool
+
+    init(showsSetupFailure: Bool = false) {
+        _isShowingSetupFailure = State(initialValue: showsSetupFailure)
     }
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            QRScannerPreviewCameraView()
+                .ignoresSafeArea()
+
+            if !isShowingSetupFailure {
+                QRScannerChrome(
+                    isTorchOn: false,
+                    canToggleTorch: true,
+                    onCancel: {},
+                    onToggleTorch: {}
+                )
+            }
+
+            if isShowingSetupFailure {
+                ZStack(alignment: .bottom) {
+                    Color.black
+                        .opacity(OpacityLevel.scrim)
+                        .ignoresSafeArea()
+
+                    SetupFailurePanel(
+                        onHelpArticle: {},
+                        onManualEntry: {},
+                        onTryAgain: { isShowingSetupFailure = false }
+                    )
+                    .padding(.horizontal, Spacing.xs)
+                    .padding(.bottom, Spacing.xs)
+                }
+            }
+        }
+    }
+}
+
+private struct QRScannerPreviewCameraView: View {
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.white.opacity(0.85),
+                    Color.gray.opacity(0.55),
+                    Color.black.opacity(0.88)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous)
+                .fill(Color.black.opacity(0.35))
+                .frame(width: 280, height: 120)
+                .rotationEffect(.degrees(12))
+                .offset(x: 86, y: -254)
+
+            RoundedRectangle(cornerRadius: CornerRadius.pill, style: .continuous)
+                .fill(Color.white.opacity(0.32))
+                .frame(width: 360, height: 140)
+                .rotationEffect(.degrees(-18))
+                .offset(x: -62, y: -116)
+        }
+    }
+}
+
+#Preview("Add Device QR Scanner") {
+    QRScannerPreview()
+}
+
+#Preview("Setup Failed") {
+    QRScannerPreview(showsSetupFailure: true)
 }
 #endif

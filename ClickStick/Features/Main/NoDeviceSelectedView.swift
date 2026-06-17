@@ -4,82 +4,71 @@
 import DesignSystem
 import SwiftUI
 
+/// Placeholder for the secondary pane on larger layouts.
+/// The Figma discovery states belong to `DeviceListView`; this view intentionally stays neutral.
 struct NoDeviceSelectedView: View {
     let isScanning: Bool
     let hasDevices: Bool
     let onStartScanning: () -> Void
 
     var body: some View {
-        ContentUnavailableView {
-            VStack(spacing: Spacing.md) {
-                FeatureIcon(systemName: "cable.connector.horizontal")
+        VStack(spacing: Spacing.lg) {
+            FeatureIcon(
+                systemName: "cable.connector.horizontal",
+                size: 96,
+                iconSize: IconSize.large,
+                tint: .clickStickBlue
+            )
+
+            VStack(spacing: Spacing.xs) {
                 Text("No Device Selected")
-                    .font(.title2.weight(.semibold))
+                    .font(.clickStickTitle)
+                    .multilineTextAlignment(.center)
+
+                Text(message)
+                    .font(.clickStickBody)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 320)
             }
-        } description: {
-            Text("Select a ClickStick device from the sidebar to get started.")
-        } actions: {
-            actionContent
+
+            if !hasDevices && !isScanning {
+                Button("Scan for devices") {
+                    onStartScanning()
+                }
+                .buttonStyle(.primary)
+                .frame(maxWidth: 320)
+                .padding(.top, Spacing.sm)
+            }
         }
+        .padding(Spacing.xl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clickStickScreenBackground()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No device selected")
-        .accessibilityHint("Select a device from the sidebar")
+        .accessibilityHint(accessibilityHint)
     }
 
-    @ViewBuilder
-    private var actionContent: some View {
-        if !hasDevices && !isScanning {
-            Button {
-                onStartScanning()
-            } label: {
-                HStack(spacing: Spacing.xs) {
-                    Image(systemName: "antenna.radiowaves.left.and.right")
-                    Text("Start Scanning")
-                }
-            }
-            .buttonStyle(.primary)
-            .padding(.horizontal, Spacing.xxl)
-        } else if isScanning {
-            HStack(spacing: Spacing.sm) {
-                ProgressView()
-                    .controlSize(.small)
-                Text("Scanning for devices...")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, Spacing.lg)
-            .padding(.vertical, Spacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: CornerRadius.large)
-                    .fill(Color.clickStickBlue.opacity(OpacityLevel.subtleFill))
-            )
-        } else if hasDevices {
-            Text("Tap a device in the sidebar to begin.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    private var message: String {
+        if hasDevices {
+            return String(localized: "Select a ClickStick from the device list.")
         }
+        if isScanning {
+            return String(localized: "Looking for nearby ClickSticks in the device list.")
+        }
+        return String(localized: "Scan for a ClickStick from the device list to get started.")
+    }
+
+    private var accessibilityHint: String {
+        hasDevices
+            ? String(localized: "Select a device from the sidebar")
+            : String(localized: "Use Scan for devices to search for nearby ClickSticks")
     }
 }
 
 // MARK: - Previews
 
-#Preview("No Devices") {
-    NoDeviceSelectedView(
-        isScanning: false,
-        hasDevices: false,
-        onStartScanning: {}
-    )
-}
-
-#Preview("Scanning") {
-    NoDeviceSelectedView(
-        isScanning: true,
-        hasDevices: false,
-        onStartScanning: {}
-    )
-}
-
-#Preview("Has Devices") {
+#Preview {
     NoDeviceSelectedView(
         isScanning: false,
         hasDevices: true,

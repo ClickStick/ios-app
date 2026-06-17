@@ -12,26 +12,22 @@ struct DeepLinkTypeSheet: View {
     let request: TypeRequest
     let service: ClickStickService
     let deepLinkHandler: DeepLinkHandler
-    let premiumService: PremiumService
 
     @State private var viewModel: DeepLinkTypeViewModel
 
     init(
         request: TypeRequest,
         service: ClickStickService,
-        deepLinkHandler: DeepLinkHandler,
-        premiumService: PremiumService
+        deepLinkHandler: DeepLinkHandler
     ) {
         self.request = request
         self.service = service
         self.deepLinkHandler = deepLinkHandler
-        self.premiumService = premiumService
         _viewModel = State(
             initialValue: DeepLinkTypeViewModel(
                 request: request,
                 service: service,
-                deepLinkHandler: deepLinkHandler,
-                premiumService: premiumService
+                deepLinkHandler: deepLinkHandler
             )
         )
     }
@@ -98,7 +94,6 @@ struct DeepLinkTypeSheet: View {
             cancelURL: nil
         ),
         service: service,
-        deepLinkHandler: handler,
-        premiumService: PremiumService(defaults: .standard, autoSyncStoreKit: false)
+        deepLinkHandler: handler
     )
 }

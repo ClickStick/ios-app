@@ -7,19 +7,16 @@ import Observation
 import os.log
 
 protocol TextSendingDevice: AnyObject {
+    var displayName: String { get }
     var isConnected: Bool { get }
+
+    func sendText(_ text: String, layout: CSKeyboardLayout) async throws
+
     func sendText(
         _ text: String,
         layout: CSKeyboardLayout,
-        speed: TypingSpeed,
-        onProgress: (@Sendable (Double) -> Void)?
+        onCharacterProgress: @escaping @MainActor (_ sent: Int, _ total: Int) -> Void
     ) async throws
-}
-
-extension TextSendingDevice {
-    func sendText(_ text: String, layout: CSKeyboardLayout, speed: TypingSpeed) async throws {
-        try await sendText(text, layout: layout, speed: speed, onProgress: nil)
-    }
 }
 
 /// Observable wrapper for CSDevice to bridge ClickStickKit to SwiftUI
@@ -42,6 +39,10 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
     private(set) var lastErrorTimestamp: Date?
     private(set) var isConnectable: Bool
     private(set) var isDemoDevice: Bool
+
+    /// Set when the device's session data failed to validate (bad signature/MAC),
+    /// meaning it may have been tampered with. Surfaced as a "Security warning".
+    private(set) var isCompromised: Bool = false
 
     private var lastRSSIUpdate: Date = .distantPast
 
@@ -120,13 +121,20 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
 
         needsAuthentication = false
         lastError = nil
+        isCompromised = false
         device.connect(appAuthKey: authKey)
     }
 
     func connect(with authKey: CSAppAuthKey) {
         needsAuthentication = false
         lastError = nil
+        isCompromised = false
         device.connect(appAuthKey: authKey)
+    }
+
+    /// Clears the compromise warning (e.g. when the user chooses to re-pair the device).
+    func clearCompromiseWarning() {
+        isCompromised = false
     }
 
     func disconnect() {
@@ -134,39 +142,29 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
         device.disconnect()
     }
 
+    func sendText(_ text: String, layout: CSKeyboardLayout) async throws {
+        guard isConnected else { throw CSError.connectionFailed(error: nil) }
+        try await sendTypeCommands(text: text, layout: layout)
+    }
+
+    /// Sends text one character at a time so progress can be reported and the send can be
+    /// cancelled. There is no artificial delay — it is paced only by how fast the device
+    /// acknowledges each keystroke. Used by the in-app Text Entry screen.
     func sendText(
         _ text: String,
         layout: CSKeyboardLayout,
-        speed: TypingSpeed,
-        onProgress: (@Sendable (Double) -> Void)? = nil
+        onCharacterProgress: @escaping @MainActor (_ sent: Int, _ total: Int) -> Void
     ) async throws {
         guard isConnected else { throw CSError.connectionFailed(error: nil) }
-        switch speed {
-        case .unlimited:
-            try await sendTypeCommands(text: text, layout: layout)
-            onProgress?(1.0)
-        case .human(let delay):
-            try await sendTextThrottled(text, layout: layout, delay: delay, onProgress: onProgress)
-        }
-    }
+        let characters = Array(text)
+        let total = characters.count
+        guard total > 0 else { return }
 
-    private func sendTextThrottled(
-        _ text: String,
-        layout: CSKeyboardLayout,
-        delay: TimeInterval,
-        onProgress: (@Sendable (Double) -> Void)?
-    ) async throws {
-        guard !text.isEmpty else { return }
-
-        let totalCharacters = text.count
-        for (index, character) in text.enumerated() {
+        for (index, character) in characters.enumerated() {
             try Task.checkCancellation()
             try await sendTypeCommands(text: String(character), layout: layout)
-            onProgress?(Double(index + 1) / Double(totalCharacters))
-
-            if index < (totalCharacters - 1) {
-                try await Task.sleep(for: .milliseconds(delay))
-            }
+            let sent = index + 1
+            await MainActor.run { onCharacterProgress(sent, total) }
         }
     }
 
@@ -236,6 +234,15 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
         connectionState = device.connectionState
         features = device.features
         lastError = device.lastError
+        if device.connectionState == .connectedAuthorized {
+            isCompromised = false
+        }
+    }
+
+    func deviceDidDetectTampering(_ device: CSDevice) {
+        isCompromised = true
+        connectionState = device.connectionState
+        log.error("Device may be compromised: \(self.displayName, privacy: .public)")
     }
 
     func deviceNeedsAuthentication(_ device: CSDevice) {

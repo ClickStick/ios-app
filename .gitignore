@@ -3,3 +3,8 @@ ClickStick/ClickStick.xcodeproj/project.xcworkspace/xcuserdata
 ClickStick.xcodeproj/project.xcworkspace/xcuserdata
 ClickStick.xcodeproj/xcshareddata
 ClickStick.xcodeproj/xcuserdata
+
+# Local environment and generated design dumps
+.env
+.env.*
+tmp/

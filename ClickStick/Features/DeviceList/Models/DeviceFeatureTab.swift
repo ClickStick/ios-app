@@ -4,10 +4,10 @@
 import ClickStickKit
 import SwiftUI
 
-/// Feature tabs displayed in the device detail view
-/// As per basic.txt: "show stick's functions as tabs in the secondary panel, then everything is one tap away"
+/// Feature tabs displayed in the device detail view.
 enum DeviceFeatureTab: String, CaseIterable, Identifiable {
     case textEntry = "Text Entry"
+    case snippets = "Snippets"
     case mouse = "Touchpad"
 
     var id: String { rawValue }
@@ -15,6 +15,7 @@ enum DeviceFeatureTab: String, CaseIterable, Identifiable {
     var localizedTitle: String {
         switch self {
         case .textEntry: String(localized: "Text Entry", comment: "Tab title")
+        case .snippets: String(localized: "Snippets", comment: "Tab title")
         case .mouse: String(localized: "Touchpad", comment: "Tab title")
         }
     }
@@ -22,13 +23,15 @@ enum DeviceFeatureTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .textEntry: "character.cursor.ibeam"
+        case .snippets: "list.bullet"
         case .mouse: "rectangle.and.hand.point.up.left"
         }
     }
 
-    var feature: CSDeviceFeature {
+    var feature: CSDeviceFeature? {
         switch self {
         case .textEntry: .textEntry
+        case .snippets: nil
         case .mouse: .mouse
         }
     }
@@ -36,6 +39,7 @@ enum DeviceFeatureTab: String, CaseIterable, Identifiable {
     var accessibilityLabel: String {
         switch self {
         case .textEntry: String(localized: "Text Entry mode", comment: "Accessibility label")
+        case .snippets: String(localized: "Snippets mode", comment: "Accessibility label")
         case .mouse: String(localized: "Touchpad mode", comment: "Accessibility label")
         }
     }

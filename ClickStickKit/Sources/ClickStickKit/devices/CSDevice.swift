@@ -264,10 +264,12 @@ public class CSDevice: NSObject {
 
         guard let remotePublicKey = CSDeviceSession.parse(sessionData: sessionData, appAuthKey: _appAuthKey)
         else {
-            log.error("Failed to parse session data (likely wrong auth key), requesting re-authentication")
-            // Clear invalid key and request authentication
-            self._appAuthKey = nil
-            _notifyObservers { $0.deviceNeedsAuthentication(self) }
+            // We had an auth key but the device's session data failed to validate
+            // (bad signature/MAC). Treat this as a potential compromise rather than a
+            // silent re-auth: warn the observer and tear the connection down.
+            log.error("Session data failed to validate (bad signature/MAC) — device may be compromised")
+            _notifyObservers { $0.deviceDidDetectTampering(self) }
+            disconnect()
             return
         }
 

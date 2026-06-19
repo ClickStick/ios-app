@@ -31,7 +31,7 @@ struct DeviceRowView: View {
 
             Spacer(minLength: 12)
 
-            if !isOutOfRange && !device.isCompromised {
+            if showsSignalBars {
                 SignalBarsView(
                     strength: normalizedSignalStrength,
                     activeColor: signalColor
@@ -73,7 +73,7 @@ struct DeviceRowView: View {
                 .foregroundStyle(statusColor)
                 .lineLimit(1)
 
-            if device.isConnected && !device.isCompromised {
+            if case .connected = device.uiState {
                 Circle()
                     .fill(Color(.systemGreen))
                     .frame(width: 7, height: 7)
@@ -83,91 +83,79 @@ struct DeviceRowView: View {
     }
 
     private var statusColor: Color {
-        (device.isCompromised || device.lastError != nil) ? Color(.systemRed) : Color.secondary
+        switch device.uiState {
+        case .compromised, .failed:
+            return Color(.systemRed)
+        default:
+            return Color.secondary
+        }
     }
 
     private var cardBackground: Color {
-        if isSelected {
-            return Color.accentBlue.opacity(0.12)
-        }
-        return Color.cardBackground
+        isSelected ? Color.accentBlue.opacity(0.12) : Color.cardBackground
     }
 
     private var cardBorderColor: Color? {
-        if device.isCompromised {
+        switch device.uiState {
+        case .compromised:
             return Color(.systemRed)
+        default:
+            return isSelected ? Color.accentBlue.opacity(0.2) : nil
         }
-        if isSelected {
-            return Color.accentBlue.opacity(0.2)
-        }
-        return nil
     }
 
-    /// Status description matching the redesigned device list.
     private var statusDescription: String {
-        if device.isCompromised {
+        switch device.uiState {
+        case .connected:
+            return String(localized: "Connected", comment: "Device row status")
+        case .authorizing:
+            return String(localized: "Authorizing...", comment: "Device row status")
+        case .setupRequired:
+            return String(localized: "Setup required", comment: "Device row status")
+        case .connecting:
+            return String(localized: "Connecting...", comment: "Device row status")
+        case .available:
+            return String(localized: "Tap to connect", comment: "Device row status")
+        case .newDevice:
+            return String(localized: "Tap to set up", comment: "Device row status")
+        case .weakSignal:
+            return String(localized: "Weak signal", comment: "Device row status")
+        case .outOfRange:
+            return String(localized: "Out of range", comment: "Device row status")
+        case .compromised:
             return String(localized: "Security warning", comment: "Compromised device status")
-        }
-
-        if let error = device.lastError {
+        case .failed(let error):
             return error.localizedDescription
         }
+    }
 
-        switch device.connectionState {
-        case .connectedAuthorized:
-            return String(localized: "Connected", comment: "Device row status")
-        case .connectedUnauthorized:
-            return device.needsAuthentication
-                ? String(localized: "Setup required", comment: "Device row status")
-                : String(localized: "Authorizing...", comment: "Device row status")
-        case .serviceDiscovery:
-            return String(localized: "Connecting...", comment: "Device row status")
-        case .disconnected:
-            if isOutOfRange {
-                return String(localized: "Out of range", comment: "Device row status")
-            }
-            if isWeakSignal {
-                return String(localized: "Weak signal", comment: "Device row status")
-            }
-            return device.isKnownDevice
-                ? String(localized: "Tap to connect", comment: "Device row status")
-                : String(localized: "Tap to set up", comment: "Device row status")
+    private var showsSignalBars: Bool {
+        switch device.uiState {
+        case .outOfRange, .compromised:
+            return false
+        default:
+            return true
         }
-    }
-
-    /// A disconnected device that is no longer advertising is treated as out of range:
-    /// it shows an "Out of range" status and hides the signal indicator.
-    private var isOutOfRange: Bool {
-        device.connectionState == .disconnected && !device.isConnectable
-    }
-
-    /// A connectable but faint device (RSSI ≤ -85 dBm): shown with a "Weak signal"
-    /// status and red signal bars.
-    private var isWeakSignal: Bool {
-        device.connectionState == .disconnected
-            && device.isConnectable
-            && device.rssi > -200
-            && device.rssi <= -85
     }
 
     private var normalizedSignalStrength: Double {
         guard device.rssi > -200 else {
             return device.isConnected ? 0.85 : 0.55
         }
-
         // Approximate BLE RSSI range: -95 dBm (weak) ... -40 dBm (excellent).
         let normalized = (Double(device.rssi) + 95) / 55
         return min(max(normalized, 0.15), 1.0)
     }
 
     private var signalColor: Color {
-        if device.isConnected {
+        switch device.uiState {
+        case .connected:
             return .accentBlue
-        }
-        if isWeakSignal {
+        case .weakSignal:
             return Color(.systemRed)
+        default:
+            return device.isConnectable ? .accentBlue : .secondary
         }
-        return device.isConnectable ? .accentBlue : .secondary
     }
 
     // MARK: - Accessibility
@@ -187,17 +175,17 @@ struct DeviceRowView: View {
     }
 
     private var accessibilityHint: String {
-        switch device.connectionState {
-        case .disconnected:
-            return String(localized: "Double-tap to connect", comment: "Accessibility hint")
-        case .serviceDiscovery:
-            return String(localized: "Connection in progress", comment: "Accessibility hint")
-        case .connectedUnauthorized:
-            return device.needsAuthentication
-                ? String(localized: "Double-tap to authenticate", comment: "Accessibility hint")
-                : String(localized: "Connection in progress", comment: "Accessibility hint")
-        case .connectedAuthorized:
+        switch device.uiState {
+        case .connected:
             return String(localized: "Double-tap to view device options", comment: "Accessibility hint")
+        case .authorizing, .connecting:
+            return String(localized: "Connection in progress", comment: "Accessibility hint")
+        case .setupRequired:
+            return String(localized: "Double-tap to authenticate", comment: "Accessibility hint")
+        case .available, .newDevice, .weakSignal:
+            return String(localized: "Double-tap to connect", comment: "Accessibility hint")
+        case .outOfRange, .failed, .compromised:
+            return ""
         }
     }
 }

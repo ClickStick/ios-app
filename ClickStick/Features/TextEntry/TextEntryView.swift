@@ -2,7 +2,6 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
 import ClickStickKit
-import DesignSystem
 import SwiftUI
 
 struct TextEntryView: View {
@@ -14,35 +13,29 @@ struct TextEntryView: View {
     @State private var shouldSendAfterUnsupportedSheetDismisses = false
 
     var body: some View {
-        VStack(spacing: Spacing.sm) {
+        VStack(spacing: 12) {
             textEditor
+                .padding(.top, 2)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, Spacing.xl)
-        .background(Color.clickStickGroupedBackground)
+        .padding(.horizontal, 24)
+        .background(Color.groupedBackground.ignoresSafeArea())
         .overlay(alignment: .center) {
             if viewModel.showSentToast {
                 sentToast
                     .transition(.scale.combined(with: .opacity))
             }
         }
-        .animation(.easeInOut(duration: Motion.regular), value: viewModel.showSentToast)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button(String(localized: "Done", comment: "Dismiss keyboard button")) {
-                    isTextFieldFocused = false
-                }
-            }
-        }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.showSentToast)
+        .onAppear(perform: focusTextEditor)
         .sheet(isPresented: Binding(
             get: { viewModel.unsupportedPrompt != nil },
             set: { if !$0 { viewModel.dismissUnsupportedPrompt() } }
         ), onDismiss: sendAfterUnsupportedSheetDismissesIfNeeded) {
             unsupportedCharactersSheet
                 .measureHeight($unsupportedSheetHeight)
-                .presentationBackground(Color.clickStickElevatedBackground)
-                .presentationDetents(unsupportedSheetDetents)
+                .presentationBackground(Color(.systemBackground))
+                .presentationDetents(sheetDetents(for: unsupportedSheetHeight))
                 .presentationBackgroundInteraction(.disabled)
         }
         .sheet(isPresented: Binding(
@@ -51,8 +44,8 @@ struct TextEntryView: View {
         )) {
             progressSheet
                 .measureHeight($progressSheetHeight)
-                .presentationBackground(Color.clickStickElevatedBackground)
-                .presentationDetents(progressSheetDetents)
+                .presentationBackground(Color(.systemBackground))
+                .presentationDetents(sheetDetents(for: progressSheetHeight))
                 .interactiveDismissDisabled(viewModel.isSending)
                 .presentationBackgroundInteraction(.disabled)
         }
@@ -62,31 +55,37 @@ struct TextEntryView: View {
         )) {
             connectionLostSheet
                 .measureHeight($connectionLostSheetHeight)
-                .presentationBackground(Color.clickStickElevatedBackground)
-                .presentationDetents(connectionLostSheetDetents)
+                .presentationBackground(Color(.systemBackground))
+                .presentationDetents(sheetDetents(for: connectionLostSheetHeight))
                 .presentationBackgroundInteraction(.disabled)
         }
     }
 
+    private func focusTextEditor() {
+        DispatchQueue.main.async {
+            isTextFieldFocused = true
+        }
+    }
+
     private var textEditor: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
+        VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .bottomLeading) {
                 TextEditor(text: $viewModel.text)
                     .font(.body)
                     .scrollContentBackground(.hidden)
                     .focused($isTextFieldFocused)
-                    .padding(.horizontal, Spacing.md)
-                    .padding(.top, Spacing.lg)
-                    .padding(.bottom, Spacing.xxxl)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 20)
+                    .padding(.bottom, 40)
 
                 if viewModel.text.isEmpty {
                     VStack {
                         HStack {
                             Text("Type or paste text to send...")
                                 .font(.body)
-                                .foregroundStyle(.secondary.opacity(OpacityLevel.disabled))
-                                .padding(.horizontal, Spacing.lg)
-                                .padding(.vertical, Spacing.xl)
+                                .foregroundStyle(.secondary.opacity(0.5))
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 24)
                             Spacer()
                         }
                         Spacer()
@@ -95,15 +94,15 @@ struct TextEntryView: View {
                 }
 
                 controls
-                    .padding(.leading, Spacing.md)
-                    .padding(.bottom, Spacing.md)
+                    .padding(.leading, 16)
+                    .padding(.bottom, 16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color.clickStickCardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
+            .background(Color.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
-                    .stroke(borderColor, lineWidth: BorderWidth.thick)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(borderColor, lineWidth: 2)
             )
             .accessibilityLabel(String(localized: "Text to send", comment: "Text editor accessibility label"))
             .accessibilityValue(viewModel.isEmpty
@@ -113,38 +112,56 @@ struct TextEntryView: View {
             if let message = viewModel.inlineUnsupportedMessage {
                 Text(message)
                     .font(.footnote)
-                    .foregroundStyle(Color.clickStickDestructive)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.top, Spacing.xxs)
+                    .foregroundStyle(Color(.systemRed))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 4)
             }
         }
     }
 
     private var controls: some View {
-        HStack(spacing: Spacing.xs) {
-            Picker("Keyboard Layout", selection: $viewModel.selectedLayout) {
+        HStack(spacing: 8) {
+            Menu {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
-                    Text(layout.description.replacingOccurrences(of: " - ", with: "-"))
-                        .tag(layout)
+                    Button(layout.description.replacingOccurrences(of: " - ", with: "-")) {
+                        viewModel.selectedLayout = layout
+                    }
                 }
+            } label: {
+                menuPillLabel(viewModel.selectedLayout.description.replacingOccurrences(of: " - ", with: "-"))
             }
-            .pickerStyle(.menu)
 
-            Picker("Target OS", selection: $viewModel.selectedOS) {
+            Menu {
                 ForEach(TypingOS.allCases) { os in
-                    Text(os.title).tag(os)
+                    Button(os.title) {
+                        viewModel.selectedOS = os
+                    }
                 }
+            } label: {
+                menuPillLabel(viewModel.selectedOS.title)
             }
-            .pickerStyle(.menu)
         }
+    }
+
+    private func menuPillLabel(_ title: String) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+                .font(.footnote.weight(.medium))
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.caption2)
+        }
+        .foregroundStyle(Color.primary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .background(Capsule(style: .continuous).fill(Color(.systemGray5)))
     }
 
     private var sentToast: some View {
         Label("Sent to \(viewModel.deviceName)", systemImage: "checkmark.circle")
             .font(.body.weight(.bold))
             .foregroundStyle(.white)
-            .padding(.horizontal, Spacing.lg)
-            .padding(.vertical, Spacing.md)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             .background(Capsule(style: .continuous).fill(Color.black))
             .accessibilityElement(children: .combine)
     }
@@ -152,7 +169,7 @@ struct TextEntryView: View {
     private var unsupportedCharactersSheet: some View {
         TextEntryWarningSheet(
             title: "Unsupported characters",
-            message: viewModel.unsupportedPromptMessage ?? "Some characters can’t be typed with the selected layout. They will be skipped.",
+            message: viewModel.unsupportedPromptMessage ?? "Some characters can't be typed with the selected layout. They will be skipped.",
             secondaryTitle: "Send anyway",
             secondaryAction: sendAnywayAfterUnsupportedSheetDismisses,
             primaryTitle: "Change layout",
@@ -192,192 +209,7 @@ struct TextEntryView: View {
     }
 
     private var borderColor: Color {
-        viewModel.hasUnsupportedCharacters ? Color.clickStickDestructive : Color.clickStickBlue
-    }
-
-    private var unsupportedSheetDetents: Set<PresentationDetent> {
-        sheetDetents(for: unsupportedSheetHeight)
-    }
-
-    private var progressSheetDetents: Set<PresentationDetent> {
-        sheetDetents(for: progressSheetHeight)
-    }
-
-    private var connectionLostSheetDetents: Set<PresentationDetent> {
-        sheetDetents(for: connectionLostSheetHeight)
-    }
-
-    private func sheetDetents(for height: CGFloat) -> Set<PresentationDetent> {
-        height > .zero ? [.height(height)] : [.medium]
-    }
-
-}
-
-private struct TextEntryWarningSheet: View {
-    let title: LocalizedStringKey
-    let message: String
-    let secondaryTitle: LocalizedStringKey
-    let secondaryAction: () -> Void
-    let primaryTitle: LocalizedStringKey
-    let primaryAction: () -> Void
-    var primaryIsDisabled = false
-
-    var body: some View {
-        VStack(spacing: Spacing.lg) {
-            Image(systemName: "exclamationmark.circle")
-                .font(.largeTitle)
-                .foregroundStyle(Color.clickStickDestructive)
-                .padding(Spacing.lg)
-                .background(Circle().fill(Color.clickStickDestructive.opacity(OpacityLevel.subtleFill)))
-                .accessibilityHidden(true)
-
-            VStack(spacing: Spacing.xs) {
-                Text(title)
-                    .font(.title.bold())
-                    .multilineTextAlignment(.center)
-
-                Text(message)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            TextEntrySheetButtonRow(
-                secondaryTitle: secondaryTitle,
-                secondaryAction: secondaryAction,
-                primaryTitle: primaryTitle,
-                primaryAction: primaryAction,
-                primaryIsDisabled: primaryIsDisabled
-            )
-        }
-        .padding(.horizontal, Spacing.xl)
-        .padding(.top, Spacing.xl)
-        .padding(.bottom, Spacing.lg)
-        .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .contain)
-    }
-}
-
-private struct TextEntryProgressSheet: View {
-    let progress: TextEntryViewModel.ProgressState?
-    let cancelAction: () -> Void
-    let dismissAction: () -> Void
-
-    var body: some View {
-        VStack(spacing: Spacing.xl) {
-            if let progress {
-                switch progress {
-                case .sending(let sent, let total):
-                    progressContent(sent: sent, total: total)
-                case .stopped(let sent, let total):
-                    progressContent(sent: sent, total: total, stopped: true)
-                case .sent:
-                    VStack(spacing: Spacing.lg) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.largeTitle)
-                            .foregroundStyle(Color.clickStickGreen)
-                            .accessibilityHidden(true)
-                        Text("Sent!")
-                            .font(.title.bold())
-                    }
-                    .padding(.vertical, Spacing.xxxl)
-                }
-            }
-        }
-        .padding(.horizontal, Spacing.xl)
-        .padding(.top, Spacing.xxxl)
-        .padding(.bottom, Spacing.lg)
-        .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .contain)
-    }
-
-    private func progressContent(sent: Int, total: Int, stopped: Bool = false) -> some View {
-        VStack(spacing: Spacing.xl) {
-            Text("Sending...")
-                .font(.title.bold())
-
-            ProgressView(value: total == 0 ? 0 : Double(sent) / Double(total))
-                .tint(Color.clickStickBlue)
-                .accessibilityLabel(String(localized: "Sending text", comment: "Send progress accessibility"))
-
-            Text("\(sent) of \(total) characters")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-
-            if stopped {
-                Text("Stopped at \(sent) of \(total). Some text may have appeared on the host device.")
-                    .font(.body)
-                    .foregroundStyle(Color.clickStickDestructive)
-                    .padding(Spacing.md)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .background(
-                        RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous)
-                            .fill(Color.clickStickDestructive.opacity(OpacityLevel.faintFill))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous)
-                            .stroke(Color.clickStickDestructive.opacity(OpacityLevel.subtleBorder), lineWidth: BorderWidth.thin)
-                    )
-            }
-
-            Button(stopped ? "Close" : "Cancel") {
-                if stopped {
-                    dismissAction()
-                } else {
-                    cancelAction()
-                }
-            }
-            .buttonStyle(.secondary(tint: .primary))
-        }
-    }
-}
-
-private struct TextEntrySheetButtonRow: View {
-    let secondaryTitle: LocalizedStringKey
-    let secondaryAction: () -> Void
-    let primaryTitle: LocalizedStringKey
-    let primaryAction: () -> Void
-    var primaryIsDisabled = false
-
-    var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: Spacing.md) {
-                Button(secondaryTitle, action: secondaryAction)
-                    .buttonStyle(.secondary(tint: .primary))
-
-                Button(primaryTitle, action: primaryAction)
-                    .buttonStyle(.primary)
-                    .disabled(primaryIsDisabled)
-            }
-
-            VStack(spacing: Spacing.sm) {
-                Button(primaryTitle, action: primaryAction)
-                    .buttonStyle(.primary)
-                    .disabled(primaryIsDisabled)
-
-                Button(secondaryTitle, action: secondaryAction)
-                    .buttonStyle(.secondary(tint: .primary))
-            }
-        }
-    }
-}
-
-private func sheetDetents(for height: CGFloat) -> Set<PresentationDetent> {
-    height > .zero ? [.height(height)] : [.medium]
-}
-
-private extension View {
-    func measureHeight(_ height: Binding<CGFloat>) -> some View {
-        background {
-            GeometryReader { proxy in
-                Color.clear
-                    .onChange(of: proxy.size.height, initial: true) { _, newHeight in
-                        height.wrappedValue = newHeight
-                    }
-            }
-        }
+        viewModel.hasUnsupportedCharacters ? Color(.systemRed) : Color.accentBlue
     }
 }
 
@@ -481,9 +313,9 @@ private struct PreviewTextEntryShell: View {
                     .buttonBorderShape(.circle)
                 }
             }
-            .padding(.horizontal, Spacing.xl)
-            .padding(.top, Spacing.lg)
-            .padding(.bottom, Spacing.xl)
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .padding(.bottom, 24)
 
             TabView(selection: .constant(DeviceFeatureTab.textEntry)) {
                 TextEntryView(viewModel: viewModel)
@@ -504,17 +336,17 @@ private struct PreviewTextEntryShell: View {
                     }
                     .tag(DeviceFeatureTab.mouse)
             }
-            .tint(.clickStickBlue)
-            .toolbarBackground(Color.clickStickGroupedBackground, for: .tabBar)
+            .tint(.accentBlue)
+            .toolbarBackground(Color.groupedBackground, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
         }
-        .clickStickScreenBackground()
+        .background(Color.groupedBackground.ignoresSafeArea())
         .sheet(isPresented: $isPreviewSheetPresented) {
             if let previewSheet {
                 previewSheetContent(previewSheet)
                     .measureHeight($previewSheetHeight)
                     .presentationDetents(sheetDetents(for: previewSheetHeight))
-                    .presentationBackground(Color.clickStickElevatedBackground)
+                    .presentationBackground(Color(.systemBackground))
             }
         }
     }

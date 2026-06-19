@@ -1,7 +1,6 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import DesignSystem
 import SwiftUI
 import UIKit
 
@@ -39,15 +38,11 @@ struct MainView: View {
                 if let device = viewModel.device(for: deviceID) {
                     DeviceDetailView(device: device)
                 } else {
-                    NoDeviceSelectedView(
-                        isScanning: viewModel.isScanning,
-                        hasDevices: !viewModel.devices.isEmpty,
-                        onStartScanning: { viewModel.startScanning() }
-                    )
+                    NoDeviceSelectedView()
                 }
             }
         }
-        .tint(.clickStickBlue)
+        .tint(.accentBlue)
         .sheet(item: Binding(
             get: { router.presentedSheet },
             set: { router.presentedSheet = $0 }

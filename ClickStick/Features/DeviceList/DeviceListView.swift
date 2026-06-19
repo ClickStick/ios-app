@@ -46,7 +46,7 @@ struct DeviceListView: View {
                     HeaderIconButton(
                         systemName: "gearshape",
                         foreground: .primary,
-                        background: .mutedFill,
+                        background: .clear,
                         accessibilityLabel: "Settings"
                     ) {
                         isShowingSettings = true
@@ -110,7 +110,7 @@ struct DeviceListView: View {
                 router.showDeviceSetup(for: device)
             }
         }
-        .onChange(of: deviceConnectionSnapshots) { _, _ in
+        .onChange(of: deviceUIStateSnapshots) { _, _ in
             resolvePendingConnectedDeviceSelection()
         }
         .onChange(of: startupAction, initial: true) { _, action in
@@ -170,17 +170,9 @@ struct DeviceListView: View {
         }
     }
 
-    private var deviceConnectionSnapshots: [DeviceConnectionSnapshot] {
-        viewModel.devices.map { device in
-            DeviceConnectionSnapshot(
-                id: device.id,
-                isConnected: device.isConnected,
-                isConnecting: device.isConnecting,
-                needsAuthentication: device.needsAuthentication,
-                isCompromised: device.isCompromised,
-                lastErrorTimestamp: device.lastErrorTimestamp
-            )
-        }
+    /// Snapshot used to trigger `onChange` when any device's UI-relevant state changes.
+    private var deviceUIStateSnapshots: [DeviceUIStateSnapshot] {
+        viewModel.devices.map { DeviceUIStateSnapshot(device: $0) }
     }
 
     // MARK: - Empty State
@@ -315,14 +307,8 @@ struct DeviceListView: View {
         }
     }
 
-    /// A compromised device opens the warning sheet instead of connecting,
-    /// regardless of which status section it appears in.
     private func onSelect(_ device: DeviceModel) {
-        if device.isCompromised {
-            compromisedDevice = device
-        } else {
-            handleDeviceTap(device)
-        }
+        handleDeviceTap(device)
     }
 
     // MARK: - Add Device Flow
@@ -366,27 +352,24 @@ struct DeviceListView: View {
     }
 
     private func handleDeviceTap(_ device: DeviceModel) {
-        switch device.connectionState {
-        case .connectedAuthorized:
+        switch device.uiState {
+        case .connected:
             router.selectDevice(device)
-        case .disconnected:
+        case .available, .weakSignal:
             viewModel.connectDevice(device)
-            if device.isKnownDevice {
-                // Wait for the asynchronous connection-state observer update before
-                // resolving. Immediately checking here can still see `.disconnected`
-                // and incorrectly clear the pending navigation.
-                pendingConnectedDeviceID = device.id
-            }
-        case .serviceDiscovery:
+            // Wait for asynchronous state update before navigating.
             pendingConnectedDeviceID = device.id
-        case .connectedUnauthorized:
-            if device.needsAuthentication {
-                pendingConnectedDeviceID = nil
-                viewModel.prepareDeviceForSetup(device)
-                router.showDeviceSetup(for: device)
-            } else {
-                pendingConnectedDeviceID = device.id
-            }
+        case .newDevice:
+            viewModel.connectDevice(device)
+        case .connecting, .authorizing:
+            pendingConnectedDeviceID = device.id
+        case .setupRequired:
+            viewModel.prepareDeviceForSetup(device)
+            router.showDeviceSetup(for: device)
+        case .compromised:
+            compromisedDevice = device
+        case .outOfRange, .failed:
+            break
         }
     }
 
@@ -398,14 +381,14 @@ struct DeviceListView: View {
             return
         }
 
-        if device.isConnected {
+        switch device.uiState {
+        case .connected:
             router.selectDevice(device)
             self.pendingConnectedDeviceID = nil
-        } else if device.connectionState == .disconnected
-            || device.needsAuthentication
-            || device.isCompromised
-            || device.lastError != nil {
-            self.pendingConnectedDeviceID = nil
+        case .connecting, .authorizing:
+            break // still in progress — keep waiting
+        default:
+            self.pendingConnectedDeviceID = nil // terminal state, give up
         }
     }
 
@@ -438,6 +421,7 @@ struct DeviceListView: View {
         } label: {
             Label(String(localized: "Forget Device"), systemImage: "trash")
         }
+        .tint(.red)
         .disabled(!device.isKnownDevice || device.isDemoDevice)
 
         if device.isConnected {
@@ -450,13 +434,16 @@ struct DeviceListView: View {
     }
 }
 
-private struct DeviceConnectionSnapshot: Equatable {
+private struct DeviceUIStateSnapshot: Equatable {
     let id: UUID
-    let isConnected: Bool
-    let isConnecting: Bool
-    let needsAuthentication: Bool
-    let isCompromised: Bool
-    let lastErrorTimestamp: Date?
+    let uiState: DeviceUIState
+    let lastErrorTimestamp: Date? // separate field so distinct errors still fire onChange
+
+    init(device: DeviceModel) {
+        self.id = device.id
+        self.uiState = device.uiState
+        self.lastErrorTimestamp = device.lastErrorTimestamp
+    }
 }
 
 private struct HeaderIconButton: View {

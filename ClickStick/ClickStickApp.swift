@@ -39,11 +39,7 @@ struct ClickStickApp: App {
                     deepLinkHandler.handle(url: url)
                 }
                 .sheet(item: $deepLinkHandler.pendingTypeRequest) { request in
-                    DeepLinkTypeSheet(
-                        request: request,
-                        service: service,
-                        deepLinkHandler: deepLinkHandler
-                    )
+                    DeepLinkTypeSheet()
                 }
                 .alert(
                     "Deep Link Error",

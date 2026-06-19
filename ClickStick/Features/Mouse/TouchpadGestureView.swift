@@ -1,7 +1,6 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import DesignSystem
 import SwiftUI
 import UIKit
 
@@ -97,17 +96,18 @@ class TouchpadView: UIView {
         layer.insertSublayer(gradientLayer, at: 0)
         self.gradientLayer = gradientLayer
 
-        layer.cornerRadius = CornerRadius.modal
-        layer.borderWidth = BorderWidth.thin
+        backgroundColor = .clear
+        layer.cornerRadius = 34
+        layer.borderWidth = 1
         layer.borderColor = UIColor.touchpadStroke.cgColor
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOffset = CGSize(width: .zero, height: BorderWidth.thick)
-        layer.shadowOpacity = Float(OpacityLevel.subtleFill)
-        layer.shadowRadius = Spacing.sm
+        layer.shadowOffset = CGSize(width: .zero, height: 8)
+        layer.shadowOpacity = 0.06
+        layer.shadowRadius = 18
 
         innerShadowLayer.fillColor = UIColor.clear.cgColor
-        innerShadowLayer.strokeColor = UIColor.white.withAlphaComponent(OpacityLevel.disabled).cgColor
-        innerShadowLayer.lineWidth = BorderWidth.thick
+        innerShadowLayer.strokeColor = UIColor.white.withAlphaComponent(0.72).cgColor
+        innerShadowLayer.lineWidth = 2
         layer.addSublayer(innerShadowLayer)
 
         isMultipleTouchEnabled = true
@@ -137,7 +137,7 @@ class TouchpadView: UIView {
 
     private func updateColors() {
         layer.borderColor = UIColor.touchpadStroke.cgColor
-        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(OpacityLevel.border).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.3).cgColor
         gradientLayer?.colors = touchpadGradientColors
     }
 
@@ -151,19 +151,19 @@ class TouchpadView: UIView {
     private func updateInnerShadowPath() {
         innerShadowLayer.frame = bounds
         innerShadowLayer.path = UIBezierPath(
-            roundedRect: bounds.insetBy(dx: BorderWidth.regular, dy: BorderWidth.regular),
-            cornerRadius: max(.zero, layer.cornerRadius - BorderWidth.regular)
+            roundedRect: bounds.insetBy(dx: 1.5, dy: 1.5),
+            cornerRadius: max(.zero, layer.cornerRadius - 1.5)
         ).cgPath
     }
 
     private var accentBlue: UIColor {
-        UIColor(Color.clickStickBlue)
+        UIColor(Color.accentBlue)
     }
 
     private func setupCrosshair() {
-        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(OpacityLevel.border).cgColor
+        crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.3).cgColor
         crosshairLayer.fillColor = UIColor.clear.cgColor
-        crosshairLayer.lineWidth = BorderWidth.thin
+        crosshairLayer.lineWidth = 1
         crosshairLayer.opacity = 0
         layer.addSublayer(crosshairLayer)
     }
@@ -215,7 +215,7 @@ class TouchpadView: UIView {
         let fadeOut = CABasicAnimation(keyPath: "opacity")
         fadeOut.fromValue = 1
         fadeOut.toValue = 0
-        fadeOut.duration = Motion.regular
+        fadeOut.duration = 0.2
         crosshairLayer.add(fadeOut, forKey: "fadeOut")
     }
 
@@ -341,6 +341,32 @@ class TouchpadView: UIView {
     private func clampToInt8(_ value: CGFloat) -> Int8 {
         let clamped = max(-127, min(127, Int(value)))
         return Int8(clamped)
+    }
+}
+
+extension UIColor {
+    static let touchpadSurfaceFill = UIColor { traitCollection in
+        if traitCollection.userInterfaceStyle == .dark {
+            UIColor(red: 28 / 255, green: 28 / 255, blue: 30 / 255, alpha: 1)
+        } else {
+            UIColor(red: 244 / 255, green: 246 / 255, blue: 250 / 255, alpha: 1)
+        }
+    }
+
+    static let touchpadButtonFill = UIColor { traitCollection in
+        if traitCollection.userInterfaceStyle == .dark {
+            UIColor(red: 36 / 255, green: 36 / 255, blue: 38 / 255, alpha: 1)
+        } else {
+            UIColor(red: 247 / 255, green: 248 / 255, blue: 251 / 255, alpha: 1)
+        }
+    }
+
+    static let touchpadStroke = UIColor { traitCollection in
+        if traitCollection.userInterfaceStyle == .dark {
+            UIColor.white.withAlphaComponent(0.16)
+        } else {
+            UIColor(red: 204 / 255, green: 214 / 255, blue: 224 / 255, alpha: 1)
+        }
     }
 }
 

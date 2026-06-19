@@ -3,9 +3,7 @@
 
 import SwiftUI
 
-/// Signal-strength bars for a device row. App-local replacement for the
-/// DesignSystem `SignalStrengthView` (still used by the not-yet-migrated
-/// add-device flow), hence the distinct name.
+/// Signal-strength bars for a device row.
 struct SignalBarsView: View {
     private enum Metric {
         static let barWidth: CGFloat = 3

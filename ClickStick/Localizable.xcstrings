@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    ", %@" : {
+    "" : {
 
     },
     "%@ can't be typed with %@. They will be skipped." : {
@@ -29,9 +29,6 @@
     "%@ may have been modified while unattended. Connecting could expose your data." : {
 
     },
-    "%@ wants to type:" : {
-
-    },
     "%@, %@" : {
       "localizations" : {
         "en" : {
@@ -42,14 +39,31 @@
         }
       }
     },
+    "%@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@%2$@"
+          }
+        }
+      }
+    },
     "%lld characters" : {
       "comment" : "Text field character count"
     },
-    "%lld characters (hidden)" : {
-
-    },
     "%lld devices found" : {
       "comment" : "Discovered device count"
+    },
+    "%lld of %lld bars" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld bars"
+          }
+        }
+      }
     },
     "%lld of %lld characters" : {
       "localizations" : {
@@ -80,7 +94,7 @@
       "comment" : "Accessibility label"
     },
     "Authorizing..." : {
-      "comment" : "Device status"
+      "comment" : "Device row status\nDevice status"
     },
     "Auto-select last device" : {
 
@@ -133,20 +147,11 @@
     "Connect automatically on launch" : {
 
     },
-    "Connect Device" : {
-
-    },
-    "Connect to a device first" : {
-
-    },
     "Connect to device" : {
       "comment" : "Accessibility label\nAccessibility label for connect button"
     },
     "Connected" : {
       "comment" : "Device row status\nDevice status"
-    },
-    "Connecting" : {
-      "comment" : "Connection status"
     },
     "Connecting..." : {
       "comment" : "Device row status\nDevice status"
@@ -163,17 +168,23 @@
     "Could not authenticate this device.\nMake sure you scanned the correct QR\ncode from your ClickStick." : {
 
     },
+    "Could not authenticate this device. Check the key and try again." : {
+      "comment" : "Manual authentication failure message"
+    },
     "Could not decode text" : {
       "comment" : "Deep link error"
+    },
+    "Could not save device settings. Try again." : {
+      "comment" : "Device setup save failure message"
+    },
+    "Create snippet" : {
+      "comment" : "Create snippet button accessibility"
     },
     "Deep Link Error" : {
 
     },
     "Demo device" : {
       "comment" : "Device type"
-    },
-    "Device" : {
-
     },
     "Device compromised" : {
 
@@ -190,20 +201,14 @@
     "Device not connected" : {
       "comment" : "Deep link error"
     },
+    "Device options" : {
+      "comment" : "Accessibility label for device row menu button"
+    },
     "Devices" : {
 
     },
     "Disconnect" : {
       "comment" : "Button title"
-    },
-    "Dismiss" : {
-      "comment" : "Button title"
-    },
-    "Done" : {
-      "comment" : "Dismiss keyboard button"
-    },
-    "Double tap to type the text" : {
-
     },
     "Double-tap to authenticate" : {
       "comment" : "Accessibility hint"
@@ -274,9 +279,6 @@
     "Get your ClickStick at clickstick.io" : {
 
     },
-    "Getting Started" : {
-      "comment" : "Getting started button"
-    },
     "Hello World" : {
       "comment" : "Text preset name"
     },
@@ -284,12 +286,6 @@
 
     },
     "Help article" : {
-
-    },
-    "Hide" : {
-
-    },
-    "Hide text" : {
 
     },
     "How does ClickStick work?" : {
@@ -310,14 +306,8 @@
     "It's displayed on your ClickStick screen" : {
 
     },
-    "Just looking around?" : {
-      "comment" : "Demo mode prompt"
-    },
     "Keep screen on" : {
 
-    },
-    "Keyboard Layout" : {
-      "comment" : "Picker label"
     },
     "Left click" : {
 
@@ -330,9 +320,6 @@
     },
     "Linux" : {
       "comment" : "Target OS"
-    },
-    "Looking for nearby ClickSticks in the device list." : {
-
     },
     "Looking for nearby devices..." : {
 
@@ -355,20 +342,20 @@
     "No device selected" : {
       "comment" : "Device status"
     },
-    "No Device Selected" : {
-
-    },
     "No devices found" : {
 
     },
     "No devices found. Make sure your ClickStick is plugged in and Bluetooth is on" : {
 
     },
-    "No paired devices found" : {
+    "No snippets yet" : {
 
     },
     "Not connected" : {
       "comment" : "Device status"
+    },
+    "Not implemented" : {
+
     },
     "Not in range" : {
 
@@ -389,9 +376,6 @@
     "Open Settings" : {
       "comment" : "Button to open iOS Settings app"
     },
-    "Open the ClickStick app to pair a device first." : {
-
-    },
     "Opens camera to scan the QR code from your ClickStick" : {
       "comment" : "Accessibility hint"
     },
@@ -400,9 +384,6 @@
     },
     "Out of range" : {
       "comment" : "Device row status"
-    },
-    "Plug in your ClickStick to get started." : {
-      "comment" : "Welcome announcement body"
     },
     "Point the camera at the QR code on your ClickStick's screen" : {
       "comment" : "Accessibility hint"
@@ -419,9 +400,6 @@
     "Remove device" : {
 
     },
-    "Request from %@" : {
-
-    },
     "Right click" : {
 
     },
@@ -435,9 +413,6 @@
       "comment" : "Device type"
     },
     "Scan again" : {
-
-    },
-    "Scan for a ClickStick from the device list to get started." : {
 
     },
     "Scan for devices" : {
@@ -458,14 +433,11 @@
     "Security warning" : {
       "comment" : "Compromised device status"
     },
-    "Select a ClickStick from the device list." : {
-
-    },
-    "Select a device from the sidebar" : {
-      "comment" : "Accessibility hint"
-    },
     "Select your device carefully. Connect only to a device you recognize and trust." : {
 
+    },
+    "Selected" : {
+      "comment" : "Selected tab accessibility value"
     },
     "Send anyway" : {
 
@@ -500,16 +472,13 @@
     "Setup required" : {
       "comment" : "Device row status"
     },
-    "Show" : {
-
+    "Shows actions for this device" : {
+      "comment" : "Accessibility hint for device row menu button"
     },
-    "Show text" : {
+    "Signal strength" : {
 
     },
     "Signal unknown" : {
-
-    },
-    "Snippet management will be added later." : {
 
     },
     "Snippets" : {
@@ -534,6 +503,9 @@
         }
       }
     },
+    "Tap + to create your first snippet" : {
+
+    },
     "Tap Scan again to search for devices" : {
 
     },
@@ -542,9 +514,6 @@
     },
     "Tap to set up" : {
       "comment" : "Device row status"
-    },
-    "Target OS" : {
-
     },
     "Terms of Use" : {
 
@@ -564,9 +533,6 @@
     "Text to send" : {
       "comment" : "Text editor accessibility label"
     },
-    "Text to type" : {
-      "comment" : "Text entry section header"
-    },
     "This will remove the saved authentication key. You'll need to set up the device again to reconnect." : {
 
     },
@@ -585,9 +551,6 @@
     "Try again" : {
 
     },
-    "Try in Demo Mode" : {
-      "comment" : "Demo mode button"
-    },
     "Try the app without hardware." : {
 
     },
@@ -600,29 +563,26 @@
     "Type long passwords and text instantly. Your phone becomes a keyboard for any device." : {
 
     },
-    "Type Now" : {
-
-    },
     "Type or paste text to send..." : {
-
-    },
-    "Type Text" : {
 
     },
     "Unsupported characters" : {
 
     },
-    "Use Scan for devices to search for nearby ClickSticks" : {
-
-    },
     "User cancelled" : {
       "comment" : "Deep link error"
+    },
+    "Verifying device" : {
+
+    },
+    "Verifying…" : {
+
     },
     "Version app %@" : {
 
     },
-    "Welcome!" : {
-      "comment" : "Welcome announcement title"
+    "Weak signal" : {
+      "comment" : "Device row status"
     },
     "What is ClickStick" : {
 

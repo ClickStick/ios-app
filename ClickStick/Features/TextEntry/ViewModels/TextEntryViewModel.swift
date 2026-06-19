@@ -187,7 +187,7 @@ final class TextEntryViewModel {
         if showsSheet {
             progress = .sent
             Task { [weak self] in
-                try? await Task.sleep(for: .seconds(1.2))
+                try? await Task.sleep(for: .seconds(1))
                 guard let self, case .sent = self.progress else { return }
                 self.progress = nil
             }
@@ -199,7 +199,7 @@ final class TextEntryViewModel {
     private func flashSentToast() {
         showSentToast = true
         Task { [weak self] in
-            try? await Task.sleep(for: .seconds(2))
+            try? await Task.sleep(for: .seconds(1))
             self?.showSentToast = false
         }
     }

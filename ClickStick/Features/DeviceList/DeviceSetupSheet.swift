@@ -5,30 +5,28 @@ import ClickStickKit
 import SwiftUI
 import VisionKit
 
-private enum AuthAttemptSource {
-    case scanner
-    case manual
-}
-
 struct DeviceSetupSheet: View {
     let device: DeviceModel
     let onComplete: (CSAppAuthKey, String?) -> Bool
-    /// Called when a key that was saved during setup fails to authenticate, so the
-    /// caller can roll back the unverified settings.
     var onAuthenticationFailure: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var authKeyText: String = ""
-    @State private var showingScanner: Bool = false
-    @State private var validationError: String?
-    @State private var didRequestInitialScan = false
+    @State private var viewModel: DeviceSetupViewModel
 
-    /// True while a saved key is connecting and we're waiting to learn whether
-    /// authentication succeeded before keeping the settings or dismissing setup.
-    @State private var awaitingAuth = false
-    @State private var authAttemptSource: AuthAttemptSource?
-    @State private var scannerShowsFailure = false
+    init(
+        device: DeviceModel,
+        onComplete: @escaping (CSAppAuthKey, String?) -> Bool,
+        onAuthenticationFailure: @escaping () -> Void = {}
+    ) {
+        self.device = device
+        self.onComplete = onComplete
+        self.onAuthenticationFailure = onAuthenticationFailure
+        _viewModel = State(initialValue: DeviceSetupViewModel(
+            onComplete: onComplete,
+            onAuthenticationFailure: onAuthenticationFailure
+        ))
+    }
 
     private var isCameraScanningAvailable: Bool {
 #if targetEnvironment(macCatalyst)
@@ -72,7 +70,7 @@ struct DeviceSetupSheet: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .disabled(awaitingAuth)
+                    .disabled(viewModel.isCancelDisabled)
                     .accessibilityLabel("Cancel device setup")
                 }
             }
@@ -81,100 +79,37 @@ struct DeviceSetupSheet: View {
         .presentationDragIndicator(.hidden)
         .presentationBackground(Color.groupedBackground)
 #if !targetEnvironment(macCatalyst)
-        .sheet(isPresented: $showingScanner) {
+        .sheet(isPresented: $viewModel.showingScanner, onDismiss: viewModel.scannerDismissed) {
             QRScannerSheet(
-                onScan: handleScannedKey,
+                onScan: viewModel.handleScannedKey,
                 onManualEntry: {
-                    showingScanner = false
+                    viewModel.showingScanner = false
                 },
-                isVerifying: $awaitingAuth,
-                showsSetupFailure: $scannerShowsFailure
+                isVerifying: Binding(
+                    get: { viewModel.isVerifyingKey },
+                    set: { _ in }
+                ),
+                showsSetupFailure: $viewModel.scannerShowsFailure
             )
         }
 #endif
         .onChange(of: device.connectionState) { _, state in
-            guard awaitingAuth else { return }
-            switch state {
-            case .connectedAuthorized:
-                // Authentication succeeded — close the scanner and the setup sheet.
-                awaitingAuth = false
-                authAttemptSource = nil
-                showingScanner = false
-                dismiss()
-            case .disconnected:
-                reportAuthFailure()
-            default:
-                break
-            }
+            viewModel.deviceConnectionStateChanged(to: state)
         }
-        .onChange(of: device.needsAuthentication) { _, needsAuthentication in
-            // The device rejected the saved key and is asking for credentials again.
-            if awaitingAuth, needsAuthentication {
-                reportAuthFailure()
-            }
+        .onChange(of: device.needsAuthentication) { _, needsAuth in
+            viewModel.deviceNeedsAuthenticationChanged(needsAuth)
         }
         .onChange(of: device.lastErrorTimestamp) { _, _ in
-            if awaitingAuth, device.lastError != nil {
-                reportAuthFailure()
+            if device.lastError != nil {
+                viewModel.deviceFailedWithError()
             }
         }
-        .onChange(of: showingScanner) { _, isShowing in
-            guard !isShowing else { return }
-            scannerShowsFailure = false
-
-            // If the scanner is dismissed while a scanned key is being verified, roll
-            // back the unverified key instead of leaving it persisted.
-            if awaitingAuth, authAttemptSource == .scanner {
-                reportAuthFailure()
-            }
+        .onChange(of: viewModel.shouldDismiss) { _, should in
+            if should { dismiss() }
         }
-        .interactiveDismissDisabled(awaitingAuth)
+        .interactiveDismissDisabled(viewModel.isCancelDisabled)
         .onAppear {
-            guard !didRequestInitialScan else { return }
-            didRequestInitialScan = true
-            if shouldAutoScan {
-                showingScanner = true
-            }
-        }
-    }
-
-    /// Handles a key scanned from the QR scanner: validates it, starts connecting, and
-    /// keeps the scanner open so the auth outcome can surface the failure panel inline.
-    private func handleScannedKey(_ scannedKey: String) {
-        authKeyText = scannedKey
-        validationError = nil
-
-        guard let authKey = CSAppAuthKey.fromHexString(scannedKey) else {
-            scannerShowsFailure = true
-            return
-        }
-
-        if onComplete(authKey, nil) {
-            authAttemptSource = .scanner
-            awaitingAuth = true
-        } else {
-            scannerShowsFailure = true
-        }
-    }
-
-    private func reportAuthFailure() {
-        let source = authAttemptSource
-        awaitingAuth = false
-        authAttemptSource = nil
-
-        // Roll back the key we persisted before authentication so it isn't left behind.
-        onAuthenticationFailure()
-
-        switch source {
-        case .scanner:
-            scannerShowsFailure = true
-        case .manual:
-            validationError = String(
-                localized: "Could not authenticate this device. Check the key and try again.",
-                comment: "Manual authentication failure message"
-            )
-        case nil:
-            break
+            viewModel.onAppear(shouldAutoScan: shouldAutoScan)
         }
     }
 
@@ -201,7 +136,7 @@ struct DeviceSetupSheet: View {
         VStack(alignment: .leading, spacing: 12) {
             setupSection(title: "Authentication Key") {
                 HStack(spacing: 12) {
-                    TextField("Enter 32-character hex key", text: $authKeyText)
+                    TextField("Enter 32-character hex key", text: $viewModel.authKeyText)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .textContentType(.oneTimeCode)
@@ -210,13 +145,13 @@ struct DeviceSetupSheet: View {
                         .foregroundStyle(.primary)
                         .accessibilityLabel("Authentication key input")
                         .accessibilityHint("Enter the 32-character hex key from your ClickStick")
-                        .onChange(of: authKeyText) { _, _ in
-                            validationError = nil
+                        .onChange(of: viewModel.authKeyText) { _, _ in
+                            viewModel.validationError = nil
                         }
 
                     if canShowScanner {
                         Button {
-                            showingScanner = true
+                            viewModel.showingScanner = true
                         } label: {
                             Image(systemName: "qrcode.viewfinder")
                                 .font(.system(size: 18, weight: .medium))
@@ -233,7 +168,7 @@ struct DeviceSetupSheet: View {
                 .frame(minHeight: 60)
             }
 
-            if let validationError {
+            if let validationError = viewModel.validationError {
                 Text(validationError)
                     .font(.footnote)
                     .foregroundStyle(Color(.systemRed))
@@ -267,9 +202,9 @@ struct DeviceSetupSheet: View {
 
     private var connectButton: some View {
         Button {
-            submitAuthKey()
+            viewModel.submitAuthKey()
         } label: {
-            if awaitingAuth, authAttemptSource == .manual {
+            if viewModel.showsManualVerifyingSpinner {
                 HStack(spacing: 8) {
                     ProgressView()
                         .tint(.white)
@@ -281,41 +216,19 @@ struct DeviceSetupSheet: View {
             }
         }
         .buttonStyle(AppPrimaryButtonStyle())
-        .disabled(!isValidAuthKey || awaitingAuth)
+        .disabled(!viewModel.isValidAuthKey || viewModel.isCancelDisabled)
         .padding(.horizontal, 20)
         .padding(.bottom, 12)
-        .accessibilityLabel(awaitingAuth && authAttemptSource == .manual ? "Verifying device" : "Connect to device")
-        .accessibilityHint(isValidAuthKey
+        .accessibilityLabel(viewModel.showsManualVerifyingSpinner ? "Verifying device" : "Connect to device")
+        .accessibilityHint(viewModel.isValidAuthKey
             ? String(localized: "Double-tap to connect", comment: "Accessibility hint")
             : String(localized: "Enter a valid authentication key first", comment: "Accessibility hint"))
     }
 
-    // MARK: - Validation
+    // MARK: - Helpers
 
     private var abbreviatedDeviceID: String {
         String(device.id.uuidString.prefix(8)) + "..."
-    }
-
-    private var isValidAuthKey: Bool {
-        CSAppAuthKey.fromHexString(authKeyText) != nil
-    }
-
-    private func submitAuthKey() {
-        guard let authKey = CSAppAuthKey.fromHexString(authKeyText) else {
-            validationError = String(localized: "Invalid key format. Please enter a 32-character hex string.", comment: "Error message")
-            return
-        }
-
-        validationError = nil
-        if onComplete(authKey, nil) {
-            authAttemptSource = .manual
-            awaitingAuth = true
-        } else {
-            validationError = String(
-                localized: "Could not save device settings. Try again.",
-                comment: "Device setup save failure message"
-            )
-        }
     }
 }
 

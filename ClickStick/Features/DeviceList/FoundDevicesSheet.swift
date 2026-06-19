@@ -1,53 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
-import ClickStickKit
 import SwiftUI
-
-// MARK: - Add Device (scanning) modal
-
-/// Modal presented from the Devices screen ("Scan for devices" / "+").
-/// Shows the looking / paused scanning states with Cancel + "Add Device" chrome.
-/// When a device is discovered, the host swaps this sheet for `FoundDevicesSheet`.
-struct AddDeviceScanSheet: View {
-    let viewModel: DeviceListViewModel
-    let onCancel: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            DiscoveryStateBlock(isScanning: viewModel.isScanning)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.groupedBackground)
-                .safeAreaInset(edge: .bottom) {
-                    bottomButton
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 12)
-                }
-                .navigationTitle("Add Device")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel", action: onCancel)
-                            .accessibilityLabel("Cancel add device")
-                    }
-                }
-        }
-        .presentationDragIndicator(.hidden)
-    }
-
-    @ViewBuilder
-    private var bottomButton: some View {
-        if viewModel.isScanning {
-            Button("Stop") { viewModel.stopScanning() }
-                .buttonStyle(AppSecondaryButtonStyle())
-        } else {
-            Button("Scan again") { viewModel.startScanning() }
-                .buttonStyle(AppPrimaryButtonStyle())
-        }
-    }
-}
-
-// MARK: - Found devices modal
 
 /// Modal shown once devices are discovered: a list to pick from, with a Stop button.
 /// Presented over the dimmed Devices list.
@@ -126,82 +80,7 @@ struct FoundDevicesSheet: View {
     }
 }
 
-// MARK: - Shared discovery views
-
-/// The centered radar/text block used by the scanning modal in both
-/// looking and paused states.
-private struct DiscoveryStateBlock: View {
-    let isScanning: Bool
-
-    var body: some View {
-        VStack(spacing: 40) {
-            animation
-
-            VStack(spacing: 8) {
-                Text(title)
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text(subtitle)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: 300)
-        }
-        .padding(.horizontal, 20)
-        .accessibilityElement(children: .combine)
-    }
-
-    @ViewBuilder private var animation: some View {
-        if isScanning {
-            BluetoothDiscoveryAnimationView(size: 184)
-        } else {
-            ScanRadarView(showsSweep: false, tint: .accentBlue, size: 184)
-        }
-    }
-
-    private var title: LocalizedStringKey {
-        isScanning ? "Looking for nearby devices..." : "Scanning paused"
-    }
-
-    private var subtitle: LocalizedStringKey {
-        isScanning
-            ? "Make sure your ClickStick is plugged in and Bluetooth is on"
-            : "Tap Scan again to search for devices"
-    }
-}
-
-struct DiscoveryDeviceRowModel: Identifiable {
-    let id: UUID
-    let name: String
-    let rssi: Int
-    let device: DeviceModel?
-
-    init(device: DeviceModel) {
-        self.id = device.id
-        self.name = device.displayName
-        self.rssi = device.rssi
-        self.device = device
-    }
-
-    init(id: UUID = UUID(), name: String, rssi: Int) {
-        self.id = id
-        self.name = name
-        self.rssi = rssi
-        self.device = nil
-    }
-
-    #if DEBUG
-    static let figmaPreviewRows: [Self] = [
-        .init(name: "ClickStick 9F8C", rssi: -42),
-        .init(name: "ClickStick 8F8C", rssi: -71),
-        .init(name: "ClickStick A1B2", rssi: -88)
-    ]
-    #endif
-}
+// MARK: - Device row
 
 private struct DiscoveryDeviceRow: View {
     let row: DiscoveryDeviceRowModel
@@ -250,14 +129,7 @@ private struct DiscoveryDeviceRow: View {
     }
 }
 
-// MARK: - Previews
-
-#Preview("Add Device · Scanning") {
-    AddDeviceScanSheet(
-        viewModel: DeviceListViewModel(service: ClickStickService(), urlOpener: URLOpener()),
-        onCancel: {}
-    )
-}
+// MARK: - Preview
 
 #Preview("Found Devices") {
     FoundDevicesSheet(

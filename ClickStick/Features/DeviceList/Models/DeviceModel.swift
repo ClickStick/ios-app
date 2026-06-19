@@ -19,9 +19,62 @@ protocol TextSendingDevice: AnyObject {
     ) async throws
 }
 
+protocol MouseControllingDevice: AnyObject {
+    var isConnected: Bool { get }
+    func sendMouseMove(dx: Int8, dy: Int8, completion: CSCommandCompletion?)
+    func sendMouseClick(button: CSMouseButton, completion: CSCommandCompletion?)
+    func sendMouseScroll(vertical: Int8, horizontal: Int8, completion: CSCommandCompletion?)
+}
+
+/// The UI-facing state of a device, derived from the combination of connection state,
+/// authentication status, error history, and signal properties.
+enum DeviceUIState {
+    /// Fully connected and ready for commands.
+    case connected
+    /// BLE link established, session key being verified.
+    case authorizing
+    /// Connected but device is requesting new authentication credentials.
+    case setupRequired
+    /// BLE connection established, discovering services.
+    case connecting
+    /// Disconnected, advertising at normal signal strength, paired/known device.
+    case available
+    /// Disconnected, advertising at normal signal strength, new/unpaired device.
+    case newDevice
+    /// Disconnected, advertising but with weak signal (RSSI ≤ -85 dBm).
+    case weakSignal
+    /// Disconnected and no longer advertising.
+    case outOfRange
+    /// Session integrity check failed — device may have been tampered with.
+    case compromised
+    /// Connection attempt failed with an error.
+    case failed(CSError)
+}
+
+extension DeviceUIState: Equatable {
+    static func == (lhs: DeviceUIState, rhs: DeviceUIState) -> Bool {
+        switch (lhs, rhs) {
+        case (.connected, .connected),
+             (.authorizing, .authorizing),
+             (.setupRequired, .setupRequired),
+             (.connecting, .connecting),
+             (.available, .available),
+             (.newDevice, .newDevice),
+             (.weakSignal, .weakSignal),
+             (.outOfRange, .outOfRange),
+             (.compromised, .compromised):
+            return true
+        case (.failed(let l), .failed(let r)):
+            return l.localizedDescription == r.localizedDescription
+        default:
+            return false
+        }
+    }
+}
+
 /// Observable wrapper for CSDevice to bridge ClickStickKit to SwiftUI
 @Observable
-final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
+final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, MouseControllingDevice {
     private let log = Logger(subsystem: "io.clickstick", category: "DeviceModel")
 
     // MARK: - Underlying Device
@@ -66,6 +119,23 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
 
     var isConnecting: Bool {
         connectionState == .serviceDiscovery || connectionState == .connectedUnauthorized
+    }
+
+    var uiState: DeviceUIState {
+        if isCompromised { return .compromised }
+        if let error = lastError { return .failed(error) }
+        switch connectionState {
+        case .connectedAuthorized:
+            return .connected
+        case .connectedUnauthorized:
+            return needsAuthentication ? .setupRequired : .authorizing
+        case .serviceDiscovery:
+            return .connecting
+        case .disconnected:
+            guard isConnectable else { return .outOfRange }
+            if rssi > -200 && rssi <= -85 { return .weakSignal }
+            return isKnownDevice ? .available : .newDevice
+        }
     }
 
     var displayName: String {

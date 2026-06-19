@@ -3,9 +3,7 @@
 
 import SwiftUI
 
-// App-local primary button: full-width blue pill. Applied directly as
-// `.buttonStyle(AppPrimaryButtonStyle())` to avoid clashing with the
-// DesignSystem `.primary` accessor still used by non-redesigned screens.
+// App-local primary button: full-width blue pill.
 struct AppPrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 

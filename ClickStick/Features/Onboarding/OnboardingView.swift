@@ -33,14 +33,14 @@ struct OnboardingView: View {
                     OnboardingIntroPage(
                         title: "What is ClickStick",
                         subtitle: "ClickStick is a USB dongle that works as a keyboard controlled by your phone. No drivers required.",
-                        illustrationName: "OnboardingClickStick"
+                        illustration: .image("OnboardingClickStick")
                     )
                     .tag(0)
 
                     OnboardingIntroPage(
                         title: "Why ClickStick",
                         subtitle: "Type long passwords and text instantly. Your phone becomes a keyboard for any device.",
-                        illustrationName: "OnboardingUseCase"
+                        illustration: .textEntryExplainer(isPlaying: currentPage == 1)
                     )
                     .tag(1)
 
@@ -113,10 +113,15 @@ private struct OnboardingBackground: View {
     }
 }
 
+private enum OnboardingIllustration {
+    case image(String)
+    case textEntryExplainer(isPlaying: Bool)
+}
+
 private struct OnboardingIntroPage: View {
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    let illustrationName: String
+    let illustration: OnboardingIllustration
 
     var body: some View {
         VStack(spacing: 40) {
@@ -125,18 +130,27 @@ private struct OnboardingIntroPage: View {
 
             Spacer(minLength: 24)
 
-            Image(illustrationName)
-                .resizable()
-                .scaledToFit()
+            illustrationView
                 .frame(maxWidth: .infinity)
                 .layoutPriority(1)
-                .accessibilityHidden(true)
 
             Spacer(minLength: 24)
         }
         .padding(.top, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder private var illustrationView: some View {
+        switch illustration {
+        case let .image(name):
+            Image(name)
+                .resizable()
+                .scaledToFit()
+                .accessibilityHidden(true)
+        case let .textEntryExplainer(isPlaying):
+            TextEntryExplainerAnimationView(isPlaying: isPlaying)
+        }
     }
 }
 
@@ -186,7 +200,7 @@ private struct OnboardingTextBlock: View {
     var body: some View {
         VStack(spacing: 20) {
             Text(title)
-                .font(.largeTitle.weight(.bold))
+                .font(.largeTitle.bold())
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -246,8 +260,8 @@ private struct OnboardingPageIndicator: View {
     let pageCount: Int
     let currentPage: Int
 
-    @ScaledMetric(relativeTo: .body) private var dotLength: CGFloat = 8
-    @ScaledMetric(relativeTo: .body) private var activeLength: CGFloat = 24
+    @ScaledMetric(relativeTo: .body) private var dotLength: Double = 8
+    @ScaledMetric(relativeTo: .body) private var activeLength: Double = 24
 
     var body: some View {
         HStack(spacing: 12) {
@@ -299,7 +313,7 @@ private struct OnboardingModeCard: View {
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(cardBackground)
-            .overlay(cardBorder)
+            .overlay { cardBorder }
             .overlay(alignment: .topTrailing) {
                 OnboardingSelectionIndicator(isSelected: isSelected)
                     .padding(12)
@@ -329,8 +343,8 @@ private struct OnboardingModeIcon: View {
     let icon: Image
     let isSelected: Bool
 
-    @ScaledMetric(relativeTo: .body) private var iconContainerSize: CGFloat = 56
-    @ScaledMetric(relativeTo: .body) private var glyphSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .body) private var iconContainerSize: Double = 56
+    @ScaledMetric(relativeTo: .body) private var glyphSize: Double = 28
 
     var body: some View {
         RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -350,7 +364,7 @@ private struct OnboardingModeIcon: View {
 private struct OnboardingSelectionIndicator: View {
     let isSelected: Bool
 
-    @ScaledMetric(relativeTo: .body) private var indicatorSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .body) private var indicatorSize: Double = 20
 
     var body: some View {
         Circle()
@@ -371,6 +385,18 @@ private struct OnboardingSelectionIndicator: View {
 
 #Preview {
     OnboardingView(onComplete: { _ in }, onGetClickStick: {})
+}
+
+#Preview("Why ClickStick page") {
+    ZStack {
+        OnboardingBackground()
+            .ignoresSafeArea()
+        OnboardingIntroPage(
+            title: "Why ClickStick",
+            subtitle: "Type long passwords and text instantly. Your phone becomes a keyboard for any device.",
+            illustration: .textEntryExplainer(isPlaying: false)
+        )
+    }
 }
 
 #Preview("Get Started page") {

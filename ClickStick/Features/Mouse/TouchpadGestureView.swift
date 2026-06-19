@@ -58,7 +58,8 @@ class TouchpadView: UIView {
     private var scrollThresholdReached = false
     private let scrollHapticThreshold: CGFloat = 20
 
-    // Crosshair visualization
+    // Touchpad visualization
+    private let innerShadowLayer = CAShapeLayer()
     private let crosshairLayer = CAShapeLayer()
     private var crosshairPosition: CGPoint = .zero
 
@@ -89,26 +90,25 @@ class TouchpadView: UIView {
     }
 
     private func setupView() {
-        // Gradient background
         let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [
-            UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
-            UIColor.secondarySystemBackground.cgColor
-        ]
+        gradientLayer.colors = touchpadGradientColors
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
         layer.insertSublayer(gradientLayer, at: 0)
         self.gradientLayer = gradientLayer
 
-        layer.cornerRadius = CornerRadius.extraLarge
-        layer.borderWidth = BorderWidth.regular
-        layer.borderColor = UIColor.separator.withAlphaComponent(OpacityLevel.border).cgColor
-
-        // Inner shadow effect
+        layer.cornerRadius = CornerRadius.modal
+        layer.borderWidth = BorderWidth.thin
+        layer.borderColor = UIColor.touchpadStroke.cgColor
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOffset = CGSize(width: 0, height: 2)
-        layer.shadowOpacity = 0.08
-        layer.shadowRadius = 8
+        layer.shadowOffset = CGSize(width: .zero, height: BorderWidth.thick)
+        layer.shadowOpacity = Float(OpacityLevel.subtleFill)
+        layer.shadowRadius = Spacing.sm
+
+        innerShadowLayer.fillColor = UIColor.clear.cgColor
+        innerShadowLayer.strokeColor = UIColor.white.withAlphaComponent(OpacityLevel.disabled).cgColor
+        innerShadowLayer.lineWidth = BorderWidth.thick
+        layer.addSublayer(innerShadowLayer)
 
         isMultipleTouchEnabled = true
         feedbackGenerator.prepare()
@@ -131,16 +131,29 @@ class TouchpadView: UIView {
         super.layoutSubviews()
         gradientLayer?.frame = bounds
         gradientLayer?.cornerRadius = layer.cornerRadius
+        updateInnerShadowPath()
         crosshairLayer.frame = bounds
     }
 
     private func updateColors() {
-        layer.borderColor = UIColor.separator.withAlphaComponent(OpacityLevel.border).cgColor
+        layer.borderColor = UIColor.touchpadStroke.cgColor
         crosshairLayer.strokeColor = accentBlue.withAlphaComponent(OpacityLevel.border).cgColor
-        gradientLayer?.colors = [
-            UIColor.systemBackground.withAlphaComponent(0.8).cgColor,
-            UIColor.secondarySystemBackground.cgColor
+        gradientLayer?.colors = touchpadGradientColors
+    }
+
+    private var touchpadGradientColors: [CGColor] {
+        [
+            UIColor.touchpadSurfaceFill.cgColor,
+            UIColor.touchpadSurfaceFill.cgColor
         ]
+    }
+
+    private func updateInnerShadowPath() {
+        innerShadowLayer.frame = bounds
+        innerShadowLayer.path = UIBezierPath(
+            roundedRect: bounds.insetBy(dx: BorderWidth.regular, dy: BorderWidth.regular),
+            cornerRadius: max(.zero, layer.cornerRadius - BorderWidth.regular)
+        ).cgPath
     }
 
     private var accentBlue: UIColor {

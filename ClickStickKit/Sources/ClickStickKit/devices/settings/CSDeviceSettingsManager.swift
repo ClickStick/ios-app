@@ -79,9 +79,36 @@ public class CSDeviceSettingsManager {
             guard let data = result as? Data else {
                 throw KeychainError.invalidData
             }
-            return try deserializeSettings(from: data, deviceUUID: deviceUUID)
+            return try deserializeSettings(from: data)
         case errSecItemNotFound:
             return nil
+        default:
+            throw KeychainError.operationFailed(status)
+        }
+    }
+
+    /// Loads settings for all saved devices from the keychain.
+    /// - Returns: All saved device settings, or an empty array if none exist.
+    /// - Throws: KeychainError if the operation fails.
+    public static func loadAllSettings() throws -> [CSDeviceSettings] {
+        var query = baseServiceQueryAttributes()
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitAll
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        switch status {
+        case errSecSuccess:
+            if let dataItems = result as? [Data] {
+                return try dataItems.map { try deserializeSettings(from: $0) }
+            }
+            if let data = result as? Data {
+                return [try deserializeSettings(from: data)]
+            }
+            throw KeychainError.invalidData
+        case errSecItemNotFound:
+            return []
         default:
             throw KeychainError.operationFailed(status)
         }
@@ -152,7 +179,7 @@ public class CSDeviceSettingsManager {
         return try JSONEncoder().encode(settings)
     }
 
-    private static func deserializeSettings(from data: Data, deviceUUID: UUID) throws -> CSDeviceSettings {
+    private static func deserializeSettings(from data: Data) throws -> CSDeviceSettings {
         let decoder = JSONDecoder()
         return try decoder.decode(CSDeviceSettings.self, from: data)
     }

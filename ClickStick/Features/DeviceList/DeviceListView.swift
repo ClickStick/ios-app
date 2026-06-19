@@ -15,6 +15,7 @@ struct DeviceListView: View {
 
     @Environment(\.appRouter) private var router
     @State private var deviceToForget: DeviceModel?
+    @State private var isConfirmingForget = false
     @State private var isShowingSettings = false
     @State private var addDeviceStage: AddDeviceStage?
     @State private var pendingStage: AddDeviceStage?
@@ -118,10 +119,7 @@ struct DeviceListView: View {
         .errorAlert($viewModel.alertError)
         .confirmationDialog(
             "Forget Device",
-            isPresented: Binding(
-                get: { deviceToForget != nil },
-                set: { if !$0 { deviceToForget = nil } }
-            ),
+            isPresented: $isConfirmingForget,
             titleVisibility: .visible
         ) {
             Button("Forget Device", role: .destructive) {
@@ -129,11 +127,13 @@ struct DeviceListView: View {
                     if viewModel.forgetDevice(device, selectedDeviceID: router.selectedDeviceID) {
                         router.deselectDevice()
                     }
-                    deviceToForget = nil
                 }
             }
         } message: {
             Text("This will remove the saved authentication key. You'll need to set up the device again to reconnect.")
+        }
+        .onChange(of: isConfirmingForget) { _, showing in
+            if !showing { deviceToForget = nil }
         }
     }
 
@@ -279,20 +279,39 @@ struct DeviceListView: View {
 
             VStack(spacing: 12) {
                 ForEach(devices) { device in
-                    Button {
-                        onSelect(device)
-                    } label: {
-                        DeviceRowView(
-                            device: device,
-                            isSelected: router.selectedDeviceID == device.id
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        deviceContextMenu(for: device)
-                    }
+                    deviceRow(for: device)
                 }
             }
+        }
+    }
+
+    private func deviceRow(for device: DeviceModel) -> some View {
+        ZStack(alignment: .trailing) {
+            Button {
+                onSelect(device)
+            } label: {
+                DeviceRowView(
+                    device: device,
+                    isSelected: router.selectedDeviceID == device.id,
+                    showsMenuIndicator: false
+                )
+            }
+            .buttonStyle(.plain)
+
+            Menu {
+                deviceContextMenu(for: device)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+                    .accessibilityHidden(true)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Device options", comment: "Accessibility label for device row menu button"))
+            .accessibilityHint(String(localized: "Shows actions for this device", comment: "Accessibility hint for device row menu button"))
+            .padding(.trailing, 6)
         }
     }
 
@@ -353,8 +372,10 @@ struct DeviceListView: View {
         case .disconnected:
             viewModel.connectDevice(device)
             if device.isKnownDevice {
+                // Wait for the asynchronous connection-state observer update before
+                // resolving. Immediately checking here can still see `.disconnected`
+                // and incorrectly clear the pending navigation.
                 pendingConnectedDeviceID = device.id
-                resolvePendingConnectedDeviceSelection()
             }
         case .serviceDiscovery:
             pendingConnectedDeviceID = device.id
@@ -388,11 +409,12 @@ struct DeviceListView: View {
         }
     }
 
+    /// Connecting from the add-device sheet reuses the same pending-selection flow as a
+    /// normal row tap, so the device only navigates to detail once it's actually connected
+    /// rather than jumping there while still connecting.
     private func connectFromFound(_ device: DeviceModel) {
-        if viewModel.connectDevice(device) {
-            router.selectDevice(device)
-        }
         addDeviceStage = nil
+        handleDeviceTap(device)
     }
 
     private func handleStartupAction(_ action: DeviceListStartupAction?) {
@@ -412,6 +434,7 @@ struct DeviceListView: View {
     private func deviceContextMenu(for device: DeviceModel) -> some View {
         Button(role: .destructive) {
             deviceToForget = device
+            isConfirmingForget = true
         } label: {
             Label(String(localized: "Forget Device"), systemImage: "trash")
         }

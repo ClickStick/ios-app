@@ -35,19 +35,14 @@ struct AddDeviceScanSheet: View {
         .presentationDragIndicator(.hidden)
     }
 
-    // Two distinct ButtonStyle types resolved via an `if` expression into a single
-    // concrete view, avoiding a ViewBuilder branch over button styles.
-    private var bottomButton: AnyView {
+    @ViewBuilder
+    private var bottomButton: some View {
         if viewModel.isScanning {
-            AnyView(
-                Button("Stop") { viewModel.stopScanning() }
-                    .buttonStyle(AppSecondaryButtonStyle())
-            )
+            Button("Stop") { viewModel.stopScanning() }
+                .buttonStyle(AppSecondaryButtonStyle())
         } else {
-            AnyView(
-                Button("Scan again") { viewModel.startScanning() }
-                    .buttonStyle(AppPrimaryButtonStyle())
-            )
+            Button("Scan again") { viewModel.startScanning() }
+                .buttonStyle(AppPrimaryButtonStyle())
         }
     }
 }

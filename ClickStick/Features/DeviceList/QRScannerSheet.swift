@@ -15,16 +15,21 @@ struct QRScannerSheet: View {
     @State private var alertError: AlertError?
     @State private var cameraAuthorizationStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
     @State private var isTorchOn = false
-    @State private var isShowingSetupFailure: Bool
+    /// Bumped to remount the scanner and resume detection after a "Try again".
+    @State private var scanGeneration = 0
+    @Binding private var isVerifying: Bool
+    @Binding private var showsSetupFailure: Bool
 
     init(
         onScan: @escaping (String) -> Void,
         onManualEntry: @escaping () -> Void = {},
-        showsSetupFailure: Bool = false
+        isVerifying: Binding<Bool> = .constant(false),
+        showsSetupFailure: Binding<Bool> = .constant(false)
     ) {
         self.onScan = onScan
         self.onManualEntry = onManualEntry
-        _isShowingSetupFailure = State(initialValue: showsSetupFailure)
+        _isVerifying = isVerifying
+        _showsSetupFailure = showsSetupFailure
     }
 
     var body: some View {
@@ -40,11 +45,16 @@ struct QRScannerSheet: View {
                 )
             }
 
-            if isShowingSetupFailure {
+            if isVerifying && !showsSetupFailure {
+                verifyingOverlay
+            }
+
+            if showsSetupFailure {
                 setupFailureOverlay
             }
         }
         .presentationDragIndicator(.hidden)
+        .interactiveDismissDisabled(isVerifying)
         .errorAlert($alertError)
         .task {
             if cameraAuthorizationStatus == .notDetermined {
@@ -69,6 +79,7 @@ struct QRScannerSheet: View {
                         )
                     }
                 )
+                .id(scanGeneration)
                 .ignoresSafeArea()
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("Camera viewfinder for scanning QR code")
@@ -87,6 +98,27 @@ struct QRScannerSheet: View {
         }
     }
 
+    private var verifyingOverlay: some View {
+        ZStack {
+            Color.black
+                .opacity(0.45)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(.white)
+
+                Text("Verifying…")
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.white)
+            }
+        }
+        .transition(.opacity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Verifying device")
+    }
+
     private var setupFailureOverlay: some View {
         ZStack(alignment: .bottom) {
             Color.black
@@ -98,12 +130,14 @@ struct QRScannerSheet: View {
                     URLOpener().openGettingStartedPage()
                 },
                 onManualEntry: {
-                    isShowingSetupFailure = false
+                    showsSetupFailure = false
                     onManualEntry()
                     dismiss()
                 },
                 onTryAgain: {
-                    isShowingSetupFailure = false
+                    showsSetupFailure = false
+                    // Remount the scanner so detection resumes for a fresh attempt.
+                    scanGeneration += 1
                 }
             )
             .padding(.horizontal, 8)
@@ -113,7 +147,7 @@ struct QRScannerSheet: View {
     }
 
     private var shouldShowScannerChrome: Bool {
-        cameraAuthorizationStatus == .authorized && isScannerAvailable && !isShowingSetupFailure
+        cameraAuthorizationStatus == .authorized && isScannerAvailable && !showsSetupFailure && !isVerifying
     }
 
     private var isScannerAvailable: Bool {
@@ -181,10 +215,10 @@ private struct QRScannerChrome: View {
                     .font(.system(size: 22, weight: .medium))
                     .foregroundStyle(.white)
                     .frame(width: 52, height: 52)
-                    .overlay(
+                    .overlay {
                         Circle()
                             .stroke(Color.white, lineWidth: 2)
-                    )
+                    }
             }
             .buttonStyle(.plain)
             .disabled(!canToggleTorch)
@@ -218,10 +252,10 @@ private struct QRScannerChrome: View {
                     Capsule(style: .continuous)
                         .fill(Color.white.opacity(0.78))
                 )
-                .overlay(
+                .overlay {
                     Capsule(style: .continuous)
                         .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
-                )
+                }
                 .accessibilityLabel("Cancel scanning")
 
                 Spacer()
@@ -323,10 +357,10 @@ private struct ScannerHelpCard: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color.white.opacity(0.28))
         )
-        .overlay(
+        .overlay {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color.white.opacity(0.45), lineWidth: 0.5)
-        )
+        }
         .accessibilityElement(children: .combine)
     }
 }
@@ -534,9 +568,9 @@ struct QRCodeScannerView: UIViewControllerRepresentable {
 
         private func extractHexKey(from string: String) -> String? {
             let cleaned = string
-                .replacingOccurrences(of: "clickstick://", with: "")
-                .replacingOccurrences(of: "key=", with: "")
-                .replacingOccurrences(of: " ", with: "")
+                .replacing("clickstick://", with: "")
+                .replacing("key=", with: "")
+                .replacing(" ", with: "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
             let hexCharacters = CharacterSet(charactersIn: "0123456789ABCDEFabcdef")

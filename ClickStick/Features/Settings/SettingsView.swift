@@ -117,7 +117,7 @@ struct SettingsView: View {
 
 private struct SettingsSection<Content: View>: View {
     let title: LocalizedStringKey
-    @ViewBuilder let content: () -> Content
+    @ViewBuilder let content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -127,7 +127,7 @@ private struct SettingsSection<Content: View>: View {
                 .padding(.horizontal, 16)
 
             VStack(spacing: 0) {
-                content()
+                content
             }
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -196,7 +196,6 @@ private struct SettingsNavigationRow: View {
         }
         .frame(minHeight: 56)
         .padding(.horizontal, 16)
-        .contentShape(Rectangle())
     }
 }
 

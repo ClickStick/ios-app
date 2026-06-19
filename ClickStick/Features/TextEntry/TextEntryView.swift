@@ -11,6 +11,7 @@ struct TextEntryView: View {
     @State private var unsupportedSheetHeight: CGFloat = .zero
     @State private var progressSheetHeight: CGFloat = .zero
     @State private var connectionLostSheetHeight: CGFloat = .zero
+    @State private var shouldSendAfterUnsupportedSheetDismisses = false
 
     var body: some View {
         VStack(spacing: Spacing.sm) {
@@ -37,7 +38,7 @@ struct TextEntryView: View {
         .sheet(isPresented: Binding(
             get: { viewModel.unsupportedPrompt != nil },
             set: { if !$0 { viewModel.dismissUnsupportedPrompt() } }
-        )) {
+        ), onDismiss: sendAfterUnsupportedSheetDismissesIfNeeded) {
             unsupportedCharactersSheet
                 .measureHeight($unsupportedSheetHeight)
                 .presentationBackground(Color.clickStickElevatedBackground)
@@ -153,7 +154,7 @@ struct TextEntryView: View {
             title: "Unsupported characters",
             message: viewModel.unsupportedPromptMessage ?? "Some characters can’t be typed with the selected layout. They will be skipped.",
             secondaryTitle: "Send anyway",
-            secondaryAction: viewModel.sendAnyway,
+            secondaryAction: sendAnywayAfterUnsupportedSheetDismisses,
             primaryTitle: "Change layout",
             primaryAction: viewModel.dismissUnsupportedPrompt
         )
@@ -166,7 +167,8 @@ struct TextEntryView: View {
             secondaryTitle: "Close",
             secondaryAction: viewModel.dismissConnectionLost,
             primaryTitle: "Try again",
-            primaryAction: viewModel.retryAfterConnectionLost
+            primaryAction: viewModel.retryAfterConnectionLost,
+            primaryIsDisabled: !viewModel.canSend
         )
     }
 
@@ -176,6 +178,17 @@ struct TextEntryView: View {
             cancelAction: viewModel.cancelSend,
             dismissAction: viewModel.dismissProgressSheet
         )
+    }
+
+    private func sendAnywayAfterUnsupportedSheetDismisses() {
+        shouldSendAfterUnsupportedSheetDismisses = true
+        viewModel.dismissUnsupportedPrompt()
+    }
+
+    private func sendAfterUnsupportedSheetDismissesIfNeeded() {
+        guard shouldSendAfterUnsupportedSheetDismisses else { return }
+        shouldSendAfterUnsupportedSheetDismisses = false
+        viewModel.sendAnyway()
     }
 
     private var borderColor: Color {
@@ -207,6 +220,7 @@ private struct TextEntryWarningSheet: View {
     let secondaryAction: () -> Void
     let primaryTitle: LocalizedStringKey
     let primaryAction: () -> Void
+    var primaryIsDisabled = false
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
@@ -233,7 +247,8 @@ private struct TextEntryWarningSheet: View {
                 secondaryTitle: secondaryTitle,
                 secondaryAction: secondaryAction,
                 primaryTitle: primaryTitle,
-                primaryAction: primaryAction
+                primaryAction: primaryAction,
+                primaryIsDisabled: primaryIsDisabled
             )
         }
         .padding(.horizontal, Spacing.xl)
@@ -324,6 +339,7 @@ private struct TextEntrySheetButtonRow: View {
     let secondaryAction: () -> Void
     let primaryTitle: LocalizedStringKey
     let primaryAction: () -> Void
+    var primaryIsDisabled = false
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
@@ -333,11 +349,13 @@ private struct TextEntrySheetButtonRow: View {
 
                 Button(primaryTitle, action: primaryAction)
                     .buttonStyle(.primary)
+                    .disabled(primaryIsDisabled)
             }
 
             VStack(spacing: Spacing.sm) {
                 Button(primaryTitle, action: primaryAction)
                     .buttonStyle(.primary)
+                    .disabled(primaryIsDisabled)
 
                 Button(secondaryTitle, action: secondaryAction)
                     .buttonStyle(.secondary(tint: .primary))

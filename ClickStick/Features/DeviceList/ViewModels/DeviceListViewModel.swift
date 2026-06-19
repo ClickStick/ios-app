@@ -39,6 +39,7 @@ final class DeviceListViewModel {
     var devices: [DeviceModel] { service.devices }
     var isScanning: Bool { service.isScanning }
     var bluetoothError: CSError? { service.bluetoothError }
+    var hasSavedDevices: Bool { devices.contains { $0.isKnownDevice && !$0.isDemoDevice } }
 
     var isEmpty: Bool {
         !hasAnnouncements && devices.isEmpty
@@ -146,11 +147,21 @@ final class DeviceListViewModel {
             try CSDeviceSettingsManager.deleteSettings(for: device.id)
             device.refreshSettingsCache()
             device.disconnect()
+            service.reloadDevices()
             return selectedDeviceID == device.id
         } catch {
             alertError = AlertError(title: String(localized: "Error"), error: error)
             return false
         }
+    }
+
+    /// Discards persisted settings after a failed setup attempt so an unverified key
+    /// isn't left behind making the device look "known" with a bad key.
+    func discardDeviceSettings(for device: DeviceModel) {
+        try? CSDeviceSettingsManager.deleteSettings(for: device.id)
+        device.refreshSettingsCache()
+        device.disconnect()
+        service.reloadDevices()
     }
 
     /// Saves device settings. Returns true if successful (View should dismiss sheet).

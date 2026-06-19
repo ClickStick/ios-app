@@ -4,6 +4,28 @@
     ", %@" : {
 
     },
+    "%@ can't be typed with %@. They will be skipped." : {
+      "comment" : "Unsupported characters sheet message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ can't be typed with %2$@. They will be skipped."
+          }
+        }
+      }
+    },
+    "%@ can't type: %@" : {
+      "comment" : "Inline unsupported characters warning",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ can't type: %2$@"
+          }
+        }
+      }
+    },
     "%@ may have been modified while unattended. Connecting could expose your data." : {
 
     },
@@ -20,40 +42,8 @@
         }
       }
     },
-    "%@, %@, %@" : {
-      "comment" : "Plan card accessibility",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, %2$@, %3$@"
-          }
-        }
-      }
-    },
-    "%@/day" : {
-      "comment" : "Daily price label"
-    },
-    "%@/month" : {
-      "comment" : "Monthly price label"
-    },
-    "%@/week" : {
-      "comment" : "Weekly price label"
-    },
-    "%@/year" : {
-      "comment" : "Yearly price label"
-    },
-    "%lld bytes of free quota remaining" : {
-      "comment" : "Quota status with remaining bytes"
-    },
-    "%lld bytes of full speed left" : {
-      "comment" : "Quota indicator with remaining bytes"
-    },
-    "%lld bytes of full-speed quota remaining. Tap to upgrade." : {
-      "comment" : "Quota indicator accessibility with remaining bytes"
-    },
     "%lld characters" : {
-      "comment" : "Character count label\nText field character count"
+      "comment" : "Text field character count"
     },
     "%lld characters (hidden)" : {
 
@@ -61,22 +51,15 @@
     "%lld devices found" : {
       "comment" : "Discovered device count"
     },
-    "%lld monthly bytes + %lld bonus bytes left" : {
-      "comment" : "Quota status for limited subscription with bonus quota",
+    "%lld of %lld characters" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$lld monthly bytes + %2$lld bonus bytes left"
+            "value" : "%1$lld of %2$lld characters"
           }
         }
       }
-    },
-    "%lld monthly bytes left on your plan" : {
-      "comment" : "Quota status for limited subscription"
-    },
-    "1 KB of instant typing, no subscription" : {
-      "comment" : "One-time pack description"
     },
     "Add and pair a nearby device." : {
 
@@ -105,12 +88,6 @@
     "Available" : {
 
     },
-    "Benefits: instant typing, saves time, works everywhere" : {
-      "comment" : "Paywall benefits summary"
-    },
-    "Best" : {
-      "comment" : "Recommended plan badge"
-    },
     "Camera Access Required" : {
       "comment" : "Camera permission denied title"
     },
@@ -126,31 +103,22 @@
     "Cancel add device" : {
 
     },
-    "Cancel connection" : {
-      "comment" : "Accessibility label for cancel button"
-    },
     "Cancel device setup" : {
       "comment" : "Accessibility label"
     },
     "Cancel scanning" : {
       "comment" : "Accessibility label"
     },
-    "Cancel sending" : {
-      "comment" : "Cancel send accessibility"
-    },
-    "Choose a plan" : {
-      "comment" : "Paywall section header"
+    "Change layout" : {
+
     },
     "Choose how you'd like to begin. You can always switch modes later." : {
 
     },
-    "Clear" : {
-      "comment" : "Clear text button"
-    },
-    "Clear text" : {
-      "comment" : "Clear text button accessibility"
-    },
     "ClickStick is a USB dongle that works as a keyboard controlled by your phone. No drivers required." : {
+
+    },
+    "Close" : {
 
     },
     "Close settings" : {
@@ -180,14 +148,14 @@
     "Connecting" : {
       "comment" : "Connection status"
     },
-    "Connecting to %@" : {
-      "comment" : "Accessibility label for connecting state"
-    },
     "Connecting..." : {
       "comment" : "Device row status\nDevice status"
     },
     "Connection in progress" : {
       "comment" : "Accessibility hint"
+    },
+    "Connection lost" : {
+
     },
     "Continue" : {
 
@@ -210,9 +178,6 @@
     "Device compromised" : {
 
     },
-    "Device disconnected" : {
-      "comment" : "Accessibility label for disconnected state"
-    },
     "Device ID" : {
       "comment" : "Label"
     },
@@ -223,7 +188,7 @@
       "comment" : "Label"
     },
     "Device not connected" : {
-      "comment" : "Accessibility hint\nDeep link error"
+      "comment" : "Deep link error"
     },
     "Devices" : {
 
@@ -231,23 +196,14 @@
     "Disconnect" : {
       "comment" : "Button title"
     },
-    "Disconnect from device" : {
-      "comment" : "Accessibility label for disconnect button"
-    },
-    "Disconnected" : {
-      "comment" : "Connection status"
-    },
     "Dismiss" : {
       "comment" : "Button title"
     },
     "Done" : {
-      "comment" : "Dismiss keyboard button\nDismiss paywall"
+      "comment" : "Dismiss keyboard button"
     },
     "Double tap to type the text" : {
 
-    },
-    "Double-tap the connect button to reconnect" : {
-      "comment" : "Accessibility hint for disconnected state"
     },
     "Double-tap to authenticate" : {
       "comment" : "Accessibility hint"
@@ -259,15 +215,6 @@
       "comment" : "Accessibility hint"
     },
     "Double-tap to perform a right click" : {
-      "comment" : "Accessibility hint"
-    },
-    "Double-tap to purchase" : {
-      "comment" : "Purchase hint"
-    },
-    "Double-tap to select this plan" : {
-      "comment" : "Plan card hint"
-    },
-    "Double-tap to send %lld characters" : {
       "comment" : "Accessibility hint"
     },
     "Double-tap to view device options" : {
@@ -288,17 +235,11 @@
     "Enter key manually" : {
 
     },
-    "Enter text first" : {
-
-    },
     "Enter the 32-character hex key from your ClickStick" : {
       "comment" : "Accessibility hint"
     },
     "Enter the authentication key manually, or try again on a device with camera scanning support." : {
 
-    },
-    "Enter the text you want to type on the connected device" : {
-      "comment" : "Text editor accessibility hint"
     },
     "Error" : {
       "comment" : "Alert title"
@@ -321,20 +262,8 @@
     "Flashlight Error" : {
 
     },
-    "For occasional use" : {
-      "comment" : "Subscription tier description"
-    },
-    "For regular use" : {
-      "comment" : "Subscription tier description"
-    },
     "Forget Device" : {
       "comment" : "Context menu action"
-    },
-    "Free quota used up — purchase to type at full speed" : {
-      "comment" : "Quota status when depleted"
-    },
-    "Free users type character-by-character at human speed. Upgrade to send text instantly." : {
-      "comment" : "Paywall subtitle"
     },
     "General" : {
 
@@ -369,17 +298,8 @@
     "How it works" : {
 
     },
-    "Human speed — no full-speed quota left" : {
-      "comment" : "Quota indicator when no full-speed bytes are available"
-    },
-    "Human speed for this text (%lld bytes left)" : {
-      "comment" : "Quota indicator when current text exceeds remaining full-speed quota"
-    },
     "I already have a ClickStick" : {
 
-    },
-    "Insert %@" : {
-      "comment" : "Preset button accessibility"
     },
     "Invalid key format. Please enter a 32-character hex string." : {
       "comment" : "Error message"
@@ -393,26 +313,23 @@
     "Just looking around?" : {
       "comment" : "Demo mode prompt"
     },
-    "Just need a little?" : {
-      "comment" : "One-time pack heading"
-    },
     "Keep screen on" : {
 
     },
     "Keyboard Layout" : {
       "comment" : "Picker label"
     },
-    "Left Click" : {
+    "Left click" : {
 
     },
-    "Left click button" : {
-      "comment" : "Accessibility label"
+    "LEFT CLICK" : {
+
     },
     "Legal" : {
 
     },
-    "Loading subscription plans" : {
-      "comment" : "Loading indicator accessibility"
+    "Linux" : {
+      "comment" : "Target OS"
     },
     "Looking for nearby ClickSticks in the device list." : {
 
@@ -423,14 +340,11 @@
     "Lorem Ipsum" : {
       "comment" : "Text preset name"
     },
+    "macOS" : {
+      "comment" : "Target OS"
+    },
     "Make sure your ClickStick is plugged in and Bluetooth is on" : {
 
-    },
-    "Membership" : {
-
-    },
-    "Minutes of typing delivered in seconds" : {
-      "comment" : "Paywall benefit"
     },
     "Missing text parameter" : {
       "comment" : "Deep link error"
@@ -449,9 +363,6 @@
     },
     "No devices found. Make sure your ClickStick is plugged in and Bluetooth is on" : {
 
-    },
-    "No full-speed quota remaining. Tap to upgrade." : {
-      "comment" : "Quota indicator accessibility when depleted"
     },
     "No paired devices found" : {
 
@@ -475,9 +386,6 @@
         }
       }
     },
-    "One-time pack: 1 KB of instant typing for %@" : {
-      "comment" : "One-time pack accessibility"
-    },
     "Open Settings" : {
       "comment" : "Button to open iOS Settings app"
     },
@@ -490,23 +398,11 @@
     "Opens the ClickStick website" : {
 
     },
-    "or" : {
-      "comment" : "Separator between subscription and one-time options"
-    },
     "Out of range" : {
       "comment" : "Device row status"
     },
-    "Plans temporarily unavailable." : {
-      "comment" : "Paywall empty state"
-    },
-    "Please wait" : {
-      "comment" : "Accessibility hint"
-    },
     "Plug in your ClickStick to get started." : {
       "comment" : "Welcome announcement body"
-    },
-    "Plus" : {
-
     },
     "Point the camera at the QR code on your ClickStick's screen" : {
       "comment" : "Accessibility hint"
@@ -520,38 +416,17 @@
     "Privacy Policy" : {
 
     },
-    "Processing purchase" : {
-      "comment" : "CTA accessibility during purchase"
-    },
-    "Purchase successful" : {
-      "comment" : "Purchase success accessibility"
-    },
-    "Quick Presets" : {
-      "comment" : "Quick presets section header"
-    },
     "Remove device" : {
 
-    },
-    "Replaces current text" : {
-      "comment" : "Preset button hint"
     },
     "Request from %@" : {
 
     },
-    "Restore previous purchases" : {
-      "comment" : "Restore button accessibility"
-    },
-    "Restore purchases" : {
+    "Right click" : {
 
     },
-    "Restore Purchases" : {
-      "comment" : "Restore purchases button"
-    },
-    "Right Click" : {
+    "RIGHT CLICK" : {
 
-    },
-    "Right click button" : {
-      "comment" : "Accessibility label"
     },
     "Sample Email" : {
       "comment" : "Text preset name"
@@ -589,32 +464,26 @@
     "Select a device from the sidebar" : {
       "comment" : "Accessibility hint"
     },
-    "Select a plan" : {
-      "comment" : "CTA placeholder when no plan selected"
-    },
-    "Select a plan first" : {
-      "comment" : "CTA accessibility when no plan selected"
-    },
     "Select your device carefully. Connect only to a device you recognize and trust." : {
 
     },
-    "Send at Human Speed" : {
-      "comment" : "Throttled send button"
+    "Send anyway" : {
+
     },
-    "Send entire text in one shot, not character-by-character" : {
-      "comment" : "Paywall benefit"
+    "Send text" : {
+      "comment" : "Header send button accessibility"
     },
-    "Send Instantly" : {
-      "comment" : "Full-speed send button"
-    },
-    "Send text to device" : {
-      "comment" : "Send button accessibility"
-    },
-    "Sending at human speed... %lld%%" : {
-      "comment" : "Throttled send progress"
+    "Sending text" : {
+      "comment" : "Send progress accessibility"
     },
     "Sending..." : {
       "comment" : "Sending in progress"
+    },
+    "Sent to %@" : {
+
+    },
+    "Sent!" : {
+
     },
     "Settings" : {
 
@@ -640,23 +509,30 @@
     "Signal unknown" : {
 
     },
+    "Snippet management will be added later." : {
+
+    },
+    "Snippets" : {
+      "comment" : "Tab title"
+    },
+    "Snippets mode" : {
+      "comment" : "Accessibility label"
+    },
     "Specified device not found" : {
       "comment" : "Deep link error"
     },
     "Stop" : {
 
     },
-    "Subscribe for %@" : {
-      "comment" : "CTA accessibility\nSubscribe CTA button"
-    },
-    "Subscription" : {
-
-    },
-    "Subscriptions renew monthly. Cancel anytime in Settings." : {
-      "comment" : "Subscription terms disclaimer"
-    },
-    "Tap Connect to start using this device." : {
-
+    "Stopped at %lld of %lld. Some text may have appeared on the host device." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stopped at %1$lld of %2$lld. Some text may have appeared on the host device."
+          }
+        }
+      }
     },
     "Tap Scan again to search for devices" : {
 
@@ -666,6 +542,9 @@
     },
     "Tap to set up" : {
       "comment" : "Device row status"
+    },
+    "Target OS" : {
+
     },
     "Terms of Use" : {
 
@@ -688,9 +567,6 @@
     "Text to type" : {
       "comment" : "Text entry section header"
     },
-    "This text will be sent at human speed. %lld full-speed bytes remain." : {
-      "comment" : "Quota indicator accessibility when text exceeds quota"
-    },
     "This will remove the saved authentication key. You'll need to set up the device again to reconnect." : {
 
     },
@@ -702,9 +578,6 @@
     },
     "Touchpad area" : {
       "comment" : "Accessibility label"
-    },
-    "Touchpad gestures are paused." : {
-
     },
     "Touchpad mode" : {
       "comment" : "Accessibility label"
@@ -724,29 +597,20 @@
     "Turn flashlight on" : {
 
     },
-    "Two-finger tap on touchpad = right click" : {
-
-    },
-    "Type at Full Speed" : {
-      "comment" : "Paywall headline"
-    },
     "Type long passwords and text instantly. Your phone becomes a keyboard for any device." : {
 
     },
     "Type Now" : {
 
     },
+    "Type or paste text to send..." : {
+
+    },
     "Type Text" : {
 
     },
-    "Unlimited instant typing" : {
-      "comment" : "Subscription tier description"
-    },
-    "Unlimited subscription active" : {
-      "comment" : "Quota status"
-    },
-    "Upgrade" : {
-      "comment" : "Paywall navigation title\nUpgrade link label"
+    "Unsupported characters" : {
+
     },
     "Use Scan for devices to search for nearby ClickSticks" : {
 
@@ -766,11 +630,8 @@
     "Why ClickStick" : {
 
     },
-    "Works in main app, Share extension and deep links" : {
-      "comment" : "Paywall benefit"
-    },
-    "You're all set!" : {
-      "comment" : "Purchase success confirmation"
+    "Windows" : {
+      "comment" : "Target OS"
     }
   },
   "version" : "1.1"

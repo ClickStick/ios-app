@@ -26,7 +26,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
 
     // MARK: - Underlying Device
 
-    let device: CSDevice
+    private(set) var device: CSDevice
 
     // MARK: - Observable State (mirrored from CSDevice)
 
@@ -45,6 +45,9 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
     private(set) var isCompromised: Bool = false
 
     private var lastRSSIUpdate: Date = .distantPast
+    /// True while verifying a freshly entered/scanned setup key. A MAC mismatch in
+    /// this state means setup failed, not that an already trusted device is compromised.
+    private var isSetupAuthenticationAttempt = false
 
     // MARK: - Cached Settings (to avoid keychain I/O during render)
 
@@ -122,6 +125,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
         needsAuthentication = false
         lastError = nil
         isCompromised = false
+        isSetupAuthenticationAttempt = false
         device.connect(appAuthKey: authKey)
     }
 
@@ -129,6 +133,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
         needsAuthentication = false
         lastError = nil
         isCompromised = false
+        isSetupAuthenticationAttempt = true
         device.connect(appAuthKey: authKey)
     }
 
@@ -207,6 +212,25 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
         isKnownDevice = Self.checkIsKnownDevice(for: device.uuid, isDemoDevice: device.isDemoDevice)
     }
 
+    func replaceDevice(_ newDevice: CSDevice) {
+        guard device !== newDevice else { return }
+
+        device.removeObserver(self)
+        device = newDevice
+        name = newDevice.name
+        rssi = newDevice.rssi
+        connectionState = newDevice.connectionState
+        features = newDevice.features
+        needsAuthentication = false
+        lastError = newDevice.lastError
+        isConnectable = newDevice.isConnectable
+        isDemoDevice = newDevice.isDemoDevice
+        isCompromised = false
+        isSetupAuthenticationAttempt = false
+        refreshSettingsCache()
+        newDevice.addObserver(self)
+    }
+
     private static func loadCachedAlias(for uuid: UUID) -> String? {
         guard let settings = try? CSDeviceSettingsManager.loadSettings(for: uuid) else {
             return nil
@@ -236,21 +260,33 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
         lastError = device.lastError
         if device.connectionState == .connectedAuthorized {
             isCompromised = false
+            isSetupAuthenticationAttempt = false
         }
     }
 
     func deviceDidDetectTampering(_ device: CSDevice) {
-        isCompromised = true
         connectionState = device.connectionState
+
+        if isSetupAuthenticationAttempt {
+            isSetupAuthenticationAttempt = false
+            needsAuthentication = true
+            isCompromised = false
+            log.error("Device setup authentication failed: \(self.displayName, privacy: .public)")
+            return
+        }
+
+        isCompromised = true
         log.error("Device may be compromised: \(self.displayName, privacy: .public)")
     }
 
     func deviceNeedsAuthentication(_ device: CSDevice) {
+        isSetupAuthenticationAttempt = false
         needsAuthentication = true
         connectionState = device.connectionState
     }
 
     func deviceDidFail(_ device: CSDevice, with error: CSError) {
+        isSetupAuthenticationAttempt = false
         lastError = error
         lastErrorTimestamp = Date()
         connectionState = device.connectionState
@@ -258,6 +294,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice {
     }
 
     func deviceDidDisconnect(_ device: CSDevice, with error: CSError?) {
+        isSetupAuthenticationAttempt = false
         connectionState = .disconnected
         features = []
         if let error {

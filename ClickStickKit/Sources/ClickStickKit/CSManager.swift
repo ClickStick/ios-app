@@ -34,7 +34,7 @@ final public class CSManager: NSObject {
         CSMockDevice(uuid: UUID(uuidString: "331D5219-3F05-48FA-B7F5-B3395DBF0002")!)
     ]
 
-    private var centralManager: CBCentralManager!
+    private var centralManager: CBCentralManager?
 
     private var devicesByUUID: [UUID: CSDevice] = [:]
     private var discoveredPeripherals: Set<UUID> = []
@@ -44,10 +44,14 @@ final public class CSManager: NSObject {
 
     override init() {
         super.init()
-        initCentralManager()
+        syncStoredDevices()
     }
 
-    private func initCentralManager() {
+    private func initCentralManagerIfNeeded() -> CBCentralManager {
+        if let centralManager {
+            return centralManager
+        }
+
         switch CBCentralManager.authorization {
         case .allowedAlways:
             log.debug("BLE use is allowed")
@@ -58,7 +62,10 @@ final public class CSManager: NSObject {
         @unknown default:
             fatalError("Unexpected BLE permission")
         }
-        self.centralManager = CBCentralManager(delegate: self, queue: bleQueue)
+
+        let centralManager = CBCentralManager(delegate: self, queue: bleQueue)
+        self.centralManager = centralManager
+        return centralManager
     }
 }
 
@@ -67,6 +74,7 @@ extension CSManager {
     public func startScanning() {
         isScanRequested = true
 
+        let centralManager = initCentralManagerIfNeeded()
         if centralManager.isScanning {
             return
         }
@@ -88,6 +96,7 @@ extension CSManager {
         discoveredPeripherals.removeAll()
 
         log.debug("Starting a scan")
+        syncStoredDevices()
         includeDemoDevices(isDemoMode) // re-apply demo mode after cleanup
         centralManager.scanForPeripherals(
             withServices: [
@@ -99,8 +108,8 @@ extension CSManager {
 
     public func stopScanning() {
         isScanRequested = false
-        if centralManager.isScanning {
-            centralManager.stopScan()
+        if centralManager?.isScanning == true {
+            centralManager?.stopScan()
         }
     }
 
@@ -109,6 +118,7 @@ extension CSManager {
     }
 
     public func knownDevices() -> [CSDevice] {
+        syncStoredDevices()
         return Array(devicesByUUID.values)
     }
 }
@@ -134,7 +144,7 @@ extension CSManager {
 extension CSManager {
     /// Provider access to `centralManager` from `CSRealDevice`.
     internal func withCentralManager(_ closure: (CBCentralManager) -> Void) {
-        closure(centralManager)
+        closure(initCentralManagerIfNeeded())
     }
 
     private func makeBluetoothError(for state: CBManagerState) -> CSError {
@@ -162,6 +172,25 @@ extension CSManager {
             demoDevices.forEach {
                 devicesByUUID.removeValue(forKey: $0.uuid)
             }
+        }
+    }
+
+    private func syncStoredDevices() {
+        let settings: [CSDeviceSettings]
+        do {
+            settings = try CSDeviceSettingsManager.loadAllSettings()
+        } catch {
+            log.error("Failed to load saved devices: \(error.localizedDescription)")
+            return
+        }
+
+        let savedIDs = Set(settings.map(\.deviceUUID))
+        for (uuid, device) in devicesByUUID where device is CSStoredDevice && !savedIDs.contains(uuid) {
+            devicesByUUID.removeValue(forKey: uuid)
+        }
+
+        for setting in settings where devicesByUUID[setting.deviceUUID] == nil {
+            devicesByUUID[setting.deviceUUID] = CSStoredDevice(settings: setting)
         }
     }
 }
@@ -218,7 +247,7 @@ extension CSManager: CBCentralManagerDelegate {
         let connectableValue = advertisementData[CBAdvertisementDataIsConnectable] as? NSNumber
         let isConnectable = connectableValue != 0
 
-        if let knownDevice = devicesByUUID[uuid] {
+        if let knownDevice = devicesByUUID[uuid], !(knownDevice is CSStoredDevice) {
             knownDevice.csManagerDidUpdateProperties(name: name, rssi: rssi, isConnectable: isConnectable)
         } else {
             let newDevice = CSRealDevice(peripheral: peripheral, manager: self)

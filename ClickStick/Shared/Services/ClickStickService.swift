@@ -41,7 +41,8 @@ final class ClickStickService: CSManagerDelegate {
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         let existingByID = Dictionary(uniqueKeysWithValues: devices.map { ($0.id, $0) })
         devices = knownDevices.map { device in
-            if let existing = existingByID[device.uuid], existing.device === device {
+            if let existing = existingByID[device.uuid] {
+                existing.replaceDevice(device)
                 return existing
             }
             return DeviceModel(device: device)
@@ -68,6 +69,10 @@ final class ClickStickService: CSManagerDelegate {
 
     func device(for id: UUID) -> DeviceModel? {
         devices.first { $0.id == id }
+    }
+
+    func reloadDevices() {
+        syncDevicesFromManager()
     }
 
     #if DEBUG

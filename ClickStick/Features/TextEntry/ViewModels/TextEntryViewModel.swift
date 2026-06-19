@@ -43,6 +43,7 @@ final class TextEntryViewModel {
     private(set) var showSentToast: Bool = false
 
     private var sendTask: Task<Void, Never>?
+    private var lastSendSkippedUnsupportedCharacters = false
 
     // MARK: - Initialization
 
@@ -58,7 +59,7 @@ final class TextEntryViewModel {
     var isEmpty: Bool { text.isEmpty }
     var characterCount: Int { text.count }
 
-    var canSend: Bool { !isEmpty && isConnected && !isSending }
+    var canSend: Bool { !isEmpty && !isSending }
 
     /// Characters in the current text the selected layout cannot type.
     var unsupportedCharacters: [Character] {
@@ -127,17 +128,25 @@ final class TextEntryViewModel {
     }
 
     func retryAfterConnectionLost() {
+        guard canSend else { return }
         showConnectionLost = false
-        performSend()
+        performSend(skipUnsupportedCharacters: lastSendSkippedUnsupportedCharacters)
     }
 
     // MARK: - Send
 
     private func performSend(skipUnsupportedCharacters: Bool = false) {
+        guard !isSending else { return }
+        guard isConnected else {
+            showConnectionLost = true
+            return
+        }
+
         let textToSend = skipUnsupportedCharacters ? typableText(from: text) : text
         let total = textToSend.count
         guard total > 0 else { return }
 
+        lastSendSkippedUnsupportedCharacters = skipUnsupportedCharacters
         let showsSheet = total > Self.progressSheetThreshold
         isSending = true
         progress = showsSheet ? .sending(sent: 0, total: total) : nil

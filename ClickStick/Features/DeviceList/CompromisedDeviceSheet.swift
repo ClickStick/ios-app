@@ -17,12 +17,12 @@ struct CompromisedDeviceSheet: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(Color(.systemRed).opacity(0.12))
+                    .fill(Color(uiColor: .systemRed).opacity(0.12))
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "exclamationmark.circle")
                     .font(.system(size: 40, weight: .regular))
-                    .foregroundStyle(Color(.systemRed))
+                    .foregroundStyle(Color(uiColor: .systemRed))
             }
             .padding(.top, 24)
             .accessibilityHidden(true)
@@ -42,7 +42,7 @@ struct CompromisedDeviceSheet: View {
 
             VStack(spacing: 12) {
                 Button("Remove device", action: onRemove)
-                    .buttonStyle(AppPrimaryButtonStyle(fill: Color(.systemRed)))
+                    .buttonStyle(AppPrimaryButtonStyle(fill: Color(uiColor: .systemRed)))
 
                 Button("Connect anyway", action: onConnectAnyway)
                     .buttonStyle(AppSecondaryButtonStyle())
@@ -54,7 +54,7 @@ struct CompromisedDeviceSheet: View {
         .frame(maxWidth: .infinity)
         .measureHeight($contentHeight)
         .presentationDetents(sheetDetents(for: contentHeight))
-        .presentationBackground(Color(.secondarySystemGroupedBackground))
+        .presentationBackground(Color(uiColor: .secondarySystemGroupedBackground))
         .accessibilityElement(children: .contain)
     }
 }
@@ -79,5 +79,5 @@ struct CompromisedDeviceSheet: View {
         onConnectAnyway: {}
     )
     .frame(maxHeight: .infinity, alignment: .bottom)
-    .background(Color(.secondarySystemGroupedBackground).ignoresSafeArea())
+    .background(Color(uiColor: .secondarySystemGroupedBackground).ignoresSafeArea())
 }

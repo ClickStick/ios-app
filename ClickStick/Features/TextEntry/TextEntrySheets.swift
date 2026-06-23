@@ -18,9 +18,9 @@ struct TextEntryWarningSheet: View {
         VStack(spacing: 20) {
             Image(systemName: "exclamationmark.circle")
                 .font(.largeTitle)
-                .foregroundStyle(Color(.systemRed))
+                .foregroundStyle(Color(uiColor: .systemRed))
                 .padding(20)
-                .background(Circle().fill(Color(.systemRed).opacity(0.08)))
+                .background(Circle().fill(Color(uiColor: .systemRed).opacity(0.08)))
                 .accessibilityHidden(true)
 
             VStack(spacing: 8) {
@@ -70,7 +70,7 @@ struct TextEntryProgressSheet: View {
                     VStack(spacing: 20) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.largeTitle)
-                            .foregroundStyle(Color(.systemGreen))
+                            .foregroundStyle(Color(uiColor: .systemGreen))
                             .accessibilityHidden(true)
                         Text("Sent!")
                             .font(.title.bold())
@@ -102,18 +102,18 @@ struct TextEntryProgressSheet: View {
             if stopped {
                 Text("Stopped at \(sent) of \(total). Some text may have appeared on the host device.")
                     .font(.body)
-                    .foregroundStyle(Color(.systemRed))
+                    .foregroundStyle(Color(uiColor: .systemRed))
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .background(
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color(.systemRed).opacity(0.04))
+                            .fill(Color(uiColor: .systemRed).opacity(0.04))
                     )
-                    .overlay(
+                    .overlay {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color(.systemRed).opacity(0.2), lineWidth: 1)
-                    )
+                            .stroke(Color(uiColor: .systemRed).opacity(0.2), lineWidth: 1)
+                    }
             }
 
             Button(stopped ? "Close" : "Cancel") {

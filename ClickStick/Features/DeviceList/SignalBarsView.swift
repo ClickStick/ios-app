@@ -19,7 +19,7 @@ struct SignalBarsView: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: Metric.barSpacing) {
-            ForEach(0..<max(1, barCount), id: \.self) { index in
+            ForEach(0..<effectiveBarCount, id: \.self) { index in
                 RoundedRectangle(cornerRadius: Metric.barWidth / 2)
                     .fill(index < activeBarCount ? activeColor : inactiveColor)
                     .frame(width: Metric.barWidth, height: barHeight(for: index))
@@ -27,12 +27,16 @@ struct SignalBarsView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Signal strength"))
-        .accessibilityValue(Text("\(activeBarCount) of \(max(1, barCount)) bars"))
+        .accessibilityValue(Text("\(activeBarCount) of \(effectiveBarCount) bars"))
+    }
+
+    private var effectiveBarCount: Int {
+        max(1, barCount)
     }
 
     private var activeBarCount: Int {
         let clamped = min(max(strength, 0), 1)
-        return min(max(1, barCount), max(0, Int(ceil(clamped * Double(max(1, barCount))))))
+        return min(effectiveBarCount, max(0, Int(ceil(clamped * Double(effectiveBarCount)))))
     }
 
     private func barHeight(for index: Int) -> CGFloat {

@@ -46,13 +46,11 @@ final class AppRouter {
         presentedSheet = .deviceSetup(device)
     }
 
-    func dismissSheet() {
-        presentedSheet = nil
-    }
 }
 
 // MARK: - Environment Key
 
 extension EnvironmentValues {
-    @Entry var appRouter: AppRouter = AppRouter()
+    @Entry var appRouter: AppRouter = _defaultAppRouter
+    private static let _defaultAppRouter = AppRouter()
 }

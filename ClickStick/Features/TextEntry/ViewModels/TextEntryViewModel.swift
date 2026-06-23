@@ -29,8 +29,12 @@ final class TextEntryViewModel {
     // MARK: - Input
 
     var text: String = ""
-    var selectedLayout: CSKeyboardLayout = .usQWERTY
-    var selectedOS: TypingOS = .windows
+    var selectedLayout: CSKeyboardLayout = .usQWERTY {
+        didSet { persistTextEntryPreferencesIfNeeded() }
+    }
+    var selectedOS: CSTypingOS = .windows {
+        didSet { persistTextEntryPreferencesIfNeeded() }
+    }
 
     // MARK: - Output state
 
@@ -45,12 +49,16 @@ final class TextEntryViewModel {
     private(set) var showSentToast: Bool = false
 
     private var sendTask: Task<Void, Never>?
+    private var persistsSelectionChanges = true
 
     // MARK: - Initialization
 
     init(device: any TextSendingDevice) {
         self.device = device
-        self.selectedLayout = CSKeyboardLayout.fromSystemLocale()
+        updateSelectionWithoutPersisting(
+            layout: device.textEntryKeyboardLayout,
+            targetOS: device.textEntryTargetOS
+        )
     }
 
     isolated deinit {
@@ -153,14 +161,14 @@ final class TextEntryViewModel {
             guard let self else { return }
             do {
                 if showsSheet {
-                    try await device.sendText(textToSend, layout: selectedLayout) { sent, total in
+                    try await device.sendText(textToSend, layout: selectedLayout, targetOS: selectedOS) { sent, total in
                         // Only advance while actively sending; ignore late callbacks after stop.
                         if case .sending = self.progress {
                             self.progress = .sending(sent: sent, total: total)
                         }
                     }
                 } else {
-                    try await device.sendText(textToSend, layout: selectedLayout)
+                    try await device.sendText(textToSend, layout: selectedLayout, targetOS: selectedOS)
                 }
                 handleSendSuccess(showsSheet: showsSheet)
             } catch is CancellationError {
@@ -177,6 +185,18 @@ final class TextEntryViewModel {
 
     private func typableText(from text: String) -> String {
         String(text.filter { selectedLayout.canType(String($0)) })
+    }
+
+    private func persistTextEntryPreferencesIfNeeded() {
+        guard persistsSelectionChanges else { return }
+        device.saveTextEntryPreferences(layout: selectedLayout, targetOS: selectedOS)
+    }
+
+    private func updateSelectionWithoutPersisting(layout: CSKeyboardLayout, targetOS: CSTypingOS) {
+        persistsSelectionChanges = false
+        selectedLayout = layout
+        selectedOS = targetOS
+        persistsSelectionChanges = true
     }
 
     private func handleSendSuccess(showsSheet: Bool) {
@@ -211,8 +231,7 @@ final class TextEntryViewModel {
         isConnectionLost: Bool = false,
         presentsSheets: Bool = true
     ) {
-        self.selectedLayout = .usQWERTY
-        self.selectedOS = .windows
+        updateSelectionWithoutPersisting(layout: .usQWERTY, targetOS: .windows)
         self.text = text
         self.isSending = isSending
         self.showSentToast = isToastVisible

@@ -12,17 +12,15 @@ struct TouchpadGestureView: UIViewRepresentable {
     let onTwoFingerTap: () -> Void
 
     func makeUIView(context: Context) -> TouchpadView {
-        let view = TouchpadView(
+        TouchpadView(
             onMove: onMove,
             onScroll: onScroll,
             onTap: onTap,
             onTwoFingerTap: onTwoFingerTap
         )
-        return view
     }
 
     func updateUIView(_ uiView: TouchpadView, context: Context) {
-        // Update callbacks if needed
         uiView.onMove = onMove
         uiView.onScroll = onScroll
         uiView.onTap = onTap

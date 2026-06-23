@@ -369,7 +369,6 @@ extension CSDevice {
         }
     }
 
-    /// 
     func _startCommandCompletionTimeout(_ timeout: TimeInterval) {
         // TODO: enable after debug
 //        _commandCompletionTimeoutTimer?.invalidate()

@@ -4,13 +4,13 @@ iOS companion app for [ClickStick](https://clickstick.io) -- a USB HID dongle th
 
 ## Features
 
-- **Device Management**: Scan for ClickStick dongles via Bluetooth LE, pair, and manage multiple devices.
+- **Device Management**: Scan for ClickStick dongles via Bluetooth LE, pair with QR/manual key setup, and manage multiple devices.
 - **Text Typing**: Send text to the connected computer through the dongle. Supports US QWERTY, German QWERTZ, and French AZERTY keyboard layouts with automatic locale detection.
-- **Mouse Control**: Touchpad-style gestures for cursor movement, clicks (left/middle/right), and scrolling.
-- **Premium Typing Quota**: Freemium model with free quota, one-time speed packs, monthly subscriptions, and in-context paywall presentation.
-- **Share Extension**: Send text from any app (password managers, notes, browsers) to ClickStick without switching apps.
-- **URL Scheme**: Automate typing via [x-callback-url](#url-scheme-integration) for integration with Shortcuts, password managers, and other apps.
-- **Accessibility**: Full VoiceOver, Dynamic Type, and Voice Control support.
+- **Mouse Control**: Touchpad-style gestures for cursor movement, clicks (left/right), and scrolling.
+- **Onboarding and Demo Mode**: First-run onboarding can start hardware pairing or enable demo devices for exploring without hardware.
+- **Share Extension**: Placeholder extension target retained for future redesign.
+- **Settings**: Auto-select the last used device and keep the screen awake while connected.
+- **Accessibility**: VoiceOver, Dynamic Type, and Voice Control-friendly UI patterns.
 
 ## How It Works
 
@@ -23,109 +23,54 @@ iOS companion app for [ClickStick](https://clickstick.io) -- a USB HID dongle th
 
 | Module | Description |
 |--------|-------------|
-| `ClickStick/` | Main iOS app target (SwiftUI, iOS 17+) |
-| `ShareExtension/` | Share extension for sending text from other apps |
-| `ClickStickKit/` | Local Swift package: BLE communication, device commands, crypto, session management |
-| `DesignSystem/` | Local Swift package: shared UI styles, components, design tokens |
+| `ClickStick/` | Main SwiftUI app target (iOS 17+, Mac Catalyst supported) |
+| `ShareExtension/` | iOS share extension for sending text from other apps |
+| `ClickStickKit/` | Local Swift package: BLE communication, device commands, keyboard mapping, crypto, session management, keychain-backed device settings |
 | `Tests/` | Unit tests (Swift Testing) |
 
-The app follows a SwiftUI + `@Observable` ViewModel architecture. Device features (text entry, mouse control) are presented as tabs within the device detail view. BLE and protocol logic stays in `ClickStickKit`; the app layer handles UI and navigation.
+The app follows a SwiftUI + `@Observable` ViewModel architecture. Device features (text entry, snippets placeholder, touchpad) are presented as tabs within the device detail view. BLE and protocol logic stays in `ClickStickKit`; the app layer handles UI, onboarding, settings, navigation, and share-extension placeholder flow.
 
-## Premium Model
+## Demo Mode
 
-ClickStick uses a freemium model. The core value proposition is saving time: typing text character-by-character at human speed takes minutes, while instant bulk delivery takes seconds.
-
-- **Free users**: Can type text at human speed (1 character/second). Fully functional, just slower.
-- **Free quota**: 500 bytes of instant-speed typing granted on first launch for demo purposes.
-- **One-time pack**: 1 KB of instant typing for $0.99 (consumable, no expiration).
-- **Subscriptions**: Monthly plans with quota that resets each month:
-  - Small (10 KB/month) -- $1.99/month
-  - Large (50 KB/month) -- $4.99/month
-  - Unlimited -- $9.99/month
-
-Quota is checked per-send and only deducted after a successful send. Failed sends never consume quota. The paywall appears after a successful send that consumes the last available full-speed bytes for non-subscribers, at a natural moment rather than as a blocking gate.
-
-Premium state is shared between the main app and the Share Extension via a shared `UserDefaults` suite.
+ClickStick can be explored without hardware by enabling demo mode during onboarding. Demo mode adds mock devices through `CSManager.isDemoMode`; these devices behave like known devices and use a demo authentication key. This keeps the UI flows testable without requiring a physical dongle.
 
 ## Build
 
-Requires Xcode 16+ and iOS 17+ SDK.
+Requires Xcode with Swift 6.2 support and the iOS 17+ SDK. CI currently uses Xcode 26.2.
 
 ```bash
-xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator build 2>&1 | xcsift
+set -o pipefail
+xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -destination 'platform=iOS Simulator,name=iPhone 17' build 2>&1 | xcsift
 ```
 
 ## Test
 
 ```bash
-xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -sdk iphonesimulator test 2>&1 | xcsift
+set -o pipefail
+xcodebuild -project ClickStick.xcodeproj -scheme ClickStick -destination 'platform=iOS Simulator,name=iPhone 17' test 2>&1 | xcsift
+```
+
+Mac Catalyst validation:
+
+```bash
+set -o pipefail
+xcodebuild \
+  -project ClickStick.xcodeproj \
+  -scheme ClickStick \
+  -destination 'platform=macOS,variant=Mac Catalyst' \
+  CODE_SIGN_IDENTITY="" \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGNING_ALLOWED=NO \
+  test 2>&1 | xcsift
 ```
 
 ---
 
-# URL Scheme Integration
-
-ClickStick supports [x-callback-url](http://x-callback-url.com/) for app integration.
-
-## URL Format
-
-```
-clickstick://x-callback-url/type?text=<encoded>&layout=<us|de|fr>&device=<uuid-or-alias>&x-source=<app>&x-success=<url>&x-error=<url>&x-cancel=<url>
-```
-
-## Parameters
-
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| text | Yes | Text to type (percent-encoded) |
-| layout | No | us, de, or fr (default: auto) |
-| device | No | Device name or UUID |
-| x-source | No | Calling app name |
-| x-success | No | URL on success |
-| x-error | No | URL on error |
-| x-cancel | No | URL on cancel |
-
-## Encoding
-
-Use URLComponents for automatic encoding:
-
-```swift
-var components = URLComponents(string: "clickstick://x-callback-url/type")!
-components.queryItems = [
-    URLQueryItem(name: "text", value: "P@ssw0rd!#"),
-    URLQueryItem(name: "layout", value: "us"),
-    URLQueryItem(name: "x-source", value: "MyApp")
-]
-UIApplication.shared.open(components.url!)
-```
-
-## Examples
-
-```
-clickstick://x-callback-url/type?text=Hello%20World
-clickstick://x-callback-url/type?text=P%40ssw0rd%21&layout=de
-```
-
-## Error Codes
-
-| Code | Description |
-|------|-------------|
-| invalid_url | Malformed URL |
-| missing_text | No text parameter |
-| empty_text | Empty text parameter |
-| decoding_failed | Text decoding failed |
-| no_device | No devices found |
-| device_not_found | Requested device alias/UUID was not found |
-| not_connected | Device not connected |
-| typing_failed | Send failed |
-| cancelled | User cancelled |
-
 ## Security
 
 - Text is never persisted to disk
-- User must confirm every deep link request
-- Text is masked by default in the UI
 - Device pairing uses on-device key exchange (keys stored in Keychain)
+- App and share extension use shared app/keychain groups for paired-device access
 - No secrets, keys, or provisioning artifacts in the repository
 
 ---

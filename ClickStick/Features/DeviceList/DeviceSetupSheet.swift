@@ -171,7 +171,7 @@ struct DeviceSetupSheet: View {
             if let validationError = viewModel.validationError {
                 Text(validationError)
                     .font(.footnote)
-                    .foregroundStyle(Color(.systemRed))
+                    .foregroundStyle(Color(uiColor: .systemRed))
                     .accessibilityLabel("Error: \(validationError)")
             }
 

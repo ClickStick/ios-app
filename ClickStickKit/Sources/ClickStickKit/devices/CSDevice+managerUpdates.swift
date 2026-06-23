@@ -42,6 +42,7 @@ extension CSDevice: CSManagerUpdateableDevice {
     /// Called by `CSManager` once this device is disconnected.
     internal func csManagerDidDisconnect(with error: CSError?) {
         log.debug("Did disconnect from \(self.uuid)")
+        _finalizeInFlightCommandWithError(error ?? CSError.connectionFailed(error: nil), proceed: false)
         _features = []
         _lastError = error
         _connectionState = .disconnected

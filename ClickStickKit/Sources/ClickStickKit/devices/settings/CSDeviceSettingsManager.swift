@@ -3,7 +3,6 @@
 //  All rights reserved.
 
 import Foundation
-import CryptoKit
 import Security
 
 /// Manages keychain operations for CSDeviceSettings
@@ -176,11 +175,10 @@ public class CSDeviceSettingsManager {
     // MARK: - Serialization
 
     private static func serializeSettings(_ settings: CSDeviceSettings) throws -> Data {
-        return try JSONEncoder().encode(settings)
+        try JSONEncoder().encode(settings)
     }
 
     private static func deserializeSettings(from data: Data) throws -> CSDeviceSettings {
-        let decoder = JSONDecoder()
-        return try decoder.decode(CSDeviceSettings.self, from: data)
+        try JSONDecoder().decode(CSDeviceSettings.self, from: data)
     }
 }

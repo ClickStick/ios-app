@@ -80,12 +80,11 @@ final class DeviceSetupViewModel {
             return
         }
 
-        if onComplete(authKey, nil) {
-            authAttemptSource = .scanner
-            awaitingAuth = true
-        } else {
-            scannerShowsFailure = true
+        if beginAuthentication(with: authKey, source: .scanner) {
+            return
         }
+
+        scannerShowsFailure = true
     }
 
     func submitAuthKey() {
@@ -98,15 +97,14 @@ final class DeviceSetupViewModel {
         }
 
         validationError = nil
-        if onComplete(authKey, nil) {
-            authAttemptSource = .manual
-            awaitingAuth = true
-        } else {
-            validationError = String(
-                localized: "Could not save device settings. Try again.",
-                comment: "Device setup save failure message"
-            )
+        if beginAuthentication(with: authKey, source: .manual) {
+            return
         }
+
+        validationError = String(
+            localized: "Could not save device settings. Try again.",
+            comment: "Device setup save failure message"
+        )
     }
 
     func scannerDismissed() {
@@ -148,6 +146,13 @@ final class DeviceSetupViewModel {
     }
 
     // MARK: - Private
+
+    private func beginAuthentication(with authKey: CSAppAuthKey, source: AuthAttemptSource) -> Bool {
+        guard onComplete(authKey, nil) else { return false }
+        authAttemptSource = source
+        awaitingAuth = true
+        return true
+    }
 
     private func reportAuthFailure() {
         let source = authAttemptSource

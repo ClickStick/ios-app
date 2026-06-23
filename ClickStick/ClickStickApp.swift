@@ -9,10 +9,8 @@ struct ClickStickApp: App {
     @AppStorage(OnboardingStorage.isDemoModeEnabled) private var isDemoModeEnabled = false
 
     @State private var router = AppRouter()
-    @State private var deepLinkHandler: DeepLinkHandler
     @State private var deviceListViewModel: DeviceListViewModel
     @State private var pendingDeviceListStartupAction: DeviceListStartupAction?
-    @State private var isShowingParsingError = false
 
     private let service: ClickStickService
     private let urlOpener: URLOpener
@@ -25,7 +23,6 @@ struct ClickStickApp: App {
 
         self.urlOpener = urlOpener
         self.service = service
-        _deepLinkHandler = State(initialValue: DeepLinkHandler(urlOpener: urlOpener))
         _deviceListViewModel = State(initialValue: DeviceListViewModel(service: service, urlOpener: urlOpener))
 #if targetEnvironment(macCatalyst)
         UITextField.appearance().focusEffect = nil
@@ -36,26 +33,6 @@ struct ClickStickApp: App {
         WindowGroup {
             rootContent
                 .environment(\.appRouter, router)
-                .onOpenURL { url in
-                    deepLinkHandler.handle(url: url)
-                }
-                .sheet(item: $deepLinkHandler.pendingTypeRequest) { _ in
-                    DeepLinkTypeSheet()
-                }
-                .onChange(of: deepLinkHandler.parsingError) { _, newError in
-                    isShowingParsingError = newError != nil
-                }
-                .alert(
-                    "Deep Link Error",
-                    isPresented: $isShowingParsingError,
-                    presenting: deepLinkHandler.parsingError
-                ) { _ in
-                    Button("OK") {
-                        deepLinkHandler.clearParsingError()
-                    }
-                } message: { error in
-                    Text(error.code.message)
-                }
         }
     }
 

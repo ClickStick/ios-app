@@ -18,7 +18,7 @@ final class CSTypeCommand: CSCommand {
 
     let keyCodes: [KeyCode]
 
-    /// Maximium number of key codes accepted per command.
+    /// Maximum number of key codes accepted per command.
     static func getMaxKeyCodeCount(forCommandSize commandSize: Int) -> Int {
         let commandParamsSize = commandSize - 1 // -1 reserved for commandID
         return commandParamsSize / KeyCode.size
@@ -74,10 +74,12 @@ extension CSDevice {
     /// - Parameters:
     ///   - text: text to type
     ///   - layout: host's keyboard layout
+    ///   - targetOS: host's target operating system. Not used by mappings yet.
     ///   - completion: called once the command completes
     public func sendTypeCommands(
         text: String,
         layout: CSKeyboardLayout,
+        targetOS: CSTypingOS,
         completion: CSCommandCompletion?
     ) {
         let keyCodes = layout.getKeyCodes(for: text, includeUnknown: false)

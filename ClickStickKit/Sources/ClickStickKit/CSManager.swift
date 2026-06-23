@@ -14,7 +14,7 @@ public protocol CSManagerDelegate: AnyObject {
 final public class CSManager: NSObject {
     private let log = Logger(subsystem: "io.clickstick", category: #file)
 
-    // MARK: Public properties
+    // MARK: Public properties
 
     public static let shared = CSManager()
     public var isDemoMode = false {
@@ -114,7 +114,7 @@ extension CSManager {
     }
 
     public func getDevice(with uuid: UUID) -> CSDevice? {
-        return devicesByUUID[uuid]
+        devicesByUUID[uuid]
     }
 
     public func knownDevices() -> [CSDevice] {

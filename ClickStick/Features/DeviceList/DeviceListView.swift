@@ -60,27 +60,27 @@ struct DeviceListView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             if !viewModel.devices.isEmpty {
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         isShowingSettings = true
                     } label: {
                         Image(systemName: "gearshape")
-                            .accessibilityHidden(true)
                     }
-                    .tint(.primary)
+                    .buttonStyle(CircularToolbarButtonStyle(role: .neutral))
                     .accessibilityLabel("Settings")
+                }
+                .appHiddenSharedToolbarBackground()
 
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         presentAddDevice()
                     } label: {
                         Image(systemName: "plus")
-                            .accessibilityHidden(true)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.circle)
-                    .tint(.accentBlue)
+                    .buttonStyle(CircularToolbarButtonStyle(role: .prominent))
                     .accessibilityLabel("Add device")
                 }
+                .appHiddenSharedToolbarBackground()
             }
         }
         .sheet(isPresented: $isShowingSettings) {
@@ -123,30 +123,17 @@ struct DeviceListView: View {
                 presentFoundDevices()
             }
         }
-        .onChange(of: viewModel.deviceRequiringAuthentication) { _, device in
-            if let device, router.presentedSheet == nil {
-                pendingConnectedDeviceID = nil
-                viewModel.prepareDeviceForSetup(device)
-                router.showDeviceSetup(for: device)
-            }
-        }
         .onChange(of: startupAction, initial: true) { _, action in
             handleStartupAction(action)
         }
-        .modifier(DeviceUIStateObserver(viewModel: viewModel, onStateChange: resolvePendingConnectedDeviceSelection))
+        .modifier(DeviceUIStateObserver(viewModel: viewModel, onStateChange: handleDeviceStateChange))
         .errorAlert($viewModel.alertError)
         .confirmationDialog(
             "Forget Device",
             isPresented: $isConfirmingForget,
             titleVisibility: .visible
         ) {
-            Button("Forget Device", role: .destructive) {
-                if let device = deviceToForget {
-                    if viewModel.forgetDevice(device, selectedDeviceID: router.selectedDeviceID) {
-                        router.deselectDevice()
-                    }
-                }
-            }
+            Button("Forget Device", role: .destructive, action: forgetPendingDevice)
         } message: {
             Text("This will remove the saved authentication key. You'll need to set up the device again to reconnect.")
         }
@@ -176,14 +163,13 @@ struct DeviceListView: View {
     }
 
     private func handleAddDeviceDismiss() {
-        if let next = pendingStage {
-            // Sequential swap: present the queued sheet now that the previous one is gone.
-            pendingStage = nil
-            addDeviceStage = next
-        } else {
-            // The user fully exited the add-device flow.
+        guard let nextStage = pendingStage else {
             viewModel.stopScanning()
+            return
         }
+
+        pendingStage = nil
+        addDeviceStage = nextStage
     }
 
     /// After the compromised sheet closes, if the user chose "Connect anyway" we
@@ -193,6 +179,13 @@ struct DeviceListView: View {
         reauthPendingDevice = nil
         viewModel.prepareDeviceForSetup(device)
         router.showDeviceSetup(for: device)
+    }
+
+    private func forgetPendingDevice() {
+        guard let device = deviceToForget else { return }
+        if viewModel.forgetDevice(device, selectedDeviceID: router.selectedDeviceID) {
+            router.deselectDevice()
+        }
     }
 
     private func disconnectDevice(_ device: DeviceModel) {
@@ -224,6 +217,19 @@ struct DeviceListView: View {
         }
     }
 
+    private func handleDeviceStateChange() {
+        resolvePendingConnectedDeviceSelection()
+        handleDeviceRequiringAuthentication()
+    }
+
+    private func handleDeviceRequiringAuthentication() {
+        guard let device = viewModel.deviceRequiringAuthentication,
+              router.presentedSheet == nil else { return }
+        pendingConnectedDeviceID = nil
+        viewModel.prepareDeviceForSetup(device)
+        router.showDeviceSetup(for: device)
+    }
+
     private func resolvePendingConnectedDeviceSelection() {
         guard let pendingConnectedDeviceID else { return }
 
@@ -237,9 +243,9 @@ struct DeviceListView: View {
             router.selectDevice(device)
             self.pendingConnectedDeviceID = nil
         case .connecting, .authorizing:
-            break // still in progress — keep waiting
+            break
         default:
-            self.pendingConnectedDeviceID = nil // terminal state, give up
+            self.pendingConnectedDeviceID = nil
         }
     }
 
@@ -563,5 +569,13 @@ private enum DeviceListPreviewFactory {
 #Preview("Device List") {
     NavigationStack {
         DeviceListView(viewModel: DeviceListPreviewFactory.populated())
+    }
+}
+
+#Preview("Device List Sidebar") {
+    NavigationSplitView {
+        DeviceListView(viewModel: DeviceListPreviewFactory.populated())
+    } detail: {
+        NoDeviceSelectedView()
     }
 }

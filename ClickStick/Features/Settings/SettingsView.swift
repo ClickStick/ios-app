@@ -32,8 +32,7 @@ struct SettingsView: View {
                     SettingsSection(title: "Help") {
                         SettingsNavigationRow(
                             icon: "info.circle",
-                            title: "How it works",
-                            value: nil
+                            title: "How it works"
                         )
 
                         SettingsDivider()
@@ -139,7 +138,7 @@ private struct SettingsToggleRow: View {
 
             Toggle(title, isOn: $isOn)
                 .labelsHidden()
-                .tint(Color(.systemGreen))
+                .tint(Color(uiColor: .systemGreen))
         }
         .frame(minHeight: 60)
         .padding(.horizontal, 16)
@@ -150,7 +149,6 @@ private struct SettingsToggleRow: View {
 private struct SettingsNavigationRow: View {
     let icon: String
     let title: LocalizedStringKey
-    let value: LocalizedStringKey?
 
     var body: some View {
         HStack(spacing: 16) {
@@ -166,15 +164,9 @@ private struct SettingsNavigationRow: View {
 
             Spacer(minLength: 12)
 
-            if let value {
-                Text(value)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-            } else {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.secondary.opacity(0.65))
-            }
+            Image(systemName: "chevron.right")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.secondary.opacity(0.65))
         }
         .frame(minHeight: 56)
         .padding(.horizontal, 16)
@@ -213,7 +205,7 @@ private struct SettingsActionRow: View {
 private struct SettingsDivider: View {
     var body: some View {
         Rectangle()
-            .fill(Color(.separator))
+            .fill(Color(uiColor: .separator))
             .frame(height: 0.5)
             .padding(.leading, 16)
             .padding(.trailing, 20)

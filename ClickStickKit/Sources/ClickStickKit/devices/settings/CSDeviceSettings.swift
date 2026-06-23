@@ -2,7 +2,6 @@
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 //  All rights reserved.
 
-import CryptoKit
 import Foundation
 
 /// Manages device-specific settings stored in the keychain
@@ -19,6 +18,12 @@ public class CSDeviceSettings: Codable {
     /// User-defined device alias
     public var deviceAlias: String?
 
+    /// Preferred keyboard layout for text entry on this device.
+    public var keyboardLayout: CSKeyboardLayout
+
+    /// Preferred target operating system for text entry on this device.
+    public var typingOS: CSTypingOS
+
     // MARK: - Initialization
 
     /// Creates a new CSDeviceSettings instance for the specified device
@@ -28,6 +33,8 @@ public class CSDeviceSettings: Codable {
     public init(deviceUUID: UUID, appAuthKey: CSAppAuthKey) {
         self.deviceUUID = deviceUUID
         self.appAuthKey = appAuthKey
+        self.keyboardLayout = CSKeyboardLayout.fromSystemLocale()
+        self.typingOS = .windows
     }
 
     /// Creates a new CSDeviceSettings instance with default values
@@ -35,33 +42,19 @@ public class CSDeviceSettings: Codable {
     ///   - deviceUUID: The unique identifier for the device
     ///   - appAuthKey: App authentication key
     ///   - deviceName: Optional user-defined device alias
-    public init(deviceUUID: UUID, appAuthKey: CSAppAuthKey, deviceAlias: String? = nil) {
+    ///   - keyboardLayout: Preferred keyboard layout for text entry
+    ///   - typingOS: Preferred target operating system for text entry
+    public init(
+        deviceUUID: UUID,
+        appAuthKey: CSAppAuthKey,
+        deviceAlias: String? = nil,
+        keyboardLayout: CSKeyboardLayout = CSKeyboardLayout.fromSystemLocale(),
+        typingOS: CSTypingOS = .windows
+    ) {
         self.deviceUUID = deviceUUID
         self.appAuthKey = appAuthKey
         self.deviceAlias = deviceAlias
-    }
-
-    // MARK: - Codable
-
-    public enum CodingKeys: String, CodingKey {
-        case deviceUUID
-        case appAuthKey
-        case deviceAlias
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        try container.encode(deviceUUID, forKey: .deviceUUID)
-        try container.encode(appAuthKey, forKey: .appAuthKey)
-        try container.encodeIfPresent(deviceAlias, forKey: .deviceAlias)
-    }
-
-    public required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        deviceUUID = try container.decode(UUID.self, forKey: .deviceUUID)
-        appAuthKey = try container.decode(CSAppAuthKey.self, forKey: .appAuthKey)
-        deviceAlias = try container.decodeIfPresent(String.self, forKey: .deviceAlias)
+        self.keyboardLayout = keyboardLayout
+        self.typingOS = typingOS
     }
 }

@@ -83,18 +83,22 @@ final class ClickStickService: CSManagerDelegate {
 
     // MARK: - CSManagerDelegate
 
-    func didDiscover(device: CSDevice, in manager: CSManager) {
-        log.debug("Discovered device: \(device.uuid)")
-        // Clear any previous Bluetooth error since discovery means BT is working
-        if bluetoothError != nil {
-            bluetoothError = nil
+    nonisolated func didDiscover(device: CSDevice, in manager: CSManager) {
+        Task { @MainActor in
+            log.debug("Discovered device: \(device.uuid)")
+            // Clear any previous Bluetooth error since discovery means BT is working
+            if bluetoothError != nil {
+                bluetoothError = nil
+            }
+            syncDevicesFromManager()
         }
-        syncDevicesFromManager()
     }
 
-    func didFail(with error: CSError, in manager: CSManager) {
-        log.error("Manager failed: \(error.localizedDescription)")
-        bluetoothError = error
-        isScanning = false
+    nonisolated func didFail(with error: CSError, in manager: CSManager) {
+        Task { @MainActor in
+            log.error("Manager failed: \(error.localizedDescription)")
+            bluetoothError = error
+            isScanning = false
+        }
     }
 }

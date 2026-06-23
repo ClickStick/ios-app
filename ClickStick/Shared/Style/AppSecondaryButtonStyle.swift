@@ -18,7 +18,7 @@ struct AppSecondaryButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity, minHeight: 50)
             .background(
                 RoundedRectangle(cornerRadius: 999, style: .continuous)
-                    .fill(Color(.systemGray5))
+                    .fill(Color(uiColor: .systemGray5))
             )
             .contentShape(RoundedRectangle(cornerRadius: 999, style: .continuous))
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)

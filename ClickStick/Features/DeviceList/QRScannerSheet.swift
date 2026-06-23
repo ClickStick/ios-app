@@ -419,12 +419,12 @@ private struct SetupFailurePanel: View {
     private var failureIcon: some View {
         ZStack {
             Circle()
-                .fill(Color(.systemRed).opacity(0.12))
+                .fill(Color(uiColor: .systemRed).opacity(0.12))
                 .frame(width: 80, height: 80)
 
             Image(systemName: "exclamationmark.circle")
                 .font(.system(size: 40, weight: .semibold))
-                .foregroundStyle(Color(.systemRed))
+                .foregroundStyle(Color(uiColor: .systemRed))
         }
         .accessibilityHidden(true)
     }
@@ -552,18 +552,18 @@ struct QRCodeScannerView: UIViewControllerRepresentable {
         }
 
         private func processItem(_ item: RecognizedItem, from scanner: DataScannerViewController) {
-            guard !hasScanned else { return }
-
-            if case .barcode(let barcode) = item,
-               let payload = barcode.payloadStringValue {
-                if let hexKey = extractHexKey(from: payload) {
-                    hasScanned = true
-                    stopScannerIfRunning {
-                        scanner.stopScanning()
-                    }
-                    onScan(hexKey)
-                }
+            guard !hasScanned,
+                  case .barcode(let barcode) = item,
+                  let payload = barcode.payloadStringValue,
+                  let hexKey = extractHexKey(from: payload) else {
+                return
             }
+
+            hasScanned = true
+            stopScannerIfRunning {
+                scanner.stopScanning()
+            }
+            onScan(hexKey)
         }
 
         private func extractHexKey(from string: String) -> String? {

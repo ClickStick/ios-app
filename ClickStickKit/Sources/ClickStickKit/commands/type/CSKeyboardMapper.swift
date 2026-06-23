@@ -8,7 +8,7 @@ import os.log
 private let log = Logger(subsystem: "io.clickstick", category: #file)
 
 /// Keyboard layouts supported by the CSTypeCommand
-public enum CSKeyboardLayout: CaseIterable, CustomStringConvertible {
+public enum CSKeyboardLayout: String, CaseIterable, Codable, CustomStringConvertible {
     case usQWERTY          // ANSI
     case deQWERTZ          // DIN 2137 T1 (ISO)
     case frAZERTY_Classic  // Classic/legacy French AZERTY

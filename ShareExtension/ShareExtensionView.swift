@@ -3,25 +3,14 @@
 
 import SwiftUI
 
-/// Main view for the Share Extension - uses shared TypeTextContentView
 struct ShareExtensionView: View {
-    @Bindable var viewModel: ShareExtensionViewModel
-    let onCancel: () -> Void
-    let onComplete: () -> Void
-
-    @State private var showConnectionError = false
-
     var body: some View {
         Text("Not implemented")
+            .font(.headline)
+            .padding()
     }
 }
 
-// MARK: - Preview
-
 #Preview {
-    ShareExtensionView(
-        viewModel: ShareExtensionViewModel(sharedText: "MySecretPassword123!@#"),
-        onCancel: {},
-        onComplete: {}
-    )
+    ShareExtensionView()
 }

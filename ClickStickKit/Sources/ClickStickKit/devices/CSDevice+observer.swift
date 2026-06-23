@@ -36,11 +36,9 @@ extension CSDevice {
 
     internal func _notifyObservers(_ block: @escaping (CSDeviceObserver) -> Void) {
         let notificationQueue = DispatchQueue.main
-        for object in _observers.allObjects {
-            if let observer = object as? CSDeviceObserver {
-                notificationQueue.async {
-                    block(observer)
-                }
+        for case let observer as CSDeviceObserver in _observers.allObjects {
+            notificationQueue.async {
+                block(observer)
             }
         }
     }

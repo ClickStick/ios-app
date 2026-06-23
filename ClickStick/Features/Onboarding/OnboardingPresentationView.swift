@@ -15,7 +15,7 @@ struct OnboardingPresentationView: View {
                 .frame(maxWidth: 480)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemGroupedBackground).ignoresSafeArea())
+                .background(Color.black.opacity(0.4).ignoresSafeArea())
         } else {
             onboardingView
         }
@@ -27,4 +27,17 @@ struct OnboardingPresentationView: View {
             onGetClickStick: onGetClickStick
         )
     }
+}
+
+// MARK: - Previews
+
+#Preview("iPad Onboarding") {
+    OnboardingPresentationView(onComplete: { _ in }, onGetClickStick: {})
+        .environment(\.horizontalSizeClass, .regular)
+}
+
+#Preview("iPad Onboarding Dark") {
+    OnboardingPresentationView(onComplete: { _ in }, onGetClickStick: {})
+        .environment(\.horizontalSizeClass, .regular)
+        .environment(\.colorScheme, .dark)
 }

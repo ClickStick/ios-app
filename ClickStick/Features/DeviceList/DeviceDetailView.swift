@@ -10,7 +10,6 @@ struct DeviceDetailView: View {
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var textEntryViewModel: TextEntryViewModel
     @State private var mouseViewModel: MouseViewModel
-    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @State private var showConnectionLost = false
     @State private var connectionLostSheetHeight: CGFloat = .zero
 
@@ -44,7 +43,13 @@ struct DeviceDetailView: View {
     }
 
     var body: some View {
-        selectedTabContent
+        // Read the send-button state here, in body, so the toolbar is rebuilt when it
+        // changes. Toolbar content does not observe @Observable changes on its own — only
+        // TextEntryView reads `text`, so without this the toolbar would never re-evaluate.
+        let canSend = textEntryViewModel.canSend
+        let isSending = textEntryViewModel.isSending
+
+        return selectedTabContent
             .background(Color.groupedBackground.ignoresSafeArea())
             .tint(.accentBlue)
             .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -55,8 +60,9 @@ struct DeviceDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    primaryToolbarAction
+                    primaryToolbarAction(canSend: canSend, isSending: isSending)
                 }
+                .appHiddenSharedToolbarBackground()
             }
             .onChange(of: device.connectionState) { oldState, newState in
                 handleConnectionStateChange(from: oldState, to: newState)
@@ -69,36 +75,24 @@ struct DeviceDetailView: View {
             .sheet(isPresented: $showConnectionLost, onDismiss: dismissConnectionLost) {
                 connectionLostSheet
                     .measureHeight($connectionLostSheetHeight)
-                    .presentationBackground(Color(.systemBackground))
+                    .presentationBackground(Color(uiColor: .systemBackground))
                     .presentationDetents(sheetDetents(for: connectionLostSheetHeight))
                     .presentationBackgroundInteraction(.disabled)
             }
     }
 
     @ViewBuilder
-    private var primaryToolbarAction: some View {
+    private func primaryToolbarAction(canSend: Bool, isSending: Bool) -> some View {
         switch selectedTab {
         case .textEntry:
-            Button {
-                guard textEntryViewModel.canSend else { return }
+            SendToolbarButton(canSend: canSend, isSending: isSending) {
                 textEntryViewModel.requestSend()
-            } label: {
-                sendButtonLabel
             }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.circle)
-            .tint(sendButtonBackgroundColor)
-            .allowsHitTesting(textEntryViewModel.canSend)
-            .accessibilityLabel(sendButtonAccessibilityLabel)
-            .accessibilityRespondsToUserInteraction(textEntryViewModel.canSend)
         case .snippets:
             Button {} label: {
                 Image(systemName: "plus")
-                    .accessibilityHidden(true)
             }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.circle)
-            .tint(.accentBlue)
+            .buttonStyle(CircularToolbarButtonStyle(role: .prominent))
             .accessibilityLabel(String(localized: "Create snippet", comment: "Create snippet button accessibility"))
         case .mouse:
             EmptyView()
@@ -140,32 +134,6 @@ struct DeviceDetailView: View {
         )
     }
 
-    @ViewBuilder
-    private var sendButtonLabel: some View {
-        ZStack {
-            if textEntryViewModel.isSending {
-                SendButtonActivityIndicator(isAnimated: !accessibilityReduceMotion)
-            } else {
-                Image(systemName: "arrow.up")
-                    .foregroundStyle(Color.white)
-            }
-        }
-        .frame(width: 22, height: 22)
-        .accessibilityHidden(true)
-    }
-
-    private var sendButtonAccessibilityLabel: String {
-        if textEntryViewModel.isSending {
-            String(localized: "Sending text", comment: "Header send button sending accessibility")
-        } else {
-            String(localized: "Send text", comment: "Header send button accessibility")
-        }
-    }
-
-    private var sendButtonBackgroundColor: Color {
-        textEntryViewModel.canSend ? Color.accentBlue : Color.accentBlue.opacity(0.5)
-    }
-
     private var snippetsPlaceholder: some View {
         VStack(spacing: 12) {
             Text("No snippets yet")
@@ -203,6 +171,43 @@ struct DeviceDetailView: View {
     private func retryConnection() {
         dismissConnectionLost()
         device.connect()
+    }
+}
+
+/// Primary "send" action in the navigation bar. Takes plain `canSend`/`isSending` values
+/// (read in `DeviceDetailView.body`) rather than the view model, because toolbar content
+/// only re-evaluates when the owning body does.
+private struct SendToolbarButton: View {
+    let canSend: Bool
+    let isSending: Bool
+    let action: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            ZStack {
+                if isSending {
+                    SendButtonActivityIndicator(isAnimated: !accessibilityReduceMotion)
+                } else {
+                    Image(systemName: "arrow.up")
+                }
+            }
+            .frame(width: 22, height: 22)
+            .accessibilityHidden(true)
+        }
+        .buttonStyle(CircularToolbarButtonStyle(role: .prominent))
+        .disabled(!canSend)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        if isSending {
+            String(localized: "Sending text", comment: "Header send button sending accessibility")
+        } else {
+            String(localized: "Send text", comment: "Header send button accessibility")
+        }
     }
 }
 

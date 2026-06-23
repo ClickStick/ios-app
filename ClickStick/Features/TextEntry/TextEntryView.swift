@@ -6,7 +6,6 @@ import SwiftUI
 
 struct TextEntryView: View {
     @Bindable var viewModel: TextEntryViewModel
-    @FocusState private var isTextFieldFocused: Bool
     @State private var unsupportedSheetHeight: CGFloat = .zero
     @State private var progressSheetHeight: CGFloat = .zero
     @State private var shouldSendAfterUnsupportedSheetDismisses = false
@@ -15,7 +14,6 @@ struct TextEntryView: View {
         VStack(spacing: 12) {
             TextEditorCard(
                 text: $viewModel.text,
-                isFocused: $isTextFieldFocused,
                 characterCount: viewModel.characterCount,
                 inlineUnsupportedMessage: viewModel.inlineUnsupportedMessage,
                 borderColor: borderColor
@@ -34,18 +32,17 @@ struct TextEntryView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showSentToast)
-        .task { isTextFieldFocused = true }
         .sheet(isPresented: $viewModel.isShowingUnsupportedPrompt, onDismiss: sendAfterUnsupportedSheetDismissesIfNeeded) {
             unsupportedCharactersSheet
                 .measureHeight($unsupportedSheetHeight)
-                .presentationBackground(Color(.systemBackground))
+                .presentationBackground(Color(uiColor: .systemBackground))
                 .presentationDetents(sheetDetents(for: unsupportedSheetHeight))
                 .presentationBackgroundInteraction(.disabled)
         }
         .sheet(item: $viewModel.progress) { _ in
             progressSheet
                 .measureHeight($progressSheetHeight)
-                .presentationBackground(Color(.systemBackground))
+                .presentationBackground(Color(uiColor: .systemBackground))
                 .presentationDetents(sheetDetents(for: progressSheetHeight))
                 .interactiveDismissDisabled(viewModel.isSending)
                 .presentationBackgroundInteraction(.disabled)
@@ -56,16 +53,16 @@ struct TextEntryView: View {
         HStack(spacing: 8) {
             Menu {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
-                    Button(layout.description.replacing(" - ", with: "-")) {
+                    Button(layout.menuTitle) {
                         viewModel.selectedLayout = layout
                     }
                 }
             } label: {
-                menuPillLabel(viewModel.selectedLayout.description.replacing(" - ", with: "-"))
+                menuPillLabel(viewModel.selectedLayout.menuTitle)
             }
 
             Menu {
-                ForEach(TypingOS.allCases) { os in
+                ForEach(CSTypingOS.allCases) { os in
                     Button(os.title) {
                         viewModel.selectedOS = os
                     }
@@ -86,16 +83,16 @@ struct TextEntryView: View {
         .foregroundStyle(Color.primary)
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
-        .background(Capsule(style: .continuous).fill(Color(.systemGray5)))
+        .background(Color(uiColor: .secondarySystemBackground), in: Capsule(style: .continuous))
     }
 
     private var sentToast: some View {
         Label("Sent to \(viewModel.deviceName)", systemImage: "checkmark.circle")
             .font(.body.weight(.bold))
-            .foregroundStyle(.white)
+            .foregroundStyle(.background)
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
-            .background(Capsule(style: .continuous).fill(Color.black))
+            .background(.primary, in: Capsule(style: .continuous))
             .accessibilityElement(children: .combine)
     }
 
@@ -136,9 +133,14 @@ struct TextEntryView: View {
 
 // MARK: - Text Editor Card
 
+private extension CSKeyboardLayout {
+    var menuTitle: String {
+        description.replacing(" - ", with: "-")
+    }
+}
+
 private struct TextEditorCard<Controls: View>: View {
     @Binding var text: String
-    @FocusState.Binding var isFocused: Bool
     let characterCount: Int
     let inlineUnsupportedMessage: String?
     let borderColor: Color
@@ -147,35 +149,30 @@ private struct TextEditorCard<Controls: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .bottomLeading) {
-                TextEditor(text: $text)
-                    .font(.body)
-                    .scrollContentBackground(.hidden)
-                    .focused($isFocused)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 20)
-                    .padding(.bottom, 40)
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $text)
+                        .font(.body)
+                        .scrollContentBackground(.hidden)
+                        .background(editorBackground)
 
-                if text.isEmpty {
-                    VStack {
-                        HStack {
-                            Text("Type or paste text to send...")
-                                .font(.body)
-                                .foregroundStyle(.secondary.opacity(0.5))
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 24)
-                            Spacer()
-                        }
-                        Spacer()
-                    }
-                    .allowsHitTesting(false)
+                    Text("Type or paste text to send...")
+                        .foregroundStyle(.secondary.opacity(0.5))
+                        .font(.body)
+                        .padding(.top, 8)
+                        .padding(.leading, 4)
+                        .opacity(text.isEmpty ? 1 : 0)
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 40)
+                .background(editorBackground)
 
                 controls
                     .padding(.leading, 16)
                     .padding(.bottom, 16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color.cardBackground)
+            .background(editorBackground)
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .overlay {
                 RoundedRectangle(cornerRadius: 24)
@@ -194,5 +191,9 @@ private struct TextEditorCard<Controls: View>: View {
                     .padding(.top, 4)
             }
         }
+    }
+
+    private var editorBackground: Color {
+        Color(uiColor: .tertiarySystemBackground)
     }
 }

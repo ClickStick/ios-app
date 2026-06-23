@@ -10,11 +10,17 @@ protocol TextSendingDevice: AnyObject {
     var displayName: String { get }
     var isConnected: Bool { get }
 
-    func sendText(_ text: String, layout: CSKeyboardLayout) async throws
+    var textEntryKeyboardLayout: CSKeyboardLayout { get }
+    var textEntryTargetOS: CSTypingOS { get }
+
+    func saveTextEntryPreferences(layout: CSKeyboardLayout, targetOS: CSTypingOS)
+
+    func sendText(_ text: String, layout: CSKeyboardLayout, targetOS: CSTypingOS) async throws
 
     func sendText(
         _ text: String,
         layout: CSKeyboardLayout,
+        targetOS: CSTypingOS,
         onCharacterProgress: @escaping @MainActor (_ sent: Int, _ total: Int) -> Void
     ) async throws
 }
@@ -74,6 +80,7 @@ extension DeviceUIState: Equatable {
 
 /// Observable wrapper for CSDevice to bridge ClickStickKit to SwiftUI
 @Observable
+@MainActor
 final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, MouseControllingDevice {
     private let log = Logger(subsystem: "io.clickstick", category: "DeviceModel")
 
@@ -173,7 +180,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         device.addObserver(self)
     }
 
-    deinit {
+    isolated deinit {
         device.removeObserver(self)
     }
 
@@ -217,9 +224,24 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         device.disconnect()
     }
 
-    func sendText(_ text: String, layout: CSKeyboardLayout) async throws {
+    var textEntryKeyboardLayout: CSKeyboardLayout {
+        deviceSettings?.keyboardLayout ?? CSKeyboardLayout.fromSystemLocale()
+    }
+
+    var textEntryTargetOS: CSTypingOS {
+        deviceSettings?.typingOS ?? .windows
+    }
+
+    func saveTextEntryPreferences(layout: CSKeyboardLayout, targetOS: CSTypingOS) {
+        guard let settings = deviceSettings else { return }
+        settings.keyboardLayout = layout
+        settings.typingOS = targetOS
+        try? CSDeviceSettingsManager.saveSettings(settings)
+    }
+
+    func sendText(_ text: String, layout: CSKeyboardLayout, targetOS: CSTypingOS) async throws {
         guard isConnected else { throw CSError.connectionFailed(error: nil) }
-        try await sendTypeCommands(text: text, layout: layout)
+        try await sendTypeCommands(text: text, layout: layout, targetOS: targetOS)
     }
 
     /// Sends text one character at a time so progress can be reported and the send can be
@@ -228,6 +250,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     func sendText(
         _ text: String,
         layout: CSKeyboardLayout,
+        targetOS: CSTypingOS,
         onCharacterProgress: @escaping @MainActor (_ sent: Int, _ total: Int) -> Void
     ) async throws {
         guard isConnected else { throw CSError.connectionFailed(error: nil) }
@@ -237,19 +260,19 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
 
         for (index, character) in characters.enumerated() {
             try Task.checkCancellation()
-            try await sendTypeCommands(text: String(character), layout: layout)
+            try await sendTypeCommands(text: String(character), layout: layout, targetOS: targetOS)
             let sent = index + 1
             await MainActor.run { onCharacterProgress(sent, total) }
         }
     }
 
-    private func sendTypeCommands(text: String, layout: CSKeyboardLayout) async throws {
+    private func sendTypeCommands(text: String, layout: CSKeyboardLayout, targetOS: CSTypingOS) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             guard isConnected else {
                 continuation.resume(throwing: CSError.connectionFailed(error: nil))
                 return
             }
-            device.sendTypeCommands(text: text, layout: layout) { result in
+            device.sendTypeCommands(text: text, layout: layout, targetOS: targetOS) { result in
                 switch result {
                 case .success:
                     continuation.resume()
@@ -299,6 +322,10 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         isSetupAuthenticationAttempt = false
         refreshSettingsCache()
         newDevice.addObserver(self)
+    }
+
+    private var deviceSettings: CSDeviceSettings? {
+        try? CSDeviceSettingsManager.loadSettings(for: device.uuid)
     }
 
     private static func loadCachedAlias(for uuid: UUID) -> String? {

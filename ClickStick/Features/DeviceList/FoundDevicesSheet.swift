@@ -68,12 +68,12 @@ struct FoundDevicesSheet: View {
 
     private var foundIcon: some View {
         ZStack {
-            Circle().fill(Color(.systemOrange).opacity(0.14))
+            Circle().fill(Color(uiColor: .systemOrange).opacity(0.14))
 
             Image(systemName: "antenna.radiowaves.left.and.right")
                 .symbolRenderingMode(.monochrome)
                 .font(.system(size: 80 * 0.42, weight: .semibold))
-                .foregroundStyle(Color(.systemOrange))
+                .foregroundStyle(Color(uiColor: .systemOrange))
         }
         .frame(width: 80, height: 80)
         .accessibilityHidden(true)
@@ -125,7 +125,7 @@ private struct DiscoveryDeviceRow: View {
     }
 
     private var signalColor: Color {
-        row.rssi <= -80 ? Color(.systemRed) : .accentBlue
+        row.rssi <= -80 ? Color(uiColor: .systemRed) : .accentBlue
     }
 }
 

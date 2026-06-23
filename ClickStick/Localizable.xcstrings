@@ -94,7 +94,7 @@
       "comment" : "Accessibility label"
     },
     "Authorizing..." : {
-      "comment" : "Device row status\nDevice status"
+      "comment" : "Device row status"
     },
     "Auto-select last device" : {
 
@@ -154,10 +154,10 @@
       "comment" : "Accessibility label\nAccessibility label for connect button"
     },
     "Connected" : {
-      "comment" : "Device row status\nDevice status"
+      "comment" : "Device row status"
     },
     "Connecting..." : {
-      "comment" : "Device row status\nDevice status"
+      "comment" : "Device row status"
     },
     "Connection in progress" : {
       "comment" : "Accessibility hint"
@@ -174,17 +174,11 @@
     "Could not authenticate this device. Check the key and try again." : {
       "comment" : "Manual authentication failure message"
     },
-    "Could not decode text" : {
-      "comment" : "Deep link error"
-    },
     "Could not save device settings. Try again." : {
       "comment" : "Device setup save failure message"
     },
     "Create snippet" : {
       "comment" : "Create snippet button accessibility"
-    },
-    "Deep Link Error" : {
-
     },
     "Demo device" : {
       "comment" : "Device type"
@@ -200,9 +194,6 @@
     },
     "Device Name" : {
       "comment" : "Label"
-    },
-    "Device not connected" : {
-      "comment" : "Deep link error"
     },
     "Device options" : {
       "comment" : "Accessibility label for device row menu button"
@@ -258,12 +249,6 @@
     "Explore Demo Mode" : {
 
     },
-    "External app" : {
-      "comment" : "Unknown source app for deep link"
-    },
-    "Failed to send text" : {
-      "comment" : "Deep link error"
-    },
     "Find the QR code" : {
 
     },
@@ -303,9 +288,6 @@
     "Invalid key format. Please enter a 32-character hex string." : {
       "comment" : "Error message"
     },
-    "Invalid request URL" : {
-      "comment" : "Deep link error"
-    },
     "It's displayed on your ClickStick screen" : {
 
     },
@@ -336,15 +318,6 @@
     "Make sure your ClickStick is plugged in and Bluetooth is on" : {
 
     },
-    "Missing text parameter" : {
-      "comment" : "Deep link error"
-    },
-    "No ClickStick devices found" : {
-      "comment" : "Deep link error"
-    },
-    "No device selected" : {
-      "comment" : "Device status"
-    },
     "No devices found" : {
 
     },
@@ -352,12 +325,6 @@
 
     },
     "No snippets yet" : {
-
-    },
-    "Not connected" : {
-      "comment" : "Device status"
-    },
-    "Not implemented" : {
 
     },
     "Not in range" : {
@@ -493,9 +460,6 @@
     "Snippets mode" : {
       "comment" : "Accessibility label"
     },
-    "Specified device not found" : {
-      "comment" : "Deep link error"
-    },
     "Stop" : {
 
     },
@@ -526,9 +490,6 @@
     },
     "Test Password" : {
       "comment" : "Text preset name"
-    },
-    "Text cannot be empty" : {
-      "comment" : "Deep link error"
     },
     "Text Entry" : {
       "comment" : "Tab title"
@@ -574,9 +535,6 @@
     },
     "Unsupported characters" : {
 
-    },
-    "User cancelled" : {
-      "comment" : "Deep link error"
     },
     "Verifying device" : {
 

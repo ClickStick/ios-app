@@ -15,18 +15,22 @@ struct DeviceRowView: View {
                 HStack(spacing: 4) {
                     Text(device.displayName)
                         .font(.body.weight(.medium))
-                        .foregroundStyle(device.isCompromised ? Color(.systemRed) : .primary)
+                        .foregroundStyle(device.isCompromised ? Color.red : .primary)
                         .lineLimit(1)
 
                     if device.isCompromised {
                         Image(systemName: "exclamationmark.circle")
                             .font(.body)
-                            .foregroundStyle(Color(.systemRed))
+                            .foregroundStyle(Color.red)
                             .accessibilityHidden(true)
                     }
                 }
 
-                statusLine
+                DeviceStatusLine(
+                    uiState: device.uiState,
+                    statusDescription: statusDescription,
+                    statusColor: statusColor
+                )
             }
 
             Spacer(minLength: 12)
@@ -54,54 +58,43 @@ struct DeviceRowView: View {
         .padding(.horizontal, 16)
         .frame(minHeight: 78)
         .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            RoundedRectangle(cornerRadius: 20)
                 .fill(cardBackground)
         )
         .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(cardBorderColor ?? .clear, lineWidth: cardBorderColor == nil ? 0 : (device.isCompromised ? 1.5 : 0.5))
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(cardBorderColor ?? .clear, lineWidth: cardBorderWidth)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityHint(accessibilityHint)
     }
 
-    private var statusLine: some View {
-        HStack(spacing: 4) {
-            Text(statusDescription)
-                .font(.body)
-                .foregroundStyle(statusColor)
-                .lineLimit(1)
-
-            if case .connected = device.uiState {
-                Circle()
-                    .fill(Color(.systemGreen))
-                    .frame(width: 7, height: 7)
-                    .accessibilityHidden(true)
-            }
-        }
-    }
-
     private var statusColor: Color {
         switch device.uiState {
         case .compromised, .failed:
-            return Color(.systemRed)
+            return Color.red
         default:
             return Color.secondary
         }
     }
 
     private var cardBackground: Color {
-        isSelected ? Color.accentBlue.opacity(0.12) : Color.cardBackground
+        Color.cardBackground
     }
 
     private var cardBorderColor: Color? {
         switch device.uiState {
         case .compromised:
-            return Color(.systemRed)
+            return Color.red
         default:
-            return isSelected ? Color.accentBlue.opacity(0.2) : nil
+            return isSelected ? Color.accentBlue : nil
         }
+    }
+
+    private var cardBorderWidth: CGFloat {
+        guard cardBorderColor != nil else { return 0 }
+        return device.isCompromised || isSelected ? 1.5 : 0.5
     }
 
     private var statusDescription: String {
@@ -152,7 +145,7 @@ struct DeviceRowView: View {
         case .connected:
             return .accentBlue
         case .weakSignal:
-            return Color(.systemRed)
+            return Color.red
         default:
             return device.isConnectable ? .accentBlue : .secondary
         }
@@ -186,6 +179,30 @@ struct DeviceRowView: View {
             return String(localized: "Double-tap to connect", comment: "Accessibility hint")
         case .outOfRange, .failed, .compromised:
             return ""
+        }
+    }
+}
+
+// MARK: - Status Line
+
+private struct DeviceStatusLine: View {
+    let uiState: DeviceUIState
+    let statusDescription: String
+    let statusColor: Color
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(statusDescription)
+                .font(.body)
+                .foregroundStyle(statusColor)
+                .lineLimit(1)
+
+            if case .connected = uiState {
+                Circle()
+                    .fill(Color.green)
+                    .frame(width: 7, height: 7)
+                    .accessibilityHidden(true)
+            }
         }
     }
 }

@@ -12,11 +12,11 @@ enum DeviceFeatureTab: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var localizedTitle: String {
+    var localizedTitle: LocalizedStringKey {
         switch self {
-        case .textEntry: String(localized: "Text Entry", comment: "Tab title")
-        case .snippets: String(localized: "Snippets", comment: "Tab title")
-        case .mouse: String(localized: "Touchpad", comment: "Tab title")
+        case .textEntry: "Text Entry"
+        case .snippets: "Snippets"
+        case .mouse: "Touchpad"
         }
     }
 

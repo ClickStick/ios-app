@@ -10,12 +10,37 @@ struct DeviceDetailView: View {
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var textEntryViewModel: TextEntryViewModel
     @State private var mouseViewModel: MouseViewModel
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+    @State private var showConnectionLost = false
+    @State private var connectionLostSheetHeight: CGFloat = .zero
 
-    init(device: DeviceModel, initialTab: DeviceFeatureTab = .textEntry) {
+    init(
+        device: DeviceModel,
+        initialTab: DeviceFeatureTab = .textEntry,
+        showsConnectionLost: Bool = false,
+        previewText: String? = nil,
+        previewIsSending: Bool = false,
+        previewIsToastVisible: Bool = false,
+        previewProgress: TextEntryViewModel.ProgressState? = nil,
+        previewPresentsTextEntrySheets: Bool = false
+    ) {
         self.device = device
+        let textEntryViewModel = TextEntryViewModel(device: device)
+#if DEBUG
+        if previewText != nil || previewIsSending || previewIsToastVisible || previewProgress != nil || previewPresentsTextEntrySheets {
+            textEntryViewModel.configureForPreview(
+                text: previewText ?? "",
+                isSending: previewIsSending,
+                isToastVisible: previewIsToastVisible,
+                progress: previewProgress,
+                presentsSheets: previewPresentsTextEntrySheets
+            )
+        }
+#endif
         _selectedTab = State(initialValue: initialTab)
-        _textEntryViewModel = State(initialValue: TextEntryViewModel(device: device))
+        _textEntryViewModel = State(initialValue: textEntryViewModel)
         _mouseViewModel = State(initialValue: MouseViewModel(device: device))
+        _showConnectionLost = State(initialValue: showsConnectionLost)
     }
 
     var body: some View {
@@ -30,29 +55,54 @@ struct DeviceDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    switch selectedTab {
-                    case .textEntry:
-                        Button {
-                            textEntryViewModel.requestSend()
-                        } label: {
-                            Image(systemName: "arrow.up")
-                        }
-                        .disabled(!textEntryViewModel.canSend)
-                        .accessibilityLabel(String(localized: "Send text", comment: "Header send button accessibility"))
-                    case .snippets:
-                        Button {} label: {
-                            Image(systemName: "plus")
-                                .font(.title2.weight(.regular))
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.circle)
-                        .tint(.accentBlue)
-                        .accessibilityLabel(String(localized: "Create snippet", comment: "Create snippet button accessibility"))
-                    case .mouse:
-                        EmptyView()
-                    }
+                    primaryToolbarAction
                 }
             }
+            .onChange(of: device.connectionState) { oldState, newState in
+                handleConnectionStateChange(from: oldState, to: newState)
+            }
+            .onChange(of: textEntryViewModel.showConnectionLost) { _, isConnectionLost in
+                if isConnectionLost {
+                    showConnectionLost = true
+                }
+            }
+            .sheet(isPresented: $showConnectionLost, onDismiss: dismissConnectionLost) {
+                connectionLostSheet
+                    .measureHeight($connectionLostSheetHeight)
+                    .presentationBackground(Color(.systemBackground))
+                    .presentationDetents(sheetDetents(for: connectionLostSheetHeight))
+                    .presentationBackgroundInteraction(.disabled)
+            }
+    }
+
+    @ViewBuilder
+    private var primaryToolbarAction: some View {
+        switch selectedTab {
+        case .textEntry:
+            Button {
+                guard textEntryViewModel.canSend else { return }
+                textEntryViewModel.requestSend()
+            } label: {
+                sendButtonLabel
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.circle)
+            .tint(sendButtonBackgroundColor)
+            .allowsHitTesting(textEntryViewModel.canSend)
+            .accessibilityLabel(sendButtonAccessibilityLabel)
+            .accessibilityRespondsToUserInteraction(textEntryViewModel.canSend)
+        case .snippets:
+            Button {} label: {
+                Image(systemName: "plus")
+                    .accessibilityHidden(true)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.circle)
+            .tint(.accentBlue)
+            .accessibilityLabel(String(localized: "Create snippet", comment: "Create snippet button accessibility"))
+        case .mouse:
+            EmptyView()
+        }
     }
 
     @ViewBuilder
@@ -79,6 +129,43 @@ struct DeviceDetailView: View {
         }
     }
 
+    private var connectionLostSheet: some View {
+        TextEntryWarningSheet(
+            title: "Connection lost",
+            message: "Bluetooth disconnected.\nCheck your device and try again.",
+            secondaryTitle: "Close",
+            secondaryAction: { dismissConnectionLost() },
+            primaryTitle: "Try again",
+            primaryAction: { retryConnection() }
+        )
+    }
+
+    @ViewBuilder
+    private var sendButtonLabel: some View {
+        ZStack {
+            if textEntryViewModel.isSending {
+                SendButtonActivityIndicator(isAnimated: !accessibilityReduceMotion)
+            } else {
+                Image(systemName: "arrow.up")
+                    .foregroundStyle(Color.white)
+            }
+        }
+        .frame(width: 22, height: 22)
+        .accessibilityHidden(true)
+    }
+
+    private var sendButtonAccessibilityLabel: String {
+        if textEntryViewModel.isSending {
+            String(localized: "Sending text", comment: "Header send button sending accessibility")
+        } else {
+            String(localized: "Send text", comment: "Header send button accessibility")
+        }
+    }
+
+    private var sendButtonBackgroundColor: Color {
+        textEntryViewModel.canSend ? Color.accentBlue : Color.accentBlue.opacity(0.5)
+    }
+
     private var snippetsPlaceholder: some View {
         VStack(spacing: 12) {
             Text("No snippets yet")
@@ -94,6 +181,65 @@ struct DeviceDetailView: View {
         .background(Color.groupedBackground)
         .accessibilityElement(children: .combine)
     }
+
+    private func handleConnectionStateChange(
+        from oldState: CSDevice.ConnectionState,
+        to newState: CSDevice.ConnectionState
+    ) {
+        if newState == .connectedAuthorized {
+            dismissConnectionLost()
+            return
+        }
+
+        guard newState == .disconnected, oldState != .disconnected else { return }
+        showConnectionLost = true
+    }
+
+    private func dismissConnectionLost() {
+        showConnectionLost = false
+        textEntryViewModel.dismissConnectionLost()
+    }
+
+    private func retryConnection() {
+        dismissConnectionLost()
+        device.connect()
+    }
+}
+
+private struct SendButtonActivityIndicator: View {
+    let isAnimated: Bool
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            Canvas { context, size in
+                let lineWidth: CGFloat = 2
+                let radius = min(size.width, size.height) / 2 - lineWidth / 2
+                let center = CGPoint(x: size.width / 2, y: size.height / 2)
+                let rotation = isAnimated ? rotationAngle(at: timeline.date) : 0
+
+                var path = Path()
+                path.addArc(
+                    center: center,
+                    radius: radius,
+                    startAngle: .degrees(rotation - 135),
+                    endAngle: .degrees(rotation + 135),
+                    clockwise: false
+                )
+                context.stroke(
+                    path,
+                    with: .color(.white),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+            }
+        }
+        .frame(width: 22, height: 22)
+    }
+
+    private func rotationAngle(at date: Date) -> Double {
+        let duration = 0.8
+        let progress = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: duration) / duration
+        return progress * 360
+    }
 }
 
 // MARK: - Preview
@@ -101,6 +247,75 @@ struct DeviceDetailView: View {
 #Preview("Text Entry") {
     NavigationStack {
         DeviceDetailView(device: .preview)
+    }
+}
+
+#Preview("Text Entry with text") {
+    NavigationStack {
+        DeviceDetailView(device: .preview, previewText: "admin@company.local")
+    }
+}
+
+#Preview("Text Entry Sending") {
+    NavigationStack {
+        DeviceDetailView(
+            device: .preview,
+            previewText: "admin@company.local",
+            previewIsSending: true
+        )
+    }
+}
+
+#Preview("Text Entry Sent Toast") {
+    NavigationStack {
+        DeviceDetailView(
+            device: .preview,
+            previewIsToastVisible: true
+        )
+    }
+}
+
+#Preview("Text Entry Unsupported Characters") {
+    NavigationStack {
+        DeviceDetailView(
+            device: .preview,
+            previewText: "admin Щ",
+            previewPresentsTextEntrySheets: true
+        )
+    }
+}
+
+#Preview("Text Entry Progress Sending") {
+    NavigationStack {
+        DeviceDetailView(
+            device: .preview,
+            previewText: "admin@company.local",
+            previewIsSending: true,
+            previewProgress: .sending(sent: 250, total: 300),
+            previewPresentsTextEntrySheets: true
+        )
+    }
+}
+
+#Preview("Text Entry Progress Stopped") {
+    NavigationStack {
+        DeviceDetailView(
+            device: .preview,
+            previewText: "admin@company.local",
+            previewProgress: .stopped(sent: 87, total: 300),
+            previewPresentsTextEntrySheets: true
+        )
+    }
+}
+
+#Preview("Text Entry Sent Sheet") {
+    NavigationStack {
+        DeviceDetailView(
+            device: .preview,
+            previewText: "admin@company.local",
+            previewProgress: .sent,
+            previewPresentsTextEntrySheets: true
+        )
     }
 }
 
@@ -113,5 +328,11 @@ struct DeviceDetailView: View {
 #Preview("Touchpad") {
     NavigationStack {
         DeviceDetailView(device: .preview, initialTab: .mouse)
+    }
+}
+
+#Preview("Connection Lost") {
+    NavigationStack {
+        DeviceDetailView(device: .preview, showsConnectionLost: true)
     }
 }

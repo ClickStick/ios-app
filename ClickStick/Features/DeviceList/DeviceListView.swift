@@ -36,30 +36,50 @@ struct DeviceListView: View {
             Color.groupedBackground
                 .ignoresSafeArea()
 
-            content
+            if viewModel.devices.isEmpty {
+                DeviceListEmptyState(
+                    onScan: presentAddDevice,
+                    onGettingStarted: viewModel.openGettingStarted
+                )
+            } else {
+                DeviceListContent(
+                    connectedDevices: viewModel.connectedDevices,
+                    availableDevices: viewModel.availableDevices,
+                    outOfRangeDevices: viewModel.outOfRangeDevices,
+                    selectedDeviceID: router.selectedDeviceID,
+                    onSelect: handleDeviceTap,
+                    onForget: { device in
+                        deviceToForget = device
+                        isConfirmingForget = true
+                    },
+                    onDisconnect: disconnectDevice
+                )
+            }
         }
         .navigationTitle("Devices")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             if !viewModel.devices.isEmpty {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    HeaderIconButton(
-                        systemName: "gearshape",
-                        foreground: .primary,
-                        background: .clear,
-                        accessibilityLabel: "Settings"
-                    ) {
+                    Button {
                         isShowingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .accessibilityHidden(true)
                     }
+                    .tint(.primary)
+                    .accessibilityLabel("Settings")
 
-                    HeaderIconButton(
-                        systemName: "plus",
-                        foreground: .white,
-                        background: .accentBlue,
-                        accessibilityLabel: "Add device"
-                    ) {
+                    Button {
                         presentAddDevice()
+                    } label: {
+                        Image(systemName: "plus")
+                            .accessibilityHidden(true)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .tint(.accentBlue)
+                    .accessibilityLabel("Add device")
                 }
             }
         }
@@ -110,12 +130,10 @@ struct DeviceListView: View {
                 router.showDeviceSetup(for: device)
             }
         }
-        .onChange(of: deviceUIStateSnapshots) { _, _ in
-            resolvePendingConnectedDeviceSelection()
-        }
         .onChange(of: startupAction, initial: true) { _, action in
             handleStartupAction(action)
         }
+        .modifier(DeviceUIStateObserver(viewModel: viewModel, onStateChange: resolvePendingConnectedDeviceSelection))
         .errorAlert($viewModel.alertError)
         .confirmationDialog(
             "Forget Device",
@@ -135,180 +153,6 @@ struct DeviceListView: View {
         .onChange(of: isConfirmingForget) { _, showing in
             if !showing { deviceToForget = nil }
         }
-    }
-
-    // MARK: - Content
-
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.devices.isEmpty {
-            emptyStateScreen
-        } else {
-            deviceListScreen
-        }
-    }
-
-    // A compromised device is not its own section — it belongs in the section
-    // matching its connection status and is simply rendered red (see DeviceRowView).
-
-    private var connectedDevices: [DeviceModel] {
-        viewModel.devices.filter { $0.isConnected }
-    }
-
-    /// Disconnected devices that are currently advertising and can be connected to.
-    /// A connecting device stays here too; only its row subtitle changes to "Connecting...".
-    private var availableDevices: [DeviceModel] {
-        viewModel.devices.filter { device in
-            !device.isConnected && (device.isConnectable || device.isConnecting)
-        }
-    }
-
-    /// Disconnected devices that are no longer advertising (out of range).
-    private var outOfRangeDevices: [DeviceModel] {
-        viewModel.devices.filter { device in
-            !device.isConnected && !device.isConnecting && !device.isConnectable
-        }
-    }
-
-    /// Snapshot used to trigger `onChange` when any device's UI-relevant state changes.
-    private var deviceUIStateSnapshots: [DeviceUIStateSnapshot] {
-        viewModel.devices.map { DeviceUIStateSnapshot(device: $0) }
-    }
-
-    // MARK: - Empty State
-
-    private var emptyStateScreen: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 20)
-            emptyState
-            Spacer(minLength: 20)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .safeAreaInset(edge: .bottom) {
-            Button("Scan for devices") { presentAddDevice() }
-                .buttonStyle(AppPrimaryButtonStyle())
-                .padding(.horizontal, 20)
-                .padding(.bottom, 12)
-        }
-    }
-
-    private var emptyState: some View {
-        VStack(spacing: 40) {
-            VStack(spacing: 16) {
-                emptyStateIcon
-
-                VStack(spacing: 8) {
-                    Text("No devices found")
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(.primary)
-
-                    Text("Make sure your ClickStick is plugged in and Bluetooth is on")
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: 300)
-            }
-
-            Button {
-                viewModel.openGettingStarted()
-            } label: {
-                Text("How does ClickStick work?")
-                    .font(.body)
-                    .foregroundStyle(Color.accentBlue)
-            }
-            .buttonStyle(.plain)
-        }
-        .multilineTextAlignment(.center)
-        .padding(.horizontal, 20)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("No devices found. Make sure your ClickStick is plugged in and Bluetooth is on")
-    }
-
-    private var emptyStateIcon: some View {
-        ZStack {
-            Circle()
-                .fill(Color.accentBlue.opacity(0.14))
-
-            Image(systemName: "antenna.radiowaves.left.and.right")
-                .symbolRenderingMode(.monochrome)
-                .font(.system(size: 80 * 0.42, weight: .semibold))
-                .foregroundStyle(Color.accentBlue)
-        }
-        .frame(width: 80, height: 80)
-        .accessibilityHidden(true)
-    }
-
-    // MARK: - Device List
-
-    private var deviceListScreen: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                if !connectedDevices.isEmpty {
-                    deviceSection(title: String(localized: "Connected"), devices: connectedDevices)
-                }
-
-                if !availableDevices.isEmpty {
-                    deviceSection(title: String(localized: "Available"), devices: availableDevices)
-                }
-
-                if !outOfRangeDevices.isEmpty {
-                    deviceSection(title: String(localized: "Not in range"), devices: outOfRangeDevices)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 32)
-        }
-    }
-
-    private func deviceSection(title: String, devices: [DeviceModel]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 8)
-
-            VStack(spacing: 12) {
-                ForEach(devices) { device in
-                    deviceRow(for: device)
-                }
-            }
-        }
-    }
-
-    private func deviceRow(for device: DeviceModel) -> some View {
-        ZStack(alignment: .trailing) {
-            Button {
-                onSelect(device)
-            } label: {
-                DeviceRowView(
-                    device: device,
-                    isSelected: router.selectedDeviceID == device.id,
-                    showsMenuIndicator: false
-                )
-            }
-            .buttonStyle(.plain)
-
-            Menu {
-                deviceContextMenu(for: device)
-            } label: {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-                    .accessibilityHidden(true)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(String(localized: "Device options", comment: "Accessibility label for device row menu button"))
-            .accessibilityHint(String(localized: "Shows actions for this device", comment: "Accessibility hint for device row menu button"))
-            .padding(.trailing, 6)
-        }
-    }
-
-    private func onSelect(_ device: DeviceModel) {
-        handleDeviceTap(device)
     }
 
     // MARK: - Add Device Flow
@@ -351,16 +195,23 @@ struct DeviceListView: View {
         router.showDeviceSetup(for: device)
     }
 
+    private func disconnectDevice(_ device: DeviceModel) {
+        if router.selectedDeviceID == device.id {
+            router.deselectDevice()
+        }
+        device.disconnect()
+    }
+
     private func handleDeviceTap(_ device: DeviceModel) {
         switch device.uiState {
         case .connected:
             router.selectDevice(device)
         case .available, .weakSignal:
-            viewModel.connectDevice(device)
+            _ = viewModel.connectDevice(device)
             // Wait for asynchronous state update before navigating.
             pendingConnectedDeviceID = device.id
         case .newDevice:
-            viewModel.connectDevice(device)
+            _ = viewModel.connectDevice(device)
         case .connecting, .authorizing:
             pendingConnectedDeviceID = device.id
         case .setupRequired:
@@ -410,26 +261,229 @@ struct DeviceListView: View {
 
         startupAction = nil
     }
+}
 
-    // MARK: - Context Menu
+// MARK: - Empty State
 
-    @ViewBuilder
-    private func deviceContextMenu(for device: DeviceModel) -> some View {
-        Button(role: .destructive) {
-            deviceToForget = device
-            isConfirmingForget = true
-        } label: {
-            Label(String(localized: "Forget Device"), systemImage: "trash")
-        }
-        .tint(.red)
-        .disabled(!device.isKnownDevice || device.isDemoDevice)
+private struct DeviceListEmptyState: View {
+    let onScan: () -> Void
+    let onGettingStarted: () -> Void
 
-        if device.isConnected {
-            Button {
-                device.disconnect()
-            } label: {
-                Label(String(localized: "Disconnect"), systemImage: "cable.connector.horizontal")
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 20)
+
+            VStack(spacing: 40) {
+                VStack(spacing: 16) {
+                    emptyStateIcon
+
+                    VStack(spacing: 8) {
+                        Text("No devices found")
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(.primary)
+
+                        Text("Make sure your ClickStick is plugged in and Bluetooth is on")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: 300)
+                }
+
+                Button {
+                    onGettingStarted()
+                } label: {
+                    Text("How does ClickStick work?")
+                        .font(.body)
+                        .foregroundStyle(Color.accentBlue)
+                }
+                .buttonStyle(.plain)
             }
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 20)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("No devices found. Make sure your ClickStick is plugged in and Bluetooth is on")
+
+            Spacer(minLength: 20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .safeAreaInset(edge: .bottom) {
+            Button("Scan for devices", action: onScan)
+                .buttonStyle(AppPrimaryButtonStyle())
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
+        }
+    }
+
+    private var emptyStateIcon: some View {
+        ZStack {
+            Circle()
+                .fill(Color.accentBlue.opacity(0.14))
+
+            Image(systemName: "antenna.radiowaves.left.and.right")
+                .symbolRenderingMode(.monochrome)
+                .font(.system(size: 80 * 0.42, weight: .semibold))
+                .foregroundStyle(Color.accentBlue)
+        }
+        .frame(width: 80, height: 80)
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Device List
+
+private struct DeviceListContent: View {
+    let connectedDevices: [DeviceModel]
+    let availableDevices: [DeviceModel]
+    let outOfRangeDevices: [DeviceModel]
+    let selectedDeviceID: UUID?
+    let onSelect: (DeviceModel) -> Void
+    let onForget: (DeviceModel) -> Void
+    let onDisconnect: (DeviceModel) -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                if !connectedDevices.isEmpty {
+                    DeviceListSection(
+                        title: "Connected",
+                        devices: connectedDevices,
+                        selectedDeviceID: selectedDeviceID,
+                        onSelect: onSelect,
+                        onForget: onForget,
+                        onDisconnect: onDisconnect
+                    )
+                }
+
+                if !availableDevices.isEmpty {
+                    DeviceListSection(
+                        title: "Available",
+                        devices: availableDevices,
+                        selectedDeviceID: selectedDeviceID,
+                        onSelect: onSelect,
+                        onForget: onForget,
+                        onDisconnect: onDisconnect
+                    )
+                }
+
+                if !outOfRangeDevices.isEmpty {
+                    DeviceListSection(
+                        title: "Not in range",
+                        devices: outOfRangeDevices,
+                        selectedDeviceID: selectedDeviceID,
+                        onSelect: onSelect,
+                        onForget: onForget,
+                        onDisconnect: onDisconnect
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
+        }
+    }
+}
+
+private struct DeviceListSection: View {
+    let title: LocalizedStringKey
+    let devices: [DeviceModel]
+    let selectedDeviceID: UUID?
+    let onSelect: (DeviceModel) -> Void
+    let onForget: (DeviceModel) -> Void
+    let onDisconnect: (DeviceModel) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+
+            VStack(spacing: 12) {
+                ForEach(devices) { device in
+                    DeviceListRowCard(
+                        device: device,
+                        isSelected: selectedDeviceID == device.id,
+                        onTap: { onSelect(device) },
+                        onForget: { onForget(device) },
+                        onDisconnect: device.isConnected ? { onDisconnect(device) } : nil
+                    )
+                }
+            }
+        }
+    }
+}
+
+// A compromised device is not its own section — it belongs in the section
+// matching its connection status and is simply rendered red (see DeviceRowView).
+
+private struct DeviceListRowCard: View {
+    let device: DeviceModel
+    let isSelected: Bool
+    let onTap: () -> Void
+    let onForget: () -> Void
+    let onDisconnect: (() -> Void)?
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            Button {
+                onTap()
+            } label: {
+                DeviceRowView(
+                    device: device,
+                    isSelected: isSelected,
+                    showsMenuIndicator: false
+                )
+            }
+            .buttonStyle(.plain)
+
+            Menu {
+                Button(role: .destructive) {
+                    onForget()
+                } label: {
+                    Label(String(localized: "Forget Device"), systemImage: "trash")
+                }
+                .tint(.red)
+                .disabled(!device.isKnownDevice || device.isDemoDevice)
+
+                if let onDisconnect {
+                    Button {
+                        onDisconnect()
+                    } label: {
+                        Label(String(localized: "Disconnect"), systemImage: "cable.connector.horizontal")
+                    }
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+                    .accessibilityHidden(true)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Device options", comment: "Accessibility label for device row menu button"))
+            .accessibilityHint(String(localized: "Shows actions for this device", comment: "Accessibility hint for device row menu button"))
+            .padding(.trailing, 6)
+        }
+    }
+}
+
+// MARK: - Device UI State Observer
+
+/// Isolates the `deviceUIStateSnapshots` onChange side effect so it doesn't add a
+/// collection-read dependency to DeviceListView's own body.
+private struct DeviceUIStateObserver: ViewModifier {
+    let viewModel: DeviceListViewModel
+    let onStateChange: () -> Void
+
+    private var snapshots: [DeviceUIStateSnapshot] {
+        viewModel.devices.map { DeviceUIStateSnapshot(device: $0) }
+    }
+
+    func body(content: Content) -> some View {
+        content.onChange(of: snapshots) { _, _ in
+            onStateChange()
         }
     }
 }
@@ -443,27 +497,6 @@ private struct DeviceUIStateSnapshot: Equatable {
         self.id = device.id
         self.uiState = device.uiState
         self.lastErrorTimestamp = device.lastErrorTimestamp
-    }
-}
-
-private struct HeaderIconButton: View {
-    let systemName: String
-    let foreground: Color
-    let background: Color
-    let accessibilityLabel: LocalizedStringKey
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemName)
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(foreground)
-                .frame(width: 36, height: 36)
-                .background(Circle().fill(background))
-        }
-        .buttonStyle(.plain)
-        .contentShape(Circle())
-        .accessibilityLabel(accessibilityLabel)
     }
 }
 

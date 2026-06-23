@@ -6,10 +6,10 @@ import UIKit
 
 struct FloatingTabBarItem<ID: Hashable>: Identifiable {
     let id: ID
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
 
-    init(id: ID, title: String, systemImage: String) {
+    init(id: ID, title: LocalizedStringKey, systemImage: String) {
         self.id = id
         self.title = title
         self.systemImage = systemImage
@@ -30,7 +30,17 @@ struct FloatingTabBar<ID: Hashable>: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(items) { item in
-                tabButton(for: item)
+                FloatingTabBarButton(
+                    item: item,
+                    isSelected: selection == item.id,
+                    selectedFill: selectedFill,
+                    action: {
+                        if selection != item.id {
+                            dismissKeyboard()
+                        }
+                        selection = item.id
+                    }
+                )
             }
         }
         .padding(2)
@@ -39,45 +49,11 @@ struct FloatingTabBar<ID: Hashable>: View {
             Capsule(style: .continuous)
                 .fill(barFill)
         )
-        .overlay(
+        .overlay {
             Capsule(style: .continuous)
                 .stroke(barStroke, lineWidth: 0.5)
-        )
-        .shadow(color: shadowColor, radius: 16, y: 6)
-    }
-
-    private func tabButton(for item: FloatingTabBarItem<ID>) -> some View {
-        let isSelected = selection == item.id
-
-        return Button {
-            if selection != item.id {
-                dismissKeyboard()
-            }
-            selection = item.id
-        } label: {
-            VStack(spacing: 0) {
-                Image(systemName: item.systemImage)
-                    .font(.system(size: 22, weight: isSelected ? .semibold : .regular))
-                    .frame(height: 25)
-                    .accessibilityHidden(true)
-
-                Text(item.title)
-                    .font(.system(size: 11, weight: .semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-            .foregroundStyle(isSelected ? Color.accentBlue : Color.primary)
-            .frame(width: 80, height: 44)
-            .background(
-                Capsule(style: .continuous)
-                    .fill(isSelected ? selectedFill : .clear)
-            )
-            .contentShape(Capsule(style: .continuous))
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(item.title)
-        .accessibilityValue(isSelected ? Text(String(localized: "Selected", comment: "Selected tab accessibility value")) : Text(""))
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .shadow(color: shadowColor, radius: 16, y: 6)
     }
 
     private func dismissKeyboard() {
@@ -111,6 +87,42 @@ struct FloatingTabBar<ID: Hashable>: View {
         colorScheme == .dark
             ? Color.black.opacity(0.35)
             : Color.black.opacity(0.05)
+    }
+}
+
+// MARK: - Tab Button
+
+private struct FloatingTabBarButton<ID: Hashable>: View {
+    let item: FloatingTabBarItem<ID>
+    let isSelected: Bool
+    let selectedFill: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 0) {
+                Image(systemName: item.systemImage)
+                    .font(.system(size: 22, weight: isSelected ? .semibold : .regular))
+                    .frame(height: 25)
+                    .accessibilityHidden(true)
+
+                Text(item.title)
+                    .font(.caption2.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .foregroundStyle(isSelected ? Color.accentBlue : Color.primary)
+            .frame(width: 80, height: 44)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(isSelected ? selectedFill : .clear)
+            )
+            .contentShape(Capsule(style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(item.title))
+        .accessibilityValue(isSelected ? Text(String(localized: "Selected", comment: "Selected tab accessibility value")) : Text(""))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

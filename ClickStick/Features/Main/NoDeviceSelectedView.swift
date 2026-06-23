@@ -5,7 +5,12 @@ import SwiftUI
 
 struct NoDeviceSelectedView: View {
     var body: some View {
-        Text("Not implemented")
+        ContentUnavailableView(
+            "Select a Device",
+            image: "dongle.usb",
+            description: Text("Choose a connected ClickStick from the devices list.")
+        )
+        .background(Color.groupedBackground.ignoresSafeArea())
     }
 }
 

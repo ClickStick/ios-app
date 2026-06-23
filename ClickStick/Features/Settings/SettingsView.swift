@@ -10,108 +10,90 @@ struct SettingsView: View {
     @AppStorage(SettingsStorage.keepScreenOn) private var keepScreenOn = true
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Color.groupedBackground
-                .ignoresSafeArea()
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 34) {
+                    SettingsSection(title: "General") {
+                        SettingsToggleRow(
+                            title: "Auto-select last device",
+                            subtitle: "Connect automatically on launch",
+                            isOn: $autoSelectLastDevice
+                        )
 
-            VStack(spacing: 0) {
-                header
+                        SettingsDivider()
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 34) {
-                        SettingsSection(title: "General") {
-                            SettingsToggleRow(
-                                title: "Auto-select last device",
-                                subtitle: "Connect automatically on launch",
-                                isOn: $autoSelectLastDevice
-                            )
-
-                            SettingsDivider()
-
-                            SettingsToggleRow(
-                                title: "Keep screen on",
-                                subtitle: "Prevent sleep while connected",
-                                isOn: $keepScreenOn
-                            )
-                        }
-
-                        SettingsSection(title: "Help") {
-                            SettingsNavigationRow(
-                                icon: "info.circle",
-                                title: "How it works",
-                                value: nil
-                            )
-
-                            SettingsDivider()
-
-                            SettingsActionRow(
-                                icon: "cart",
-                                title: "Get your ClickStick at clickstick.io",
-                                titleColor: .accentBlue
-                            ) {
-                                URLOpener().openGettingStartedPage()
-                            }
-                        }
-
-                        SettingsSection(title: "Legal") {
-                            SettingsActionRow(
-                                icon: "doc.text",
-                                title: "Privacy Policy"
-                            ) {}
-
-                            SettingsDivider()
-
-                            SettingsActionRow(
-                                icon: "doc.plaintext",
-                                title: "Terms of Use"
-                            ) {}
-                        }
-
-                        Text("Version app \(appVersion)")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary.opacity(0.65))
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 2)
+                        SettingsToggleRow(
+                            title: "Keep screen on",
+                            subtitle: "Prevent sleep while connected",
+                            isOn: $keepScreenOn
+                        )
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 38)
-                    .padding(.bottom, 32)
+
+                    SettingsSection(title: "Help") {
+                        SettingsNavigationRow(
+                            icon: "info.circle",
+                            title: "How it works",
+                            value: nil
+                        )
+
+                        SettingsDivider()
+
+                        SettingsActionRow(
+                            icon: "cart",
+                            title: "Get your ClickStick at clickstick.io",
+                            titleColor: .accentBlue
+                        ) {
+                            URLOpener().openGettingStartedPage()
+                        }
+                    }
+
+                    SettingsSection(title: "Legal") {
+                        SettingsActionRow(
+                            icon: "doc.text",
+                            title: "Privacy Policy"
+                        ) {}
+
+                        SettingsDivider()
+
+                        SettingsActionRow(
+                            icon: "doc.plaintext",
+                            title: "Terms of Use"
+                        ) {}
+                    }
+
+                    Text("Version \(appVersion)")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary.opacity(0.65))
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 2)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                .padding(.bottom, 32)
+            }
+            .background(Color.groupedBackground.ignoresSafeArea())
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundStyle(Color.primary)
+                    }
+                    .accessibilityLabel("Close settings")
                 }
             }
         }
+        .tint(.accentBlue)
         .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
         .presentationBackground(Color.groupedBackground)
     }
 
-    private var header: some View {
-        ZStack {
-            Text("Settings")
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.primary)
-                        .frame(width: 44, height: 44)
-                        .background(Circle().fill(.regularMaterial))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Close settings")
-
-                Spacer()
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 62)
-    }
-
     private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.1"
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
     }
 }
 
@@ -130,7 +112,7 @@ private struct SettingsSection<Content: View>: View {
                 content
             }
             .background(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 24)
                     .fill(Color.cardBackground)
             )
         }
@@ -210,7 +192,7 @@ private struct SettingsActionRow: View {
             HStack(spacing: 16) {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .regular))
-                    .foregroundStyle(titleColor == .primary ? Color.primary : titleColor)
+                    .foregroundStyle(titleColor)
                     .frame(width: 20)
                     .accessibilityHidden(true)
 

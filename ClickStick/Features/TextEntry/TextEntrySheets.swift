@@ -164,14 +164,7 @@ struct TextEntrySheetButtonRow: View {
 
 extension View {
     func measureHeight(_ height: Binding<CGFloat>) -> some View {
-        background {
-            GeometryReader { proxy in
-                Color.clear
-                    .onChange(of: proxy.size.height, initial: true) { _, newHeight in
-                        height.wrappedValue = newHeight
-                    }
-            }
-        }
+        onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height.wrappedValue = $0 }
     }
 }
 

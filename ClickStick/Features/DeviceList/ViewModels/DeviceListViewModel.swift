@@ -41,6 +41,25 @@ final class DeviceListViewModel {
     var bluetoothError: CSError? { service.bluetoothError }
     var hasSavedDevices: Bool { devices.contains { $0.isKnownDevice && !$0.isDemoDevice } }
 
+    var connectedDevices: [DeviceModel] {
+        devices.filter { $0.isConnected }
+    }
+
+    /// Disconnected devices that are currently advertising and can be connected to.
+    /// A connecting device stays here too; only its row subtitle changes to "Connecting...".
+    var availableDevices: [DeviceModel] {
+        devices.filter { device in
+            !device.isConnected && (device.isConnectable || device.isConnecting)
+        }
+    }
+
+    /// Disconnected devices that are no longer advertising (out of range).
+    var outOfRangeDevices: [DeviceModel] {
+        devices.filter { device in
+            !device.isConnected && !device.isConnecting && !device.isConnectable
+        }
+    }
+
     var isEmpty: Bool {
         !hasAnnouncements && devices.isEmpty
     }

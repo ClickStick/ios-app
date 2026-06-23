@@ -206,7 +206,7 @@ final class DeepLinkHandler {
 
 // MARK: - Parsing Error
 
-struct DeepLinkParsingError: Identifiable {
+struct DeepLinkParsingError: Identifiable, Equatable {
     let id = UUID()
     let code: DeepLinkErrorCode
     let url: URL

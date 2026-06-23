@@ -14,10 +14,12 @@ final class TextEntryViewModel {
 
     // MARK: - Progress sheet state
 
-    enum ProgressState: Equatable {
+    enum ProgressState: Equatable, Identifiable {
         case sending(sent: Int, total: Int)
         case sent
         case stopped(sent: Int, total: Int)
+
+        var id: String { "progress" }
     }
 
     // MARK: - Dependencies
@@ -34,22 +36,25 @@ final class TextEntryViewModel {
 
     private(set) var isSending: Bool = false
     /// Non-nil while the progress sheet should be presented (long sends).
-    private(set) var progress: ProgressState?
+    var progress: ProgressState?
     /// Drives the unsupported-characters confirmation sheet (set on Send attempt).
-    private(set) var unsupportedPrompt: [Character]?
+    var isShowingUnsupportedPrompt: Bool = false
     /// Drives the "Connection lost" sheet.
     var showConnectionLost: Bool = false
     /// Drives the brief "Sent to …" toast (short sends).
     private(set) var showSentToast: Bool = false
 
     private var sendTask: Task<Void, Never>?
-    private var lastSendSkippedUnsupportedCharacters = false
 
     // MARK: - Initialization
 
     init(device: any TextSendingDevice) {
         self.device = device
         self.selectedLayout = CSKeyboardLayout.fromSystemLocale()
+    }
+
+    isolated deinit {
+        sendTask?.cancel()
     }
 
     // MARK: - Derived
@@ -78,9 +83,9 @@ final class TextEntryViewModel {
 
     /// Body for the unsupported-characters sheet.
     var unsupportedPromptMessage: String? {
-        guard let unsupportedPrompt, !unsupportedPrompt.isEmpty else { return nil }
-        let characters = unsupportedPrompt.map(String.init).joined(separator: " ")
-        let layoutName = selectedLayout.description.replacingOccurrences(of: " - ", with: "-")
+        guard !unsupportedCharacters.isEmpty else { return nil }
+        let characters = unsupportedCharacters.map(String.init).joined(separator: " ")
+        let layoutName = selectedLayout.description.replacing(" - ", with: "-")
         return String(localized: "\(characters) can't be typed with \(layoutName). They will be skipped.",
                       comment: "Unsupported characters sheet message")
     }
@@ -95,19 +100,19 @@ final class TextEntryViewModel {
     func requestSend() {
         guard canSend else { return }
         if hasUnsupportedCharacters {
-            unsupportedPrompt = unsupportedCharacters
+            isShowingUnsupportedPrompt = true
             return
         }
         performSend()
     }
 
     func sendAnyway() {
-        unsupportedPrompt = nil
+        isShowingUnsupportedPrompt = false
         performSend(skipUnsupportedCharacters: true)
     }
 
     func dismissUnsupportedPrompt() {
-        unsupportedPrompt = nil
+        isShowingUnsupportedPrompt = false
     }
 
     func cancelSend() {
@@ -127,12 +132,6 @@ final class TextEntryViewModel {
         showConnectionLost = false
     }
 
-    func retryAfterConnectionLost() {
-        guard canSend else { return }
-        showConnectionLost = false
-        performSend(skipUnsupportedCharacters: lastSendSkippedUnsupportedCharacters)
-    }
-
     // MARK: - Send
 
     private func performSend(skipUnsupportedCharacters: Bool = false) {
@@ -146,7 +145,6 @@ final class TextEntryViewModel {
         let total = textToSend.count
         guard total > 0 else { return }
 
-        lastSendSkippedUnsupportedCharacters = skipUnsupportedCharacters
         let showsSheet = total > Self.progressSheetThreshold
         isSending = true
         progress = showsSheet ? .sending(sent: 0, total: total) : nil
@@ -207,6 +205,7 @@ final class TextEntryViewModel {
 #if DEBUG
     func configureForPreview(
         text: String = "",
+        isSending: Bool = false,
         isToastVisible: Bool = false,
         progress: ProgressState? = nil,
         isConnectionLost: Bool = false,
@@ -215,13 +214,11 @@ final class TextEntryViewModel {
         self.selectedLayout = .usQWERTY
         self.selectedOS = .windows
         self.text = text
+        self.isSending = isSending
         self.showSentToast = isToastVisible
         self.progress = presentsSheets ? progress : nil
         self.showConnectionLost = presentsSheets && isConnectionLost
-        self.unsupportedPrompt = nil
-        if presentsSheets, progress == nil, !isConnectionLost, hasUnsupportedCharacters {
-            unsupportedPrompt = unsupportedCharacters
-        }
+        self.isShowingUnsupportedPrompt = presentsSheets && progress == nil && !isConnectionLost && hasUnsupportedCharacters
     }
 #endif
 }

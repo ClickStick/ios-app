@@ -16,10 +16,10 @@ struct AppPrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, minHeight: 50)
             .background(
-                RoundedRectangle(cornerRadius: 999, style: .continuous)
+                RoundedRectangle(cornerRadius: 999)
                     .fill(isEnabled ? fill : Color(.systemGray3))
             )
-            .contentShape(RoundedRectangle(cornerRadius: 999, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 999))
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .opacity(configuration.isPressed ? 0.85 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

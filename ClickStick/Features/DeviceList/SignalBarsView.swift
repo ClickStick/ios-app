@@ -20,7 +20,7 @@ struct SignalBarsView: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: Metric.barSpacing) {
             ForEach(0..<max(1, barCount), id: \.self) { index in
-                RoundedRectangle(cornerRadius: Metric.barWidth / 2, style: .continuous)
+                RoundedRectangle(cornerRadius: Metric.barWidth / 2)
                     .fill(index < activeBarCount ? activeColor : inactiveColor)
                     .frame(width: Metric.barWidth, height: barHeight(for: index))
             }

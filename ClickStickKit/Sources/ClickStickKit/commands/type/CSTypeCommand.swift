@@ -86,14 +86,16 @@ extension CSDevice {
             return
         }
 
-        // If text is too long, we split it into several typing commands
+        // If text is too long, we split it into several typing commands.
+        // Only the last chunk carries the completion so it is called exactly once.
         let chunkSize = CSTypeCommand.getMaxKeyCodeCount(forCommandSize: _maxCommandSize)
-        for start in stride(from: 0, to: keyCodes.count, by: chunkSize) {
+        let starts = Array(stride(from: 0, to: keyCodes.count, by: chunkSize))
+        for (index, start) in starts.enumerated() {
             let end = min(start + chunkSize, keyCodes.count)
             let command = CSTypeCommand(
                 keyCodes: Array(keyCodes[start..<end]),
                 maxCommandSize: _maxCommandSize,
-                completion: completion
+                completion: index == starts.count - 1 ? completion : nil
             )
             _enqueueCommand(command)
         }

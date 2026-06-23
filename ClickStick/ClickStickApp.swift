@@ -12,6 +12,7 @@ struct ClickStickApp: App {
     @State private var deepLinkHandler: DeepLinkHandler
     @State private var deviceListViewModel: DeviceListViewModel
     @State private var pendingDeviceListStartupAction: DeviceListStartupAction?
+    @State private var isShowingParsingError = false
 
     private let service: ClickStickService
     private let urlOpener: URLOpener
@@ -38,15 +39,15 @@ struct ClickStickApp: App {
                 .onOpenURL { url in
                     deepLinkHandler.handle(url: url)
                 }
-                .sheet(item: $deepLinkHandler.pendingTypeRequest) { request in
+                .sheet(item: $deepLinkHandler.pendingTypeRequest) { _ in
                     DeepLinkTypeSheet()
+                }
+                .onChange(of: deepLinkHandler.parsingError) { _, newError in
+                    isShowingParsingError = newError != nil
                 }
                 .alert(
                     "Deep Link Error",
-                    isPresented: Binding(
-                        get: { deepLinkHandler.parsingError != nil },
-                        set: { if !$0 { deepLinkHandler.clearParsingError() } }
-                    ),
+                    isPresented: $isShowingParsingError,
                     presenting: deepLinkHandler.parsingError
                 ) { _ in
                     Button("OK") {
@@ -58,32 +59,43 @@ struct ClickStickApp: App {
         }
     }
 
-    @ViewBuilder
     private var rootContent: some View {
-        if hasCompletedOnboarding {
-            MainView(
-                viewModel: deviceListViewModel,
-                startupAction: $pendingDeviceListStartupAction
-            )
-        } else {
-            OnboardingView(
-                onComplete: completeOnboarding,
-                onGetClickStick: { urlOpener.openGettingStartedPage() }
-            )
+        ZStack {
+            if hasCompletedOnboarding {
+                MainView(
+                    viewModel: deviceListViewModel,
+                    startupAction: $pendingDeviceListStartupAction
+                )
+                .transition(.opacity)
+            } else {
+                OnboardingPresentationView(
+                    onComplete: completeOnboarding,
+                    onGetClickStick: { urlOpener.openGettingStartedPage() }
+                )
+                .transition(.opacity)
+            }
         }
+        .animation(.easeInOut(duration: 0.35), value: hasCompletedOnboarding)
     }
 
     private func completeOnboarding(_ action: OnboardingCompletionAction) {
+        let startupAction: DeviceListStartupAction?
+
         switch action {
         case .addDevice:
             isDemoModeEnabled = false
             deviceListViewModel.completeOnboarding(enableDemoMode: false)
-            pendingDeviceListStartupAction = .startAddDeviceScan
+            startupAction = .startAddDeviceScan
         case .demoMode:
             isDemoModeEnabled = true
             deviceListViewModel.completeOnboarding(enableDemoMode: true)
-            pendingDeviceListStartupAction = nil
+            startupAction = nil
         }
-        hasCompletedOnboarding = true
+
+        withAnimation(.easeInOut(duration: 0.35), completionCriteria: .logicallyComplete) {
+            hasCompletedOnboarding = true
+        } completion: {
+            pendingDeviceListStartupAction = startupAction
+        }
     }
 }

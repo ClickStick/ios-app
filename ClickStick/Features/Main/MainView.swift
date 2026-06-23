@@ -8,7 +8,9 @@ struct MainView: View {
     @Bindable var viewModel: DeviceListViewModel
     @Binding private var deviceListStartupAction: DeviceListStartupAction?
     @Environment(\.appRouter) private var router
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var navigationPath: [UUID] = []
+    @State private var splitViewVisibility: NavigationSplitViewVisibility = .all
 
     @AppStorage(SettingsStorage.autoSelectLastDevice) private var autoSelectLastDevice = true
     @AppStorage(SettingsStorage.keepScreenOn) private var keepScreenOn = true
@@ -23,39 +25,17 @@ struct MainView: View {
         _deviceListStartupAction = startupAction
     }
 
-    /// Keep the screen awake only while the setting is on *and* a device is connected.
-    private var shouldKeepScreenOn: Bool {
-        keepScreenOn && viewModel.devices.contains { $0.isConnected }
-    }
-
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            DeviceListView(
-                viewModel: viewModel,
-                startupAction: $deviceListStartupAction
-            )
-            .navigationDestination(for: UUID.self) { deviceID in
-                if let device = viewModel.device(for: deviceID) {
-                    DeviceDetailView(device: device)
-                } else {
-                    NoDeviceSelectedView()
-                }
-            }
-        }
+        @Bindable var router = router
+        content
         .tint(.accentBlue)
-        .sheet(item: Binding(
-            get: { router.presentedSheet },
-            set: { router.presentedSheet = $0 }
-        )) { sheet in
+        .sheet(item: $router.presentedSheet) { sheet in
             sheetContent(for: sheet)
         }
         .task {
             if viewModel.hasSavedDevices && !viewModel.isScanning {
                 viewModel.startScanning()
             }
-            autoSelectLastDeviceIfNeeded()
-        }
-        .onChange(of: deviceIDs) { _, _ in
             autoSelectLastDeviceIfNeeded()
         }
         .onChange(of: deviceAvailabilitySnapshots) { _, _ in
@@ -81,16 +61,55 @@ struct MainView: View {
                 router.deselectDevice()
             }
         }
-        .onChange(of: shouldKeepScreenOn, initial: true) { _, keepOn in
-            UIApplication.shared.isIdleTimerDisabled = keepOn
-        }
-        .onDisappear {
-            UIApplication.shared.isIdleTimerDisabled = false
+        .modifier(ScreenWakeModifier(viewModel: viewModel, keepScreenOn: keepScreenOn))
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if horizontalSizeClass == .regular {
+            splitViewContent
+        } else {
+            stackContent
         }
     }
 
-    private var deviceIDs: [UUID] {
-        viewModel.devices.map(\.id)
+    private var stackContent: some View {
+        NavigationStack(path: $navigationPath) {
+            deviceList
+                .navigationDestination(for: UUID.self) { deviceID in
+                    if let device = viewModel.device(for: deviceID) {
+                        DeviceDetailView(device: device)
+                    } else {
+                        NoDeviceSelectedView()
+                    }
+                }
+        }
+    }
+
+    private var splitViewContent: some View {
+        NavigationSplitView(columnVisibility: $splitViewVisibility) {
+            deviceList
+        } detail: {
+            selectedDeviceDetail
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+
+    private var deviceList: some View {
+        DeviceListView(
+            viewModel: viewModel,
+            startupAction: $deviceListStartupAction
+        )
+    }
+
+    @ViewBuilder
+    private var selectedDeviceDetail: some View {
+        if let selectedDeviceID = router.selectedDeviceID,
+           let device = viewModel.device(for: selectedDeviceID) {
+            DeviceDetailView(device: device)
+        } else {
+            NoDeviceSelectedView()
+        }
     }
 
     private var deviceAvailabilitySnapshots: [DeviceAvailabilitySnapshot] {
@@ -151,6 +170,30 @@ struct MainView: View {
         }
     }
 
+}
+
+// MARK: - Screen Wake Modifier
+
+/// Keeps the screen awake while a device is connected and the setting is enabled.
+/// Isolated into a ViewModifier so MainView's body isn't forced to read the full
+/// device list on every state change unrelated to connectivity.
+private struct ScreenWakeModifier: ViewModifier {
+    let viewModel: DeviceListViewModel
+    let keepScreenOn: Bool
+
+    private var shouldKeepOn: Bool {
+        keepScreenOn && viewModel.devices.contains { $0.isConnected }
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: shouldKeepOn, initial: true) { _, keepOn in
+                UIApplication.shared.isIdleTimerDisabled = keepOn
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+            }
+    }
 }
 
 private struct DeviceAvailabilitySnapshot: Equatable {

@@ -11,7 +11,7 @@ struct CompromisedDeviceSheet: View {
     let onRemove: () -> Void
     let onConnectAnyway: () -> Void
 
-    @State private var contentHeight: CGFloat = 420
+    @State private var contentHeight: CGFloat = .zero
 
     var body: some View {
         VStack(spacing: 0) {
@@ -52,15 +52,8 @@ struct CompromisedDeviceSheet: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
         .frame(maxWidth: .infinity)
-        .background {
-            GeometryReader { proxy in
-                Color.clear
-                    .onChange(of: proxy.size.height, initial: true) { _, height in
-                        contentHeight = height
-                    }
-            }
-        }
-        .presentationDetents([.height(contentHeight)])
+        .measureHeight($contentHeight)
+        .presentationDetents(sheetDetents(for: contentHeight))
         .presentationBackground(Color(.secondarySystemGroupedBackground))
         .accessibilityElement(children: .contain)
     }

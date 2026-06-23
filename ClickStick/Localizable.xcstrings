@@ -126,6 +126,9 @@
     "Change layout" : {
 
     },
+    "Choose a connected ClickStick from the devices list." : {
+
+    },
     "Choose how you'd like to begin. You can always switch modes later." : {
 
     },
@@ -433,6 +436,9 @@
     "Security warning" : {
       "comment" : "Compromised device status"
     },
+    "Select a Device" : {
+
+    },
     "Select your device carefully. Connect only to a device you recognize and trust." : {
 
     },
@@ -446,7 +452,7 @@
       "comment" : "Header send button accessibility"
     },
     "Sending text" : {
-      "comment" : "Send progress accessibility"
+      "comment" : "Header send button sending accessibility\nSend progress accessibility"
     },
     "Sending..." : {
       "comment" : "Sending in progress"
@@ -578,7 +584,7 @@
     "Verifying…" : {
 
     },
-    "Version app %@" : {
+    "Version %@" : {
 
     },
     "Weak signal" : {

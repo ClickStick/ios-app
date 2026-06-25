@@ -1,10 +1,12 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+import ClickStickKit
 import SwiftUI
 
 @main
 struct ClickStickApp: App {
+    private static let hasLaunchedSinceInstallKey = "hasLaunchedSinceInstall"
     @AppStorage(OnboardingStorage.hasCompletedOnboarding) private var hasCompletedOnboarding = false
     @AppStorage(OnboardingStorage.isDemoModeEnabled) private var isDemoModeEnabled = false
 
@@ -16,6 +18,8 @@ struct ClickStickApp: App {
     private let urlOpener: URLOpener
 
     init() {
+        Self.clearStaleDeviceSettingsOnFreshInstall()
+
         let urlOpener = URLOpener()
         let service = ClickStickService()
         let isDemoModeEnabled = UserDefaults.standard.bool(forKey: OnboardingStorage.isDemoModeEnabled)
@@ -27,6 +31,12 @@ struct ClickStickApp: App {
 #if targetEnvironment(macCatalyst)
         UITextField.appearance().focusEffect = nil
 #endif
+    }
+
+    private static func clearStaleDeviceSettingsOnFreshInstall() {
+        guard !UserDefaults.standard.bool(forKey: hasLaunchedSinceInstallKey) else { return }
+        try? CSDeviceSettingsManager.deleteAllSettings()
+        UserDefaults.standard.set(true, forKey: hasLaunchedSinceInstallKey)
     }
 
     var body: some Scene {

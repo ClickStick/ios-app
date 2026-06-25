@@ -8,12 +8,6 @@ struct FloatingTabBarItem<ID: Hashable>: Identifiable {
     let id: ID
     let title: LocalizedStringKey
     let systemImage: String
-
-    init(id: ID, title: LocalizedStringKey, systemImage: String) {
-        self.id = id
-        self.title = title
-        self.systemImage = systemImage
-    }
 }
 
 struct FloatingTabBar<ID: Hashable>: View {

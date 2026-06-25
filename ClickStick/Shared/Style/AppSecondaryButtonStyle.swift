@@ -3,8 +3,6 @@
 
 import SwiftUI
 
-// App-local secondary button: full-width grey pill with tinted label.
-// `systemGray5` is #E5E5EA (light) / #2C2C2E (dark) — the "secondary fill" token.
 struct AppSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 

@@ -123,7 +123,6 @@ struct MainView: View {
         }
     }
 
-    /// On launch, restore and connect the last used device when the setting is enabled.
     private func autoSelectLastDeviceIfNeeded() {
         guard !didAttemptAutoSelect else { return }
 
@@ -174,9 +173,6 @@ struct MainView: View {
 
 // MARK: - Screen Wake Modifier
 
-/// Keeps the screen awake while a device is connected and the setting is enabled.
-/// Isolated into a ViewModifier so MainView's body isn't forced to read the full
-/// device list on every state change unrelated to connectivity.
 private struct ScreenWakeModifier: ViewModifier {
     let viewModel: DeviceListViewModel
     let keepScreenOn: Bool

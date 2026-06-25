@@ -24,7 +24,7 @@ struct DiscoveryDeviceRowModel: Identifiable {
     }
 
     #if DEBUG
-    static let figmaPreviewRows: [Self] = [
+    static let preview: [Self] = [
         .init(name: "ClickStick 9F8C", rssi: -42),
         .init(name: "ClickStick 8F8C", rssi: -71),
         .init(name: "ClickStick A1B2", rssi: -88)

@@ -5,18 +5,13 @@ import Foundation
 import Observation
 import SwiftUI
 
-/// Centralized navigation coordinator for the app.
-/// Manages navigation state and sheet presentations to simplify ViewModels and Views.
 @Observable
 @MainActor
 final class AppRouter {
 
     // MARK: - Navigation State
 
-    /// Currently selected device ID (drives detail view in NavigationSplitView)
     var selectedDeviceID: UUID?
-
-    /// Currently presented sheet
     var presentedSheet: Sheet?
 
     // MARK: - Sheet Types
@@ -32,7 +27,7 @@ final class AppRouter {
         }
     }
 
-    // MARK: - Navigation Actions
+    // MARK: - Methods
 
     func selectDevice(_ device: DeviceModel) {
         selectedDeviceID = device.id

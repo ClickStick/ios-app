@@ -4,7 +4,6 @@
 import ClickStickKit
 import SwiftUI
 
-/// A wrapper for presenting errors as alerts
 struct AlertError: Identifiable {
     let id = UUID()
     let title: String
@@ -40,7 +39,6 @@ struct AlertError: Identifiable {
 }
 
 extension View {
-    /// Presents an error alert binding
     func errorAlert(_ error: Binding<AlertError?>) -> some View {
         alert(
             error.wrappedValue?.title ?? String(localized: "Error", comment: "Alert title"),

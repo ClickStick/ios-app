@@ -49,7 +49,7 @@ final class ClickStickService: CSManagerDelegate {
         }
     }
 
-    // MARK: - Public API
+    // MARK: - Methods
 
     func startScanning() {
         guard !isScanning else { return }

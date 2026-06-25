@@ -3,7 +3,6 @@
 
 import SwiftUI
 
-/// Signal-strength bars for a device row.
 struct SignalBarsView: View {
     private enum Metric {
         static let barWidth: CGFloat = 3

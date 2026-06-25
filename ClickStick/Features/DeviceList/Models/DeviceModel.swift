@@ -32,8 +32,6 @@ protocol MouseControllingDevice: AnyObject {
     func sendMouseScroll(vertical: Int8, horizontal: Int8, completion: CSCommandCompletion?)
 }
 
-/// The UI-facing state of a device, derived from the combination of connection state,
-/// authentication status, error history, and signal properties.
 enum DeviceUIState {
     /// Fully connected and ready for commands.
     case connected
@@ -244,9 +242,6 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         try await sendTypeCommands(text: text, layout: layout, targetOS: targetOS)
     }
 
-    /// Sends text one character at a time so progress can be reported and the send can be
-    /// cancelled. There is no artificial delay — it is paced only by how fast the device
-    /// acknowledges each keystroke. Used by the in-app Text Entry screen.
     func sendText(
         _ text: String,
         layout: CSKeyboardLayout,

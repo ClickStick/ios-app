@@ -21,7 +21,6 @@ final class DeviceListViewModel {
 
     var alertError: AlertError?
 
-    // Stored properties that sync with UserDefaults
     var hasShownWelcome: Bool {
         didSet {
             UserDefaults.standard.set(hasShownWelcome, forKey: Self.hasShownWelcome)
@@ -45,15 +44,12 @@ final class DeviceListViewModel {
         devices.filter { $0.isConnected }
     }
 
-    /// Disconnected devices that are currently advertising and can be connected to.
-    /// A connecting device stays here too; only its row subtitle changes to "Connecting...".
     var availableDevices: [DeviceModel] {
         devices.filter { device in
             !device.isConnected && (device.isConnectable || device.isConnecting)
         }
     }
 
-    /// Disconnected devices that are no longer advertising (out of range).
     var outOfRangeDevices: [DeviceModel] {
         devices.filter { device in
             !device.isConnected && !device.isConnecting && !device.isConnectable
@@ -72,7 +68,6 @@ final class DeviceListViewModel {
         !hasDismissedDemoPrompt && !service.isDemoMode
     }
 
-    /// Returns the first device that needs authentication setup (single source of truth)
     var deviceRequiringAuthentication: DeviceModel? {
         devices.first { $0.needsAuthentication }
     }
@@ -87,7 +82,6 @@ final class DeviceListViewModel {
         self.hasDismissedDemoPrompt = UserDefaults.standard.bool(forKey: Self.hasDismissedDemoPrompt)
     }
 
-    /// Prepares a device for authentication setup. Returns the device if setup should be shown.
     func prepareDeviceForSetup(_ device: DeviceModel) {
         // Clear old settings before showing setup
         try? CSDeviceSettingsManager.deleteSettings(for: device.id)
@@ -174,8 +168,6 @@ final class DeviceListViewModel {
         }
     }
 
-    /// Discards persisted settings after a failed setup attempt so an unverified key
-    /// isn't left behind making the device look "known" with a bad key.
     func discardDeviceSettings(for device: DeviceModel) {
         try? CSDeviceSettingsManager.deleteSettings(for: device.id)
         device.refreshSettingsCache()
@@ -183,7 +175,6 @@ final class DeviceListViewModel {
         service.reloadDevices()
     }
 
-    /// Saves device settings. Returns true if successful (View should dismiss sheet).
     func saveDeviceSettings(device: DeviceModel, authKey: CSAppAuthKey, alias: String?) -> Bool {
         let settings = CSDeviceSettings(
             deviceUUID: device.id,

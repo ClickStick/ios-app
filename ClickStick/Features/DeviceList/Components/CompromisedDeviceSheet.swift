@@ -3,9 +3,6 @@
 
 import SwiftUI
 
-/// Warning shown when a device's session data failed to validate (possible tampering).
-/// A native bottom sheet (sized to its content) presented when the user taps a
-/// "Security warning" row in the Devices list.
 struct CompromisedDeviceSheet: View {
     let deviceName: String
     let onRemove: () -> Void

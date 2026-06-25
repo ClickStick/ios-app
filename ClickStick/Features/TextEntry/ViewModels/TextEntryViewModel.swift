@@ -8,8 +8,6 @@ import Observation
 @Observable
 @MainActor
 final class TextEntryViewModel {
-    /// Sends longer than this show the "Sending…" progress sheet; shorter sends
-    /// just flash a "Sent" toast. Arbitrary threshold — tuned for feel, not a limit.
     private static let progressSheetThreshold = 50
 
     // MARK: - Progress sheet state
@@ -39,13 +37,9 @@ final class TextEntryViewModel {
     // MARK: - Output state
 
     private(set) var isSending: Bool = false
-    /// Non-nil while the progress sheet should be presented (long sends).
     var progress: ProgressState?
-    /// Drives the unsupported-characters confirmation sheet (set on Send attempt).
     var isShowingUnsupportedPrompt: Bool = false
-    /// Drives the "Connection lost" sheet.
     var showConnectionLost: Bool = false
-    /// Drives the brief "Sent to …" toast (short sends).
     private(set) var showSentToast: Bool = false
 
     private var sendTask: Task<Void, Never>?
@@ -81,7 +75,6 @@ final class TextEntryViewModel {
 
     var hasUnsupportedCharacters: Bool { !unsupportedCharacters.isEmpty }
 
-    /// Inline warning under the text card, e.g. "US - QWERTY can't type: Щ".
     var inlineUnsupportedMessage: String? {
         guard hasUnsupportedCharacters else { return nil }
         let characters = unsupportedCharacters.map(String.init).joined(separator: " ")
@@ -89,7 +82,6 @@ final class TextEntryViewModel {
                       comment: "Inline unsupported characters warning")
     }
 
-    /// Body for the unsupported-characters sheet.
     var unsupportedPromptMessage: String? {
         guard !unsupportedCharacters.isEmpty else { return nil }
         let characters = unsupportedCharacters.map(String.init).joined(separator: " ")

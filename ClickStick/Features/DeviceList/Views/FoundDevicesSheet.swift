@@ -3,8 +3,6 @@
 
 import SwiftUI
 
-/// Modal shown once devices are discovered: a list to pick from, with a Stop button.
-/// Presented over the dimmed Devices list.
 struct FoundDevicesSheet: View {
     let viewModel: DeviceListViewModel
     let previewRows: [DiscoveryDeviceRowModel]?
@@ -134,7 +132,7 @@ private struct DiscoveryDeviceRow: View {
 #Preview("Found Devices") {
     FoundDevicesSheet(
         viewModel: DeviceListViewModel(service: ClickStickService(), urlOpener: URLOpener()),
-        previewRows: DiscoveryDeviceRowModel.figmaPreviewRows,
+        previewRows: DiscoveryDeviceRowModel.preview,
         onConnect: { _ in },
         onStop: {}
     )

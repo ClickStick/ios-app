@@ -3,8 +3,6 @@
 
 import SwiftUI
 
-/// Concentric-ring radar used for the scanning sheet's paused state and as the
-/// reduced-motion fallback for the Lottie discovery animation.
 struct ScanRadarView: View {
     var showsSweep: Bool = false
     var tint: Color = .accentBlue

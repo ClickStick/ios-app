@@ -43,6 +43,8 @@ final class TextEntryViewModel {
     private(set) var showSentToast: Bool = false
 
     private var sendTask: Task<Void, Never>?
+    private var dismissProgressTask: Task<Void, Never>?
+    private var dismissToastTask: Task<Void, Never>?
     private var persistsSelectionChanges = true
 
     // MARK: - Initialization
@@ -57,6 +59,8 @@ final class TextEntryViewModel {
 
     isolated deinit {
         sendTask?.cancel()
+        dismissProgressTask?.cancel()
+        dismissToastTask?.cancel()
     }
 
     // MARK: - Derived
@@ -121,6 +125,8 @@ final class TextEntryViewModel {
         }
         sendTask?.cancel()
         sendTask = nil
+        dismissProgressTask?.cancel()
+        dismissProgressTask = nil
         isSending = false
     }
 
@@ -196,10 +202,12 @@ final class TextEntryViewModel {
         text = ""
         if showsSheet {
             progress = .sent
-            Task { [weak self] in
+            dismissProgressTask?.cancel()
+            dismissProgressTask = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(1))
                 guard let self, case .sent = self.progress else { return }
                 self.progress = nil
+                self.dismissProgressTask = nil
             }
         } else {
             flashSentToast()
@@ -208,9 +216,12 @@ final class TextEntryViewModel {
 
     private func flashSentToast() {
         showSentToast = true
-        Task { [weak self] in
+        dismissToastTask?.cancel()
+        dismissToastTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(1))
-            self?.showSentToast = false
+            guard let self else { return }
+            self.showSentToast = false
+            self.dismissToastTask = nil
         }
     }
 

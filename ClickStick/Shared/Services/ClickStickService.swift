@@ -84,7 +84,8 @@ final class ClickStickService: CSManagerDelegate {
     // MARK: - CSManagerDelegate
 
     nonisolated func didDiscover(device: CSDevice, in manager: CSManager) {
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             log.debug("Discovered device: \(device.uuid)")
             // Clear any previous Bluetooth error since discovery means BT is working
             if bluetoothError != nil {
@@ -95,7 +96,8 @@ final class ClickStickService: CSManagerDelegate {
     }
 
     nonisolated func didFail(with error: CSError, in manager: CSManager) {
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             log.error("Manager failed: \(error.localizedDescription)")
             bluetoothError = error
             isScanning = false

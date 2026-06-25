@@ -267,9 +267,6 @@
     "Get your ClickStick at clickstick.io" : {
 
     },
-    "Hello World" : {
-      "comment" : "Text preset name"
-    },
     "Help" : {
 
     },
@@ -308,9 +305,6 @@
     },
     "Looking for nearby devices..." : {
 
-    },
-    "Lorem Ipsum" : {
-      "comment" : "Text preset name"
     },
     "macOS" : {
       "comment" : "Target OS"
@@ -375,9 +369,6 @@
     },
     "RIGHT CLICK" : {
 
-    },
-    "Sample Email" : {
-      "comment" : "Text preset name"
     },
     "Saved device" : {
       "comment" : "Device type"
@@ -487,9 +478,6 @@
     },
     "Terms of Use" : {
 
-    },
-    "Test Password" : {
-      "comment" : "Text preset name"
     },
     "Text Entry" : {
       "comment" : "Tab title"

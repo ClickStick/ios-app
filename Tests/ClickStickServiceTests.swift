@@ -66,11 +66,13 @@ struct ClickStickServiceTests {
     }
 
     @Test
-    func startScanningClearsPreviousBluetoothError() {
+    func startScanningClearsPreviousBluetoothError() async {
         let manager = MockManager()
         let service = ClickStickService(manager: manager)
 
         service.didFail(with: .bluetoothUnavailable(reason: .poweredOff), in: CSManager.shared)
+        // Yield so the fire-and-forget Task { @MainActor } in didFail executes
+        await Task.yield()
         #expect(service.bluetoothError != nil)
 
         service.startScanning()
@@ -79,12 +81,14 @@ struct ClickStickServiceTests {
     }
 
     @Test
-    func didFailUpdatesErrorAndStopsScanning() {
+    func didFailUpdatesErrorAndStopsScanning() async {
         let manager = MockManager()
         let service = ClickStickService(manager: manager)
 
         service.startScanning()
         service.didFail(with: .bluetoothUnavailable(reason: .permissionDenied), in: CSManager.shared)
+        // Yield so the fire-and-forget Task { @MainActor } in didFail executes
+        await Task.yield()
 
         #expect(!service.isScanning)
         if case .bluetoothUnavailable(let reason)? = service.bluetoothError {

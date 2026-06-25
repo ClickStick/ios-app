@@ -7,8 +7,6 @@ import VisionKit
 
 struct DeviceSetupSheet: View {
     let device: DeviceModel
-    let onComplete: (CSAppAuthKey, String?) -> Bool
-    var onAuthenticationFailure: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
 
@@ -20,8 +18,6 @@ struct DeviceSetupSheet: View {
         onAuthenticationFailure: @escaping () -> Void = {}
     ) {
         self.device = device
-        self.onComplete = onComplete
-        self.onAuthenticationFailure = onAuthenticationFailure
         _viewModel = State(initialValue: DeviceSetupViewModel(
             onComplete: onComplete,
             onAuthenticationFailure: onAuthenticationFailure

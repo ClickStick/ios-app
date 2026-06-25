@@ -212,7 +212,12 @@ struct DeviceListView: View {
             router.showDeviceSetup(for: device)
         case .compromised:
             compromisedDevice = device
-        case .outOfRange, .failed:
+        case .failed:
+            if device.isConnectable {
+                _ = viewModel.connectDevice(device)
+                pendingConnectedDeviceID = device.id
+            }
+        case .outOfRange:
             break
         }
     }

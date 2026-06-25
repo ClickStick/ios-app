@@ -147,6 +147,9 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         if let alias = cachedAlias, !alias.isEmpty {
             return alias
         }
+        if name.isEmpty || name == "?" || name == "…" {
+            return "ClickStick \(device.uuid.uuidString.suffix(4).uppercased())"
+        }
         return name
     }
 

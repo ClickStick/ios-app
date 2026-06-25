@@ -82,7 +82,7 @@ extension CSDevice {
         targetOS: CSTypingOS,
         completion: CSCommandCompletion?
     ) {
-        let keyCodes = layout.getKeyCodes(for: text, includeUnknown: false)
+        let keyCodes = layout.getKeyCodes(for: text, includeUnknown: true)
         guard !keyCodes.isEmpty else {
             completion?(.success(()))
             return

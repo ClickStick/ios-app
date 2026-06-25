@@ -86,12 +86,14 @@ struct DeviceListViewModelTests {
     }
 
     @Test
-    func bluetoothErrorTriggersAnnouncements() {
+    func bluetoothErrorTriggersAnnouncements() async {
         setPersistedFlags(hasShownWelcome: true, hasDismissedDemoPrompt: true)
         let service = ClickStickService(manager: MockManager())
         let viewModel = DeviceListViewModel(service: service, urlOpener: URLOpener())
 
         service.didFail(with: .bluetoothUnavailable(reason: .poweredOff), in: CSManager.shared)
+        // Yield so the fire-and-forget Task { @MainActor } in didFail executes
+        await Task.yield()
 
         #expect(viewModel.hasAnnouncements)
         #expect(!viewModel.isEmpty)

@@ -30,7 +30,8 @@ struct ShareExtensionView: View {
         // per-character progress update during `.sending`.
         .animation(.easeInOut(duration: 0.2), value: viewModel.phase.transitionID)
         .onAppear { viewModel.onAppear() }
-        .onDisappear { viewModel.onDisappear() }
+        // Teardown (`onDisappear`) is driven explicitly by the hosting controller's
+        // cancel()/complete() so scanning stops synchronously before the process exits.
         .onChange(of: viewModel.deviceListChangeToken) { _, _ in
             viewModel.devicesDidChange()
         }
@@ -117,8 +118,12 @@ struct ShareExtensionView: View {
             .padding(.horizontal, 20)
             .frame(height: 80)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color.cardFill))
+            .contentShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
         }
+        // Paint the card on the Menu, not inside its label: when iOS opens the
+        // picker it lifts the label into a highlight platter, and a background
+        // inside the label vanishes from the source spot (flashes white).
+        .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color.cardFill))
         .tint(.primary)
     }
 
@@ -139,9 +144,9 @@ struct ShareExtensionView: View {
 
     private var controlsRow: some View {
         HStack(spacing: 16) {
-            DropdownPill(title: viewModel.selectedLayout.shareMenuTitle) {
+            DropdownPill(title: viewModel.selectedLayout.title) {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
-                    Button(layout.shareMenuTitle) { viewModel.selectedLayout = layout }
+                    Button(layout.title) { viewModel.selectedLayout = layout }
                 }
             }
             DropdownPill(title: viewModel.selectedOS.title) {
@@ -230,7 +235,7 @@ private struct DeviceStatusLine: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(state.description)
+            Text(state.statusDescription)
                 .font(.body)
                 .foregroundStyle(statusColor)
                 .lineLimit(1)
@@ -297,14 +302,5 @@ private extension ShareExtensionViewModel.Phase {
         case .sending: 1
         case .sent: 2
         }
-    }
-}
-
-// MARK: - Localized titles
-
-private extension CSKeyboardLayout {
-    /// "US - QWERTY" → "US-QWERTY" to match the design.
-    var shareMenuTitle: String {
-        description.replacing(" - ", with: "-")
     }
 }

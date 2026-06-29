@@ -68,7 +68,7 @@ struct DeviceDetailView: View {
                 handleConnectionStateChange(from: oldState, to: newState)
             }
             .onChange(of: textEntryViewModel.showConnectionLost) { _, isConnectionLost in
-                if isConnectionLost {
+                if isConnectionLost && !device.didDisconnectIntentionally {
                     showConnectionLost = true
                 }
             }
@@ -160,6 +160,8 @@ struct DeviceDetailView: View {
         }
 
         guard newState == .disconnected, oldState != .disconnected else { return }
+        // Suppress the prompt for disconnects we asked for (e.g. backgrounding).
+        guard !device.didDisconnectIntentionally else { return }
         showConnectionLost = true
     }
 

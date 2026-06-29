@@ -40,11 +40,12 @@ final class ShareExtensionViewModel {
 
     private(set) var phase: Phase = .input
     private(set) var selectedDeviceID: UUID?
+    private(set) var selectedDevice: DeviceModel? = nil
 
     private var previewDevices: [DeviceModel]?
     private var sendTask: Task<Void, Never>?
     private var persistsPreferences = false
-    private var autoScans = true
+    private var didRequestTeardown = false
 
     // MARK: - Init
 
@@ -72,11 +73,6 @@ final class ShareExtensionViewModel {
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
 
-    var selectedDevice: DeviceModel? {
-        guard let id = selectedDeviceID else { return nil }
-        return devices.first { $0.id == id }
-    }
-
     var characterCount: Int { text.count }
 
     /// Send is only possible with a connected device and non-empty text, while in the input phase.
@@ -89,19 +85,30 @@ final class ShareExtensionViewModel {
     // MARK: - Lifecycle
 
     func onAppear() {
-        guard autoScans else { return }
+        guard service != nil else { return }
         service?.startScanning()
         connectSelectedDeviceIfNeeded()
     }
 
     func onDisappear() {
+        guard !didRequestTeardown else { return }
+        didRequestTeardown = true
+
+        sendTask?.cancel()
+        sendTask = nil
+        disconnectSelectedDeviceIfNeeded()
         service?.stopScanning()
+    }
+
+    private func disconnectSelectedDeviceIfNeeded() {
+        selectedDevice?.disconnect()
     }
 
     // MARK: - Device selection
 
     func select(_ device: DeviceModel) {
         selectedDeviceID = device.id
+        selectedDevice = device
         applyPreferencesFromSelectedDevice()
         connectSelectedDeviceIfNeeded()
     }
@@ -109,8 +116,13 @@ final class ShareExtensionViewModel {
     private func autoSelectDevice() {
         if let connected = devices.first(where: { $0.isConnected }) {
             selectedDeviceID = connected.id
+            selectedDevice = connected
+        } else if let first = devices.first {
+            selectedDeviceID = first.id
+            selectedDevice = first
         } else {
-            selectedDeviceID = devices.first?.id
+            selectedDeviceID = nil
+            selectedDevice = nil
         }
     }
 
@@ -126,6 +138,9 @@ final class ShareExtensionViewModel {
     }
 
     func devicesDidChange() {
+        if let id = selectedDeviceID {
+            selectedDevice = devices.first { $0.id == id }
+        }
         if selectedDevice == nil {
             autoSelectDevice()
             applyPreferencesFromSelectedDevice()
@@ -206,9 +221,9 @@ final class ShareExtensionViewModel {
         self.service = nil
         self.selectedLayout = layout
         self.selectedOS = targetOS
-        self.autoScans = false
         self.previewDevices = device.map { [$0] } ?? []
         self.selectedDeviceID = device?.id
+        self.selectedDevice = device
         self.phase = phase
     }
 #endif

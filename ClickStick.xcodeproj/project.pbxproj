@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		7571A5CD2F359CD500CD7E3F /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7571A5C32F359CD500CD7E3F /* ShareExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AAAAAAAA00000000000000F1 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAA00000000000000F2 /* ClickStickKit */; };
+		AAAAAAAA00000000000000F4 /* DeviceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAAAAAA00000000000000F3 /* DeviceModel.swift */; };
 		F37010602FE2746C00ACF45D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F370105F2FE2746C00ACF45D /* Lottie */; };
 		F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */; };
 /* End PBXBuildFile section */
@@ -45,6 +47,7 @@
 
 /* Begin PBXFileReference section */
 		7571A5C32F359CD500CD7E3F /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAAAAAAA00000000000000F3 /* DeviceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeviceModel.swift; path = ClickStick/Features/DeviceList/Models/DeviceModel.swift; sourceTree = SOURCE_ROOT; };
 		F32A27252F2CD9D300766586 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3DBABAD2F238C88009D1CC2 /* ClickStickKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ClickStickKit; sourceTree = "<group>"; };
 		F3F4AC672F21670600158155 /* ClickStick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClickStick.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,6 +69,15 @@
 			);
 			target = F3F4AC662F21670600158155 /* ClickStick */;
 		};
+		F35448022FEB26C60036F6A7 /* Exceptions for "ClickStick" folder in "ShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+				Shared/Style/AppPrimaryButtonStyle.swift,
+				Shared/Style/AppSecondaryButtonStyle.swift,
+			);
+			target = 7571A5C22F359CD500CD7E3F /* ShareExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -86,6 +98,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				F32AF7752F2A4FC400766586 /* Exceptions for "ClickStick" folder in "ClickStick" target */,
+				F35448022FEB26C60036F6A7 /* Exceptions for "ClickStick" folder in "ShareExtension" target */,
 			);
 			path = ClickStick;
 			sourceTree = "<group>";
@@ -97,6 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAAAAAAA00000000000000F1 /* ClickStickKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +133,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F35447732FEB25830036F6A7 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				AAAAAAAA00000000000000F3 /* DeviceModel.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		F3F4AC5E2F21670600158155 = {
 			isa = PBXGroup;
 			children = (
@@ -129,6 +151,7 @@
 				7571A5C42F359CD500CD7E3F /* ShareExtension */,
 				F3F4ACA12F22143F00158155 /* Frameworks */,
 				F3F4AC682F21670600158155 /* Products */,
+				F35447732FEB25830036F6A7 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -169,6 +192,7 @@
 			);
 			name = ShareExtension;
 			packageProductDependencies = (
+				AAAAAAAA00000000000000F2 /* ClickStickKit */,
 			);
 			productName = ShareExtension;
 			productReference = 7571A5C32F359CD500CD7E3F /* ShareExtension.appex */;
@@ -299,6 +323,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAAAAAAA00000000000000F4 /* DeviceModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,6 +726,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AAAAAAAA00000000000000F2 /* ClickStickKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F3DBABB02F238D3A009D1CC2 /* XCLocalSwiftPackageReference "ClickStickKit" */;
+			productName = ClickStickKit;
+		};
 		F370105F2FE2746C00ACF45D /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F370105E2FE2745D00ACF45D /* XCRemoteSwiftPackageReference "lottie-spm" */;

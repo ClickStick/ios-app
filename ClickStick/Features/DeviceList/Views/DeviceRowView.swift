@@ -28,7 +28,7 @@ struct DeviceRowView: View {
 
                 DeviceStatusLine(
                     uiState: device.uiState,
-                    statusDescription: statusDescription,
+                    statusDescription: device.uiState.description,
                     statusColor: statusColor
                 )
             }
@@ -97,31 +97,6 @@ struct DeviceRowView: View {
         return device.isCompromised || isSelected ? 1.5 : 0.5
     }
 
-    private var statusDescription: String {
-        switch device.uiState {
-        case .connected:
-            return String(localized: "Connected", comment: "Device row status")
-        case .authorizing:
-            return String(localized: "Authorizing...", comment: "Device row status")
-        case .setupRequired:
-            return String(localized: "Setup required", comment: "Device row status")
-        case .connecting:
-            return String(localized: "Connecting...", comment: "Device row status")
-        case .available:
-            return String(localized: "Tap to connect", comment: "Device row status")
-        case .newDevice:
-            return String(localized: "Tap to set up", comment: "Device row status")
-        case .weakSignal:
-            return String(localized: "Weak signal", comment: "Device row status")
-        case .outOfRange:
-            return String(localized: "Out of range", comment: "Device row status")
-        case .compromised:
-            return String(localized: "Security warning", comment: "Compromised device status")
-        case .failed(let error):
-            return error.localizedDescription
-        }
-    }
-
     private var showsSignalBars: Bool {
         switch device.uiState {
         case .outOfRange, .compromised:
@@ -156,7 +131,7 @@ struct DeviceRowView: View {
     private var accessibilityDescription: String {
         var parts: [String] = []
         parts.append(device.displayName)
-        parts.append(statusDescription)
+        parts.append(device.uiState.description)
 
         if device.isDemoDevice {
             parts.append(String(localized: "Demo device", comment: "Device type"))

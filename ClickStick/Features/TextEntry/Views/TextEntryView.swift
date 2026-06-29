@@ -53,12 +53,12 @@ struct TextEntryView: View {
         HStack(spacing: 8) {
             Menu {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
-                    Button(layout.menuTitle) {
+                    Button(layout.title) {
                         viewModel.selectedLayout = layout
                     }
                 }
             } label: {
-                menuPillLabel(viewModel.selectedLayout.menuTitle)
+                menuPillLabel(viewModel.selectedLayout.title)
             }
 
             Menu {
@@ -132,12 +132,6 @@ struct TextEntryView: View {
 }
 
 // MARK: - Text Editor Card
-
-private extension CSKeyboardLayout {
-    var menuTitle: String {
-        description.replacing(" - ", with: "-")
-    }
-}
 
 private struct TextEditorCard<Controls: View>: View {
     @Binding var text: String

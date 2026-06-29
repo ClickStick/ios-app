@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		7571A5CD2F359CD500CD7E3F /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7571A5C32F359CD500CD7E3F /* ShareExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AAAAAAAA00000000000000F1 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAA00000000000000F2 /* ClickStickKit */; };
-		AAAAAAAA00000000000000F4 /* DeviceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAAAAAA00000000000000F3 /* DeviceModel.swift */; };
 		F37010602FE2746C00ACF45D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F370105F2FE2746C00ACF45D /* Lottie */; };
 		F3DBABAF2F238C8F009D1CC2 /* ClickStickKit in Frameworks */ = {isa = PBXBuildFile; productRef = F3DBABAE2F238C8F009D1CC2 /* ClickStickKit */; };
 /* End PBXBuildFile section */
@@ -47,7 +46,6 @@
 
 /* Begin PBXFileReference section */
 		7571A5C32F359CD500CD7E3F /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		AAAAAAAA00000000000000F3 /* DeviceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeviceModel.swift; path = ClickStick/Features/DeviceList/Models/DeviceModel.swift; sourceTree = SOURCE_ROOT; };
 		F32A27252F2CD9D300766586 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3DBABAD2F238C88009D1CC2 /* ClickStickKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ClickStickKit; sourceTree = "<group>"; };
 		F3F4AC672F21670600158155 /* ClickStick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClickStick.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,6 +71,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
+				Features/DeviceList/Models/DeviceModel.swift,
+				"Shared/ClickStickKit+Localization.swift",
+				Shared/Services/ClickStickService.swift,
+				Shared/Services/CSManaging.swift,
 				Shared/Style/AppPrimaryButtonStyle.swift,
 				Shared/Style/AppSecondaryButtonStyle.swift,
 			);
@@ -133,14 +135,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F35447732FEB25830036F6A7 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				AAAAAAAA00000000000000F3 /* DeviceModel.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		F3F4AC5E2F21670600158155 = {
 			isa = PBXGroup;
 			children = (
@@ -151,7 +145,6 @@
 				7571A5C42F359CD500CD7E3F /* ShareExtension */,
 				F3F4ACA12F22143F00158155 /* Frameworks */,
 				F3F4AC682F21670600158155 /* Products */,
-				F35447732FEB25830036F6A7 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -323,7 +316,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AAAAAAAA00000000000000F4 /* DeviceModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,6 +359,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "The extension uses Bluetooth to communicate with ClickStick devices.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -395,6 +388,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "The extension uses Bluetooth to communicate with ClickStick devices.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

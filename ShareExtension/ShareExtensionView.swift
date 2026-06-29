@@ -21,24 +21,37 @@ struct ShareExtensionView: View {
                 .frame(maxWidth: .infinity, alignment: .top)
                 .background {
                     UnevenRoundedRectangle(topLeadingRadius: 44, topTrailingRadius: 44, style: .continuous)
-                        .fill(ShareColors.sheet)
+                        .fill(Color.cardBackground)
                         .ignoresSafeArea(edges: .bottom)
                 }
         }
-        .animation(.easeInOut(duration: 0.2), value: viewModel.phase)
+        // Key the animation on the phase *kind* only, so it drives the card
+        // transitions (input → sending → sent) without re-firing on every
+        // per-character progress update during `.sending`.
+        .animation(.easeInOut(duration: 0.2), value: viewModel.phase.transitionID)
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
+        .onChange(of: viewModel.deviceListChangeToken) { _, _ in
+            viewModel.devicesDidChange()
+        }
     }
 
     @ViewBuilder private var cardContent: some View {
         switch viewModel.phase {
         case .input:
-            inputContent
+            inputContent.transition(cardTransition)
         case let .sending(sent, total):
-            sendingContent(sent: sent, total: total)
+            sendingContent(sent: sent, total: total).transition(cardTransition)
         case .sent:
-            sentContent
+            sentContent.transition(cardTransition)
         }
+    }
+
+    /// Scale + fade between the phase cards, matching the app's sent toast
+    /// (`TextEntryView`). The card itself resizes under the same animation, so
+    /// the height change animates alongside the transition.
+    private var cardTransition: AnyTransition {
+        .scale.combined(with: .opacity)
     }
 
     // MARK: - Input
@@ -99,12 +112,12 @@ struct ShareExtensionView: View {
                 Spacer(minLength: 12)
                 Image(systemName: "chevron.down")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(ShareColors.secondaryIcon)
+                    .foregroundStyle(Color.textSecondary)
             }
             .padding(.horizontal, 20)
             .frame(height: 80)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(ShareColors.cardFill))
+            .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color.cardFill))
         }
         .tint(.primary)
     }
@@ -121,7 +134,7 @@ struct ShareExtensionView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding(16)
             .frame(height: 115)
-            .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(ShareColors.cardFill))
+            .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color.cardFill))
     }
 
     private var controlsRow: some View {
@@ -131,9 +144,9 @@ struct ShareExtensionView: View {
                     Button(layout.shareMenuTitle) { viewModel.selectedLayout = layout }
                 }
             }
-            DropdownPill(title: viewModel.selectedOS.shareTitle) {
+            DropdownPill(title: viewModel.selectedOS.title) {
                 ForEach(CSTypingOS.allCases) { os in
-                    Button(os.shareTitle) { viewModel.selectedOS = os }
+                    Button(os.title) { viewModel.selectedOS = os }
                 }
             }
         }
@@ -162,8 +175,9 @@ struct ShareExtensionView: View {
                 .font(.title.bold())
                 .foregroundStyle(.primary)
 
-            ShareProgressBar(fraction: total == 0 ? 0 : Double(sent) / Double(total))
-                .frame(height: 8)
+            ProgressView(value: total == 0 ? 0 : Double(sent) / Double(total))
+                .tint(Color.accentBlue)
+                .accessibilityLabel(String(localized: "Sending text", comment: "Send progress accessibility"))
 
             Text("\(sent) of \(total) characters", comment: "Share extension send progress")
                 .font(.body)
@@ -201,7 +215,9 @@ struct ShareExtensionView: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 44)
         .task {
-            try? await Task.sleep(for: .seconds(1.2))
+            // Brief confirmation, then dismiss. Kept short because the extension
+            // process is torn down on completion — users want back to the host app.
+            try? await Task.sleep(for: .seconds(0.7))
             onComplete()
         }
     }
@@ -214,7 +230,7 @@ private struct DeviceStatusLine: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(statusText)
+            Text(state.description)
                 .font(.body)
                 .foregroundStyle(statusColor)
                 .lineLimit(1)
@@ -228,46 +244,11 @@ private struct DeviceStatusLine: View {
         }
     }
 
-    private var statusText: String {
-        switch state {
-        case .connected: String(localized: "Connected", comment: "Device status")
-        case .authorizing: String(localized: "Authorizing...", comment: "Device status")
-        case .setupRequired: String(localized: "Setup required", comment: "Device status")
-        case .connecting: String(localized: "Connecting...", comment: "Device status")
-        case .available: String(localized: "Tap to connect", comment: "Device status")
-        case .newDevice: String(localized: "Tap to set up", comment: "Device status")
-        case .weakSignal: String(localized: "Weak signal", comment: "Device status")
-        case .outOfRange: String(localized: "Out of range", comment: "Device status")
-        case .compromised: String(localized: "Security warning", comment: "Device status")
-        case .failed: String(localized: "Connection failed", comment: "Device status")
-        }
-    }
-
     private var statusColor: Color {
         switch state {
         case .compromised, .failed: Color.red
         default: Color.secondary
         }
-    }
-}
-
-// MARK: - Progress bar
-
-private struct ShareProgressBar: View {
-    let fraction: Double
-
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule(style: .continuous)
-                    .fill(Color(uiColor: .systemGray5))
-                Capsule(style: .continuous)
-                    .fill(ShareColors.accent)
-                    .frame(width: geo.size.width * max(0, min(1, fraction)))
-            }
-        }
-        .accessibilityElement()
-        .accessibilityLabel(String(localized: "Sending text", comment: "Send progress accessibility"))
     }
 }
 
@@ -289,7 +270,7 @@ private struct DropdownPill<Content: View>: View {
                 Spacer(minLength: 4)
                 Image(systemName: "chevron.down")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(ShareColors.secondaryIcon)
+                    .foregroundStyle(Color.textSecondary)
             }
             .padding(.leading, 16)
             .padding(.trailing, 12)
@@ -297,31 +278,26 @@ private struct DropdownPill<Content: View>: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(ShareColors.border, lineWidth: 1)
+                    .stroke(Color.border, lineWidth: 1)
             )
         }
         .tint(.primary)
     }
 }
 
-// MARK: - Colors
+// MARK: - Phase transitions
 
-enum ShareColors {
-    /// Sheet background — white (light) / #1C1C1E (dark). Matches Figma `background/secondary`.
-    static let sheet = Color(uiColor: .secondarySystemGroupedBackground)
-    /// Inner card fill — #F2F2F7 (light) / #2C2C2E (dark). Matches Figma `background/primary`.
-    static let cardFill = Color(uiColor: .tertiarySystemGroupedBackground)
-    /// System blue (#007AFF / #0A84FF) — matches Figma `fill/primary` and the app accent.
-    static let accent = Color.blue
-    /// #E5E5EA (light) / #2C2C2E (dark) — matches Figma `fill/secondary`.
-    static let secondaryButtonFill = Color(uiColor: .systemGray5)
-    static let secondaryIcon = Color.secondary
-    /// Dropdown border — #C8D0DA (light), subtle white (dark). Matches Figma `border/default`.
-    static let border = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(white: 1, alpha: 0.16)
-            : UIColor(red: 0.784, green: 0.816, blue: 0.855, alpha: 1)
-    })
+private extension ShareExtensionViewModel.Phase {
+    /// Coarse identity used to drive card transitions. Unlike the full `Phase`
+    /// value, it doesn't change on per-character progress, so the input → sending
+    /// → sent animation fires once per real transition, not on every character.
+    var transitionID: Int {
+        switch self {
+        case .input: 0
+        case .sending: 1
+        case .sent: 2
+        }
+    }
 }
 
 // MARK: - Localized titles
@@ -332,73 +308,3 @@ private extension CSKeyboardLayout {
         description.replacing(" - ", with: "-")
     }
 }
-
-private extension CSTypingOS {
-    var shareTitle: String {
-        switch self {
-        case .windows: String(localized: "Windows", comment: "Target OS")
-        case .macOS: String(localized: "macOS", comment: "Target OS")
-        case .linux: String(localized: "Linux", comment: "Target OS")
-        }
-    }
-}
-
-// MARK: - Previews
-
-#if DEBUG
-@MainActor private func previewView(
-    device: DeviceModel?,
-    phase: ShareExtensionViewModel.Phase = .input,
-    text: String = "admin@company.local"
-) -> some View {
-    ShareExtensionView(
-        viewModel: ShareExtensionViewModel(previewText: text, device: device, phase: phase),
-        onCancel: {},
-        onComplete: {},
-        onAddDevice: {}
-    )
-}
-
-@MainActor private var previewConnectedDevice: DeviceModel {
-    DeviceModel(device: .makePreview(name: "ClickStick 9F8C", state: .connected))
-}
-
-@MainActor private var previewOutOfRangeDevice: DeviceModel {
-    DeviceModel(device: .makePreview(name: "ClickStick 9F8C", state: .outOfRange))
-}
-
-#Preview("Input — Light") {
-    previewView(device: previewConnectedDevice)
-}
-
-#Preview("Input — Dark") {
-    previewView(device: previewConnectedDevice)
-        .preferredColorScheme(.dark)
-}
-
-#Preview("Out of range") {
-    previewView(device: previewOutOfRangeDevice)
-}
-
-#Preview("No device") {
-    previewView(device: nil)
-}
-
-#Preview("Sending — Light") {
-    previewView(device: previewConnectedDevice, phase: .sending(sent: 250, total: 300))
-}
-
-#Preview("Sending — Dark") {
-    previewView(device: previewConnectedDevice, phase: .sending(sent: 250, total: 300))
-        .preferredColorScheme(.dark)
-}
-
-#Preview("Sent — Light") {
-    previewView(device: previewConnectedDevice, phase: .sent)
-}
-
-#Preview("Sent — Dark") {
-    previewView(device: previewConnectedDevice, phase: .sent)
-        .preferredColorScheme(.dark)
-}
-#endif

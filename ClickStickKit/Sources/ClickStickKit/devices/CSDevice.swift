@@ -110,8 +110,12 @@ public class CSDevice: NSObject {
     }
 
     /// Switches the device to `.disconnected` state and erases session keys.
+    ///
+    /// Also cancels an in-flight connection attempt (`.serviceDiscovery`): the radio link
+    /// is already up at that point, so it must be torn down to release the peripheral
+    /// (e.g. when backgrounding so another process can use the device).
     public func disconnect() {
-        assert(_connectionState == .connectedAuthorized || _connectionState == .connectedUnauthorized)
+        assert(_connectionState != .disconnected)
         log.debug("Will disconnect from \(self.uuid)")
         _features = []
         _lastError = nil
@@ -191,11 +195,18 @@ public class CSDevice: NSObject {
             }
             _maybeScheduleNextCommand()
         case (_, .initSession):
+            let inFlightWasStartSession = _inFlightCommand is CSStartSessionCommand
             if _inFlightCommand != nil {
                 _finalizeInFlightCommandWithSuccess()
             }
-            _connectionState = .connectedUnauthorized
-            _startSession()
+            // On a quick reconnect the dongle can echo an extra `initSession` right after a
+            // successful START_SESSION. Finalizing it above already authorized us, so kicking
+            // off another session here races the device and trips a connection timeout that
+            // tears down the good link. Only (re)start a session if we still need one.
+            if !(inFlightWasStartSession && _connectionState == .connectedAuthorized) {
+                _connectionState = .connectedUnauthorized
+                _startSession()
+            }
             _maybeScheduleNextCommand()
         case (_, .idle):
             _maybeScheduleNextCommand()

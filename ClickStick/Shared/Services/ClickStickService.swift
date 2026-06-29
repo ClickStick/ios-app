@@ -5,7 +5,6 @@ import ClickStickKit
 import Foundation
 import Observation
 import os.log
-import SwiftUI
 
 @Observable
 @MainActor
@@ -81,6 +80,11 @@ final class ClickStickService: CSManagerDelegate {
     /// so they can be transparently reconnected once it returns.
     private var pendingReconnectDeviceIDs: Set<UUID> = []
     private var shouldResumeScanningOnForeground = false
+    /// True when scanning was started solely to rediscover devices for reconnection, so it
+    /// can be stopped again if those devices never reappear within `reconnectTimeout`.
+    private var didAutoStartScanForReconnect = false
+    private var reconnectTimeoutTask: Task<Void, Never>?
+    private static let reconnectTimeout: TimeInterval = 10.0
 
     /// Releases all BLE resources when the app leaves the foreground. CoreBluetooth
     /// connections are per-process, so the Share Extension cannot use a peripheral while
@@ -93,10 +97,12 @@ final class ClickStickService: CSManagerDelegate {
 
         for device in devices {
             switch device.connectionState {
-            case .connectedAuthorized, .connectedUnauthorized:
+            case .connectedAuthorized, .connectedUnauthorized, .serviceDiscovery:
+                // Includes `.serviceDiscovery`: a connecting device already holds the BLE
+                // link, so it must be released too or the Share Extension can't reach it.
                 log.debug("Disconnecting \(device.id) for backgrounding")
                 device.disconnect()
-            case .disconnected, .serviceDiscovery:
+            case .disconnected:
                 break
             }
         }
@@ -106,10 +112,15 @@ final class ClickStickService: CSManagerDelegate {
     /// Resumes scanning and reconnects any devices that were connected before backgrounding.
     /// Reconnection completes asynchronously as scanning rediscovers each peripheral.
     func handleWillEnterForeground() {
-        if shouldResumeScanningOnForeground || !pendingReconnectDeviceIDs.isEmpty {
+        let needsReconnect = !pendingReconnectDeviceIDs.isEmpty
+        if shouldResumeScanningOnForeground || needsReconnect {
+            didAutoStartScanForReconnect = needsReconnect && !shouldResumeScanningOnForeground && !isScanning
             startScanning()
         }
         reconnectPendingDevicesIfPossible()
+        if !pendingReconnectDeviceIDs.isEmpty {
+            startReconnectTimeout()
+        }
     }
 
     /// Reconnects pending devices that scanning has rediscovered and are reachable.
@@ -120,6 +131,31 @@ final class ClickStickService: CSManagerDelegate {
             log.debug("Reconnecting \(device.id) after returning to foreground")
             device.connect()
             pendingReconnectDeviceIDs.remove(device.id)
+        }
+        if pendingReconnectDeviceIDs.isEmpty {
+            // Every device was rediscovered and reconnected; the give-up timer is no longer
+            // needed (we leave scanning as-is — it's governed by the visible screen again).
+            reconnectTimeoutTask?.cancel()
+            reconnectTimeoutTask = nil
+            didAutoStartScanForReconnect = false
+        }
+    }
+
+    /// Stops waiting on devices that never reappeared, and stops a scan we started only for
+    /// reconnection so it doesn't keep draining the radio with nothing left to find.
+    private func startReconnectTimeout() {
+        reconnectTimeoutTask?.cancel()
+        reconnectTimeoutTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Self.reconnectTimeout))
+            guard let self, !Task.isCancelled else { return }
+            self.reconnectTimeoutTask = nil
+            guard !self.pendingReconnectDeviceIDs.isEmpty else { return }
+            self.log.debug("Reconnect timed out for \(self.pendingReconnectDeviceIDs.count) device(s)")
+            self.pendingReconnectDeviceIDs.removeAll()
+            if self.didAutoStartScanForReconnect {
+                self.stopScanning()
+            }
+            self.didAutoStartScanForReconnect = false
         }
     }
 

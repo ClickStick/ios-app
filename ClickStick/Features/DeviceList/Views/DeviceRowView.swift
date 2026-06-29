@@ -28,7 +28,7 @@ struct DeviceRowView: View {
 
                 DeviceStatusLine(
                     uiState: device.uiState,
-                    statusDescription: device.uiState.description,
+                    statusDescription: device.uiState.statusDescription,
                     statusColor: statusColor
                 )
             }
@@ -131,7 +131,7 @@ struct DeviceRowView: View {
     private var accessibilityDescription: String {
         var parts: [String] = []
         parts.append(device.displayName)
-        parts.append(device.uiState.description)
+        parts.append(device.uiState.statusDescription)
 
         if device.isDemoDevice {
             parts.append(String(localized: "Demo device", comment: "Device type"))

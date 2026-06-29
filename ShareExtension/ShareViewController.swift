@@ -14,6 +14,7 @@ final class ShareViewController: UIViewController {
     private let log = Logger(subsystem: "io.clickstick", category: "ShareExtension")
     private var viewModel: ShareExtensionViewModel?
     private var hostingController: UIHostingController<ShareExtensionView>?
+    private var didClearAncestorBackgrounds = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,10 +34,10 @@ final class ShareViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // iOS hosts the extension in a full-height UISheetPresentationController whose
-        // detents can't be changed. Its container draws an opaque background that hides
-        // the dimmed host. Clearing the background of our view's ancestor chain lets the
-        // system dimming + host show through, so only our compact bottom card is opaque.
+        guard !didClearAncestorBackgrounds else { return }
+        // iOS may present the extension inside a container that draws an opaque background.
+        // Clearing the ancestor chain once lets the system dimming + host show through.
+        didClearAncestorBackgrounds = true
         var ancestor = view.superview
         while let current = ancestor {
             current.backgroundColor = .clear

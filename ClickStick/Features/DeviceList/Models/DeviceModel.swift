@@ -32,7 +32,7 @@ protocol MouseControllingDevice: AnyObject {
     func sendMouseScroll(vertical: Int8, horizontal: Int8, completion: CSCommandCompletion?)
 }
 
-enum DeviceUIState: CustomStringConvertible {
+enum DeviceUIState {
     /// Fully connected and ready for commands.
     case connected
     /// BLE link established, session key being verified.
@@ -54,7 +54,8 @@ enum DeviceUIState: CustomStringConvertible {
     /// Connection attempt failed with an error.
     case failed(CSError)
     
-    var description: String {
+    /// User-facing status copy for the device row / picker (not a debug description).
+    var statusDescription: String {
         switch self {
         case .connected:
             return String(localized: "Connected", comment: "Device row status")
@@ -127,7 +128,19 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     /// meaning it may have been tampered with. Surfaced as a "Security warning".
     private(set) var isCompromised: Bool = false
 
+    /// True when the most recent disconnect was initiated by the app/user (e.g. backgrounding
+    /// or an explicit disconnect) rather than an unexpected link loss. Lets the UI suppress
+    /// the "connection lost" prompt for disconnects we asked for.
+    private(set) var didDisconnectIntentionally: Bool = false
+
+    /// True when a disconnected device hasn't advertised recently while scanning, so it should
+    /// be treated as out of range (e.g. the dongle was unplugged) rather than tap-to-connect.
+    private(set) var isStale: Bool = false
+
+    private static let staleInterval: TimeInterval = 3.0
+
     private var lastRSSIUpdate: Date = .distantPast
+    @ObservationIgnored private var staleTask: Task<Void, Never>?
     /// True while verifying a freshly entered/scanned setup key. A MAC mismatch in
     /// this state means setup failed, not that an already trusted device is compromised.
     private var isSetupAuthenticationAttempt = false
@@ -177,7 +190,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
             // A silent retry leaves the link momentarily disconnected; keep showing
             // "connecting" so the user doesn't see it bounce back to "tap to connect".
             if isConnectionAttemptActive { return .connecting }
-            guard isConnectable else { return .outOfRange }
+            guard isConnectable, !isStale else { return .outOfRange }
             if rssi > -200 && rssi <= -85 { return .weakSignal }
             return isKnownDevice ? .available : .newDevice
         }
@@ -191,12 +204,6 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
             return "ClickStick \(device.uuid.uuidString.suffix(4).uppercased())"
         }
         return name
-    }
-
-    /// Returns true if the device was seen recently (within 3 seconds)
-    var isFresh: Bool {
-        guard let lastSeen = device.lastSeen else { return false }
-        return Date.now.timeIntervalSince(lastSeen) < 3.0
     }
 
     // MARK: - Initialization
@@ -217,21 +224,19 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         // Initialize cached settings
         self.cachedAlias = Self.loadCachedAlias(for: device.uuid)
         self.isKnownDevice = Self.checkIsKnownDevice(for: device.uuid, isDemoDevice: device.isDemoDevice)
-
         device.addObserver(self)
     }
 
     isolated deinit {
         retryTask?.cancel()
+        staleTask?.cancel()
         device.removeObserver(self)
     }
 
     // MARK: - Public API
 
     func connect() {
-        connectionRetryCount = 0
-        retryTask?.cancel()
-        retryTask = nil
+        cancelRetries()
         performConnect()
     }
 
@@ -249,25 +254,17 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
             authKey = nil
         }
 
+        prepareForNewConnection()
         isConnectionAttemptActive = true
-        needsAuthentication = false
-        lastError = nil
-        isCompromised = false
-        isSetupAuthenticationAttempt = false
         device.connect(appAuthKey: authKey)
     }
 
     func connect(with authKey: CSAppAuthKey) {
         // Setup uses a freshly scanned key and must surface failures immediately, so it
         // opts out of silent retries.
-        connectionRetryCount = 0
-        retryTask?.cancel()
-        retryTask = nil
+        cancelRetries()
+        prepareForNewConnection(isSetup: true)
         isConnectionAttemptActive = false
-        needsAuthentication = false
-        lastError = nil
-        isCompromised = false
-        isSetupAuthenticationAttempt = true
         device.connect(appAuthKey: authKey)
     }
 
@@ -277,11 +274,11 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     }
 
     func disconnect() {
-        // A user-initiated disconnect cancels any in-flight silent retry.
+        // A user/app-initiated disconnect cancels any in-flight silent retry and is
+        // flagged as intentional so the UI doesn't treat it as a lost connection.
+        cancelRetries()
         isConnectionAttemptActive = false
-        connectionRetryCount = 0
-        retryTask?.cancel()
-        retryTask = nil
+        didDisconnectIntentionally = true
         guard connectionState != .disconnected else { return }
         device.disconnect()
     }
@@ -307,6 +304,42 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
             guard let self, !Task.isCancelled else { return }
             self.performConnect()
         }
+    }
+
+    private func startStaleTask(after delay: TimeInterval) {
+        staleTask?.cancel()
+        staleTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            guard let self, !Task.isCancelled else { return }
+            isStale = true
+            lastError = nil
+        }
+    }
+
+    private func cancelStaleTask() {
+        staleTask?.cancel()
+        staleTask = nil
+    }
+
+    // MARK: - Connection Helpers
+
+    /// Cancels any in-flight silent retry and resets the retry counter.
+    private func cancelRetries() {
+        connectionRetryCount = 0
+        retryTask?.cancel()
+        retryTask = nil
+    }
+
+    /// Resets device state flags in preparation for a connection attempt.
+    /// Does not touch the retry infrastructure so silent retries continue to work.
+    private func prepareForNewConnection(isSetup: Bool = false) {
+        isSetupAuthenticationAttempt = isSetup
+        didDisconnectIntentionally = false
+        cancelStaleTask()
+        isStale = false
+        needsAuthentication = false
+        lastError = nil
+        isCompromised = false
     }
 
     var textEntryKeyboardLayout: CSKeyboardLayout {
@@ -427,6 +460,13 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         name = device.name
         isConnectable = device.isConnectable
         let now = Date.now
+        cancelStaleTask()
+        if isStale {
+            // The device is advertising again — it's back in range, so clear the stale
+            // out-of-range state and any connection error left over from when it vanished.
+            isStale = false
+            lastError = nil
+        }
         if now.timeIntervalSince(lastRSSIUpdate) >= 0.4 {
             rssi = device.rssi
             lastRSSIUpdate = now
@@ -442,6 +482,8 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
             connectionRetryCount = 0
             isCompromised = false
             isSetupAuthenticationAttempt = false
+            cancelStaleTask()
+            isStale = false
         }
     }
 
@@ -484,6 +526,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         isSetupAuthenticationAttempt = false
         connectionState = .disconnected
         features = []
+        startStaleTask(after: Self.staleInterval)
         if let error, shouldRetryConnection(after: error) {
             lastError = nil // suppress; keep the connecting UI while we retry silently
             scheduleConnectionRetry()

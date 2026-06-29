@@ -46,13 +46,13 @@ final class DeviceListViewModel {
 
     var availableDevices: [DeviceModel] {
         devices.filter { device in
-            !device.isConnected && (device.isConnectable || device.isConnecting)
+            !device.isConnected && (device.isConnecting || (device.isConnectable && !device.isStale))
         }
     }
 
     var outOfRangeDevices: [DeviceModel] {
         devices.filter { device in
-            !device.isConnected && !device.isConnecting && !device.isConnectable
+            !device.isConnected && !device.isConnecting && (!device.isConnectable || device.isStale)
         }
     }
 

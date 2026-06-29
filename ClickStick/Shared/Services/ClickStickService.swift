@@ -75,6 +75,54 @@ final class ClickStickService: CSManagerDelegate {
         syncDevicesFromManager()
     }
 
+    // MARK: - App lifecycle
+
+    /// Devices that were connected (or connecting) when the app left the foreground,
+    /// so they can be transparently reconnected once it returns.
+    private var pendingReconnectDeviceIDs: Set<UUID> = []
+    private var shouldResumeScanningOnForeground = false
+
+    /// Releases all BLE resources when the app leaves the foreground. CoreBluetooth
+    /// connections are per-process, so the Share Extension cannot use a peripheral while
+    /// the main app still holds it — we must disconnect and stop scanning on backgrounding.
+    func handleEnteredBackground() {
+        shouldResumeScanningOnForeground = isScanning
+        pendingReconnectDeviceIDs = Set(
+            devices.filter { $0.isConnected || $0.isConnecting }.map(\.id)
+        )
+
+        for device in devices {
+            switch device.connectionState {
+            case .connectedAuthorized, .connectedUnauthorized:
+                log.debug("Disconnecting \(device.id) for backgrounding")
+                device.disconnect()
+            case .disconnected, .serviceDiscovery:
+                break
+            }
+        }
+        stopScanning()
+    }
+
+    /// Resumes scanning and reconnects any devices that were connected before backgrounding.
+    /// Reconnection completes asynchronously as scanning rediscovers each peripheral.
+    func handleWillEnterForeground() {
+        if shouldResumeScanningOnForeground || !pendingReconnectDeviceIDs.isEmpty {
+            startScanning()
+        }
+        reconnectPendingDevicesIfPossible()
+    }
+
+    /// Reconnects pending devices that scanning has rediscovered and are reachable.
+    private func reconnectPendingDevicesIfPossible() {
+        guard !pendingReconnectDeviceIDs.isEmpty else { return }
+        for device in devices where pendingReconnectDeviceIDs.contains(device.id) {
+            guard device.connectionState == .disconnected, device.isConnectable else { continue }
+            log.debug("Reconnecting \(device.id) after returning to foreground")
+            device.connect()
+            pendingReconnectDeviceIDs.remove(device.id)
+        }
+    }
+
     #if DEBUG
     func setPreviewScanning(_ isScanning: Bool) {
         self.isScanning = isScanning
@@ -92,6 +140,7 @@ final class ClickStickService: CSManagerDelegate {
                 bluetoothError = nil
             }
             syncDevicesFromManager()
+            reconnectPendingDevicesIfPossible()
         }
     }
 

@@ -132,6 +132,18 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     /// this state means setup failed, not that an already trusted device is compromised.
     private var isSetupAuthenticationAttempt = false
 
+    // MARK: - Silent connection retry
+
+    /// Transient BLE connection failures (timeouts, dropped links) are common, so we retry
+    /// a few times before surfacing the error — keeping the UI in the connecting state in
+    /// the meantime rather than flashing a spurious failure to the user.
+    private static let maxConnectionRetries = 2
+    private var connectionRetryCount = 0
+    /// True from a user/auto-initiated `connect()` until the device is authorized, the
+    /// retries are exhausted, or the user disconnects. Drives the connecting UI during retries.
+    private var isConnectionAttemptActive = false
+    private var retryTask: Task<Void, Never>?
+
     // MARK: - Cached Settings (to avoid keychain I/O during render)
 
     private(set) var cachedAlias: String?
@@ -162,6 +174,9 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         case .serviceDiscovery:
             return .connecting
         case .disconnected:
+            // A silent retry leaves the link momentarily disconnected; keep showing
+            // "connecting" so the user doesn't see it bounce back to "tap to connect".
+            if isConnectionAttemptActive { return .connecting }
             guard isConnectable else { return .outOfRange }
             if rssi > -200 && rssi <= -85 { return .weakSignal }
             return isKnownDevice ? .available : .newDevice
@@ -207,12 +222,21 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     }
 
     isolated deinit {
+        retryTask?.cancel()
         device.removeObserver(self)
     }
 
     // MARK: - Public API
 
     func connect() {
+        connectionRetryCount = 0
+        retryTask?.cancel()
+        retryTask = nil
+        performConnect()
+    }
+
+    /// Starts (or silently retries) a connection using the device's stored auth key.
+    private func performConnect() {
         guard connectionState == .disconnected else { return }
 
         // Try to load auth key from keychain
@@ -225,6 +249,7 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
             authKey = nil
         }
 
+        isConnectionAttemptActive = true
         needsAuthentication = false
         lastError = nil
         isCompromised = false
@@ -233,6 +258,12 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     }
 
     func connect(with authKey: CSAppAuthKey) {
+        // Setup uses a freshly scanned key and must surface failures immediately, so it
+        // opts out of silent retries.
+        connectionRetryCount = 0
+        retryTask?.cancel()
+        retryTask = nil
+        isConnectionAttemptActive = false
         needsAuthentication = false
         lastError = nil
         isCompromised = false
@@ -246,8 +277,36 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
     }
 
     func disconnect() {
+        // A user-initiated disconnect cancels any in-flight silent retry.
+        isConnectionAttemptActive = false
+        connectionRetryCount = 0
+        retryTask?.cancel()
+        retryTask = nil
         guard connectionState != .disconnected else { return }
         device.disconnect()
+    }
+
+    // MARK: - Silent retry helpers
+
+    private func shouldRetryConnection(after error: CSError) -> Bool {
+        guard isConnectionAttemptActive else { return false }
+        guard connectionRetryCount < Self.maxConnectionRetries else { return false }
+        // Only retry transient link failures, not auth/crypto/bluetooth-availability issues.
+        guard case .connectionFailed = error else { return false }
+        return true
+    }
+
+    private func scheduleConnectionRetry() {
+        connectionRetryCount += 1
+        let attempt = connectionRetryCount
+        log.debug("Silent connection retry \(attempt) of \(Self.maxConnectionRetries) for \(self.displayName, privacy: .public)")
+        retryTask?.cancel()
+        retryTask = Task { [weak self] in
+            // Small linear backoff between attempts.
+            try? await Task.sleep(for: .seconds(0.5 * Double(attempt)))
+            guard let self, !Task.isCancelled else { return }
+            self.performConnect()
+        }
     }
 
     var textEntryKeyboardLayout: CSKeyboardLayout {
@@ -379,6 +438,8 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         features = device.features
         lastError = device.lastError
         if device.connectionState == .connectedAuthorized {
+            isConnectionAttemptActive = false
+            connectionRetryCount = 0
             isCompromised = false
             isSetupAuthenticationAttempt = false
         }
@@ -407,9 +468,15 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
 
     func deviceDidFail(_ device: CSDevice, with error: CSError) {
         isSetupAuthenticationAttempt = false
+        connectionState = device.connectionState
+        if shouldRetryConnection(after: error) {
+            lastError = nil // suppress; keep the connecting UI while we retry silently
+            scheduleConnectionRetry()
+            return
+        }
+        isConnectionAttemptActive = false
         lastError = error
         lastErrorTimestamp = Date()
-        connectionState = device.connectionState
         log.error("Device failed: \(error.localizedDescription)")
     }
 
@@ -417,6 +484,12 @@ final class DeviceModel: Identifiable, CSDeviceObserver, TextSendingDevice, Mous
         isSetupAuthenticationAttempt = false
         connectionState = .disconnected
         features = []
+        if let error, shouldRetryConnection(after: error) {
+            lastError = nil // suppress; keep the connecting UI while we retry silently
+            scheduleConnectionRetry()
+            return
+        }
+        isConnectionAttemptActive = false
         if let error {
             lastError = error
         }

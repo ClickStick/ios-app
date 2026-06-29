@@ -10,6 +10,8 @@ struct ClickStickApp: App {
     @AppStorage(OnboardingStorage.hasCompletedOnboarding) private var hasCompletedOnboarding = false
     @AppStorage(OnboardingStorage.isDemoModeEnabled) private var isDemoModeEnabled = false
 
+    @Environment(\.scenePhase) private var scenePhase
+
     @State private var router = AppRouter()
     @State private var deviceListViewModel: DeviceListViewModel
     @State private var pendingDeviceListStartupAction: DeviceListStartupAction?
@@ -43,6 +45,24 @@ struct ClickStickApp: App {
         WindowGroup {
             rootContent
                 .environment(\.appRouter, router)
+                .onChange(of: scenePhase) { _, newPhase in
+                    handleScenePhaseChange(newPhase)
+                }
+        }
+    }
+
+    private func handleScenePhaseChange(_ phase: ScenePhase) {
+        switch phase {
+        case .background:
+            // Release the connection and stop scanning so the Share Extension (a separate
+            // process) can use the device while the app is in the background.
+            service.handleEnteredBackground()
+        case .active:
+            service.handleWillEnterForeground()
+        case .inactive:
+            break
+        @unknown default:
+            break
         }
     }
 

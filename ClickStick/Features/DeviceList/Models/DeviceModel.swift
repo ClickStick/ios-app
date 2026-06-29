@@ -32,7 +32,7 @@ protocol MouseControllingDevice: AnyObject {
     func sendMouseScroll(vertical: Int8, horizontal: Int8, completion: CSCommandCompletion?)
 }
 
-enum DeviceUIState {
+enum DeviceUIState: CustomStringConvertible {
     /// Fully connected and ready for commands.
     case connected
     /// BLE link established, session key being verified.
@@ -53,6 +53,31 @@ enum DeviceUIState {
     case compromised
     /// Connection attempt failed with an error.
     case failed(CSError)
+    
+    var description: String {
+        switch self {
+        case .connected:
+            return String(localized: "Connected", comment: "Device row status")
+        case .authorizing:
+            return String(localized: "Authorizing...", comment: "Device row status")
+        case .setupRequired:
+            return String(localized: "Setup required", comment: "Device row status")
+        case .connecting:
+            return String(localized: "Connecting...", comment: "Device row status")
+        case .available:
+            return String(localized: "Tap to connect", comment: "Device row status")
+        case .newDevice:
+            return String(localized: "Tap to set up", comment: "Device row status")
+        case .weakSignal:
+            return String(localized: "Weak signal", comment: "Device row status")
+        case .outOfRange:
+            return String(localized: "Out of range", comment: "Device row status")
+        case .compromised:
+            return String(localized: "Security warning", comment: "Compromised device status")
+        case .failed(let error):
+            return error.localizedDescription
+        }
+    }
 }
 
 extension DeviceUIState: Equatable {

@@ -5,11 +5,17 @@ import ClickStickKit
 import Foundation
 
 extension CSTypingOS {
-    var title: String {
+    public var title: String {
         switch self {
         case .windows: String(localized: "Windows", comment: "Target OS")
         case .macOS: String(localized: "macOS", comment: "Target OS")
         case .linux: String(localized: "Linux", comment: "Target OS")
         }
+    }
+}
+
+extension CSKeyboardLayout {
+    var title: String {
+        description.replacing(" - ", with: "-")
     }
 }

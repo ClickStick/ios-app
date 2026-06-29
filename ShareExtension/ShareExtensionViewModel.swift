@@ -6,11 +6,18 @@ import Foundation
 import Observation
 import os.log
 
+struct ShareExtensionDeviceChangeToken: Equatable {
+    let id: UUID
+    let state: DeviceUIState
+    let isConnectable: Bool
+    let connectionState: CSDevice.ConnectionState
+}
+
 /// Drives the Share Extension UI: device discovery/selection and sending the shared text.
-/// Reuses `DeviceModel` (shared with the main app target) on top of `CSManager`.
+/// Reuses the main app's `ClickStickService` so manager/device synchronization stays identical.
 @Observable
 @MainActor
-final class ShareExtensionViewModel: CSManagerDelegate {
+final class ShareExtensionViewModel {
     enum Phase: Equatable {
         case input
         case sending(sent: Int, total: Int)
@@ -18,7 +25,7 @@ final class ShareExtensionViewModel: CSManagerDelegate {
     }
 
     private let log = Logger(subsystem: "io.clickstick", category: "ShareExtensionViewModel")
-    private let manager: CSManager
+    private let service: ClickStickService?
 
     // MARK: - State
 
@@ -34,21 +41,19 @@ final class ShareExtensionViewModel: CSManagerDelegate {
     private(set) var phase: Phase = .input
     private(set) var selectedDeviceID: UUID?
 
-    private var deviceModels: [UUID: DeviceModel] = [:]
+    private var previewDevices: [DeviceModel]?
     private var sendTask: Task<Void, Never>?
     private var persistsPreferences = false
     private var autoScans = true
 
     // MARK: - Init
 
-    init(sharedText: String, manager: CSManager = .shared) {
+    init(sharedText: String, manager: CSManaging = CSManager.shared) {
         self.text = sharedText
-        self.manager = manager
+        self.service = ClickStickService(manager: manager)
         self.selectedLayout = .fromSystemLocale()
         self.selectedOS = .windows
 
-        manager.delegate = self
-        syncDevicesFromManager()
         autoSelectDevice()
         applyPreferencesFromSelectedDevice()
         persistsPreferences = true
@@ -62,14 +67,14 @@ final class ShareExtensionViewModel: CSManagerDelegate {
 
     /// Known (paired) devices, sorted by display name.
     var devices: [DeviceModel] {
-        deviceModels.values
+        (previewDevices ?? service?.devices ?? [])
             .filter { $0.isKnownDevice }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
 
     var selectedDevice: DeviceModel? {
         guard let id = selectedDeviceID else { return nil }
-        return deviceModels[id]
+        return devices.first { $0.id == id }
     }
 
     var characterCount: Int { text.count }
@@ -85,13 +90,12 @@ final class ShareExtensionViewModel: CSManagerDelegate {
 
     func onAppear() {
         guard autoScans else { return }
-        manager.delegate = self
-        manager.startScanning()
+        service?.startScanning()
         connectSelectedDeviceIfNeeded()
     }
 
     func onDisappear() {
-        manager.stopScanning()
+        service?.stopScanning()
     }
 
     // MARK: - Device selection
@@ -110,9 +114,33 @@ final class ShareExtensionViewModel: CSManagerDelegate {
         }
     }
 
+    var deviceListChangeToken: [ShareExtensionDeviceChangeToken] {
+        devices.map {
+            ShareExtensionDeviceChangeToken(
+                id: $0.id,
+                state: $0.uiState,
+                isConnectable: $0.isConnectable,
+                connectionState: $0.connectionState
+            )
+        }
+    }
+
+    func devicesDidChange() {
+        if selectedDevice == nil {
+            autoSelectDevice()
+            applyPreferencesFromSelectedDevice()
+        }
+        connectSelectedDeviceIfNeeded()
+    }
+
     private func connectSelectedDeviceIfNeeded() {
-        guard let device = selectedDevice, !device.isConnected, device.uiState != .outOfRange else { return }
-        device.connect()
+        guard let device = selectedDevice else { return }
+        switch device.uiState {
+        case .available, .weakSignal:
+            device.connect()
+        default:
+            break
+        }
     }
 
     // MARK: - Sending
@@ -165,38 +193,6 @@ final class ShareExtensionViewModel: CSManagerDelegate {
         selectedDevice?.saveTextEntryPreferences(layout: selectedLayout, targetOS: selectedOS)
     }
 
-    // MARK: - Manager sync
-
-    private func syncDevicesFromManager() {
-        let knownDevices = manager.knownDevices()
-        for device in knownDevices where deviceModels[device.uuid] == nil {
-            deviceModels[device.uuid] = DeviceModel(device: device)
-        }
-        let knownUUIDs = Set(knownDevices.map(\.uuid))
-        for uuid in deviceModels.keys where !knownUUIDs.contains(uuid) {
-            deviceModels.removeValue(forKey: uuid)
-        }
-    }
-
-    // MARK: - CSManagerDelegate
-
-    nonisolated func didDiscover(device: CSDevice, in manager: CSManager) {
-        Task { @MainActor in
-            syncDevicesFromManager()
-            if selectedDeviceID == nil {
-                autoSelectDevice()
-                applyPreferencesFromSelectedDevice()
-            }
-            connectSelectedDeviceIfNeeded()
-        }
-    }
-
-    nonisolated func didFail(with error: CSError, in manager: CSManager) {
-        Task { @MainActor in
-            self.log.error("Manager failed: \(error.localizedDescription)")
-        }
-    }
-
 #if DEBUG
     /// Preview-only initializer: injects a device and phase without touching `CSManager`.
     init(
@@ -207,14 +203,12 @@ final class ShareExtensionViewModel: CSManagerDelegate {
         targetOS: CSTypingOS = .windows
     ) {
         self.text = previewText
-        self.manager = .shared
+        self.service = nil
         self.selectedLayout = layout
         self.selectedOS = targetOS
         self.autoScans = false
-        if let device {
-            self.deviceModels = [device.id: device]
-            self.selectedDeviceID = device.id
-        }
+        self.previewDevices = device.map { [$0] } ?? []
+        self.selectedDeviceID = device?.id
         self.phase = phase
     }
 #endif

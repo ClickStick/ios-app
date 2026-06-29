@@ -83,16 +83,16 @@ struct TextEntryView: View {
         .foregroundStyle(Color.primary)
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
-        .background(Color(uiColor: .secondarySystemBackground), in: Capsule(style: .continuous))
+        .background(Capsule(style: .continuous).fill(Color(uiColor: .systemGray5)))
     }
 
     private var sentToast: some View {
         Label("Sent to \(viewModel.deviceName)", systemImage: "checkmark.circle")
             .font(.body.weight(.bold))
-            .foregroundStyle(.background)
+            .foregroundStyle(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
-            .background(.primary, in: Capsule(style: .continuous))
+            .background(Capsule(style: .continuous).fill(Color.black))
             .accessibilityElement(children: .combine)
     }
 
@@ -152,8 +152,6 @@ private struct TextEditorCard<Controls: View>: View {
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $text)
                         .font(.body)
-                        .scrollContentBackground(.hidden)
-                        .background(editorBackground)
 
                     Text("Type or paste text to send...")
                         .foregroundStyle(.secondary.opacity(0.5))
@@ -161,18 +159,16 @@ private struct TextEditorCard<Controls: View>: View {
                         .padding(.top, 8)
                         .padding(.leading, 4)
                         .opacity(text.isEmpty ? 1 : 0)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 40)
-                .background(editorBackground)
+                }.padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 40)
 
                 controls
                     .padding(.leading, 16)
                     .padding(.bottom, 16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(editorBackground)
+            .background(Color.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .overlay {
                 RoundedRectangle(cornerRadius: 24)
@@ -191,9 +187,5 @@ private struct TextEditorCard<Controls: View>: View {
                     .padding(.top, 4)
             }
         }
-    }
-
-    private var editorBackground: Color {
-        Color(uiColor: .tertiarySystemBackground)
     }
 }

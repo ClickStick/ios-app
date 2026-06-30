@@ -173,24 +173,42 @@ final class ShareViewController: UIViewController {
             complete()
             return
         }
+
+        // `NSExtensionContext.open` is officially limited to Today widgets, so the
+        // share-extension path needs the responder-chain escape hatch. Newer SDKs
+        // force the deprecated `openURL:` API to return false, so when the responder
+        // is the application object we call the modern `open(_:options:)` API instead.
+        if openURLViaResponder(url) {
+            complete()
+            return
+        }
+
         extensionContext?.open(url) { [weak self] success in
-            if !success {
-                self?.openURLViaResponder(url)
-            }
+            self?.log.debug("Opening containing app via extension context: \(success)")
             self?.complete()
         }
     }
 
     /// Fallback for opening a URL when `extensionContext.open` is unavailable.
-    private func openURLViaResponder(_ url: URL) {
+    @discardableResult
+    private func openURLViaResponder(_ url: URL) -> Bool {
         var responder: UIResponder? = self
-        let selector = sel_registerName("openURL:")
+        let legacyOpenURLSelector = sel_registerName("openURL:")
+
         while let current = responder {
-            if current.responds(to: selector), current !== self {
-                _ = current.perform(selector, with: url)
-                return
+            if let application = current as? UIApplication {
+                application.open(url, options: [:], completionHandler: nil)
+                return true
             }
+
+            if current !== self, current.responds(to: legacyOpenURLSelector) {
+                _ = current.perform(legacyOpenURLSelector, with: url)
+                return true
+            }
+
             responder = current.next
         }
+
+        return false
     }
 }

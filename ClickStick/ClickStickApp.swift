@@ -83,6 +83,26 @@ struct ClickStickApp: App {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: hasCompletedOnboarding)
+        .onOpenURL(perform: handleOpenURL)
+    }
+
+    private func handleOpenURL(_ url: URL) {
+        guard let deepLink = AppDeepLink(url: url) else { return }
+
+        switch deepLink {
+        case .addDevice:
+            openAddDeviceFlow()
+        }
+    }
+
+    private func openAddDeviceFlow() {
+        if hasCompletedOnboarding {
+            isDemoModeEnabled = false
+            deviceListViewModel.completeOnboarding(enableDemoMode: false)
+            pendingDeviceListStartupAction = .startAddDeviceScan
+        } else {
+            completeOnboarding(.addDevice)
+        }
     }
 
     private func completeOnboarding(_ action: OnboardingCompletionAction) {

@@ -190,23 +190,33 @@ public class CSDevice: NSObject {
         log.debug("State: \(oldState) -> \(newState)")
         switch (oldState, newState) {
         case (.busy, .idle):
-            if _inFlightCommand != nil {
-                _finalizeInFlightCommandWithSuccess()
+            if let completedCommand = _finalizeInFlightCommandWithSuccess(),
+               completedCommand is CSStartSessionCommand {
+                _didStartSession()
             }
             _maybeScheduleNextCommand()
         case (_, .initSession):
-            let inFlightWasStartSession = _inFlightCommand is CSStartSessionCommand
-            if _inFlightCommand != nil {
-                _finalizeInFlightCommandWithSuccess()
+            if let completedCommand = _finalizeInFlightCommandWithSuccess(),
+               completedCommand is CSStartSessionCommand {
+                // START_SESSION is special: some firmware revisions report another
+                // initSession status instead of idle after accepting the mobile public
+                // key. Treat that as the handshake completion and, critically, do not
+                // enqueue a second START_SESSION for the same dongle challenge.
+                _didStartSession()
+                _maybeScheduleNextCommand()
+                return
             }
-            // On a quick reconnect the dongle can echo an extra `initSession` right after a
-            // successful START_SESSION. Finalizing it above already authorized us, so kicking
-            // off another session here races the device and trips a connection timeout that
-            // tears down the good link. Only (re)start a session if we still need one.
-            if !(inFlightWasStartSession && _connectionState == .connectedAuthorized) {
-                _connectionState = .connectedUnauthorized
-                _startSession()
+
+            if _connectionState == .connectedAuthorized && oldState == .initSession {
+                // Duplicate notification/read of the same authorized initSession state.
+                // A real session reset from an authorized device should arrive as a
+                // transition from idle/busy to initSession and will be handled below.
+                _maybeScheduleNextCommand()
+                return
             }
+
+            _connectionState = .connectedUnauthorized
+            _startSession()
             _maybeScheduleNextCommand()
         case (_, .idle):
             _maybeScheduleNextCommand()
@@ -301,10 +311,7 @@ public class CSDevice: NSObject {
             maxCommandSize: _maxCommandSize,
             completion: { [weak self] result in
                 guard let self else { return }
-                switch result {
-                case .success:
-                    _didStartSession()
-                case .failure(let csError):
+                if case .failure(let csError) = result {
                     _handleConnectionFailure(with: csError)
                 }
             }
@@ -400,12 +407,13 @@ extension CSDevice {
     }
 
     /// Runs the success completion of the in-flight command.
-    func _finalizeInFlightCommandWithSuccess() {
+    @discardableResult
+    func _finalizeInFlightCommandWithSuccess() -> CSCommand? {
         _cancelCommandCompletionTimeout()
-        if let finishedCommand = _inFlightCommand {
-            _inFlightCommand = nil
-            finishedCommand.completedWithSuccess()
-        }
+        guard let finishedCommand = _inFlightCommand else { return nil }
+        _inFlightCommand = nil
+        finishedCommand.completedWithSuccess()
+        return finishedCommand
     }
 
     /// Runs the error completion of the in-flight command.

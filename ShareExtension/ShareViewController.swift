@@ -37,6 +37,22 @@ final class ShareViewController: UIViewController {
         clearPresentationBackgrounds()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tearDownViewModel()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        tearDownViewModel()
+    }
+
+    deinit {
+        Task { @MainActor [viewModel] in
+            viewModel?.tearDown()
+        }
+    }
+
     private func clearPresentationBackgrounds() {
         // iOS may present the extension inside a UIKit-owned container that draws an
         // opaque background. On iOS 26 this can include a private `UIDropShadowView`
@@ -133,8 +149,12 @@ final class ShareViewController: UIViewController {
 
     // MARK: - Lifecycle
 
+    private func tearDownViewModel() {
+        viewModel?.tearDown()
+    }
+
     private func cancel() {
-        viewModel?.onDisappear()
+        tearDownViewModel()
         extensionContext?.cancelRequest(withError: NSError(
             domain: "io.clickstick.ShareExtension",
             code: 0,
@@ -143,7 +163,7 @@ final class ShareViewController: UIViewController {
     }
 
     private func complete() {
-        viewModel?.onDisappear()
+        tearDownViewModel()
         extensionContext?.completeRequest(returningItems: nil)
     }
 

@@ -25,7 +25,7 @@ final class ShareExtensionViewModel {
     }
 
     private let log = Logger(subsystem: "io.clickstick", category: "ShareExtensionViewModel")
-    private let service: ClickStickService?
+    private let service: ClickStickService
 
     // MARK: - State
 
@@ -42,7 +42,6 @@ final class ShareExtensionViewModel {
     private(set) var selectedDeviceID: UUID?
     private(set) var selectedDevice: DeviceModel? = nil
 
-    private var previewDevices: [DeviceModel]?
     private var sendTask: Task<Void, Never>?
     private var persistsPreferences = false
     private var didRequestTeardown = false
@@ -68,7 +67,7 @@ final class ShareExtensionViewModel {
 
     /// Known (paired) devices, sorted by display name.
     var devices: [DeviceModel] {
-        (previewDevices ?? service?.devices ?? [])
+        service.devices
             .filter { $0.isKnownDevice }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
@@ -85,32 +84,54 @@ final class ShareExtensionViewModel {
     // MARK: - Lifecycle
 
     func onAppear() {
-        guard service != nil else { return }
-        service?.startScanning()
-        connectSelectedDeviceIfNeeded()
+        performWhileActive {
+            service.startScanning()
+            connectSelectedDeviceIfNeeded()
+        }
     }
 
     func onDisappear() {
+        tearDown()
+    }
+
+    func tearDown() {
         guard !didRequestTeardown else { return }
         didRequestTeardown = true
 
         sendTask?.cancel()
         sendTask = nil
-        disconnectSelectedDeviceIfNeeded()
-        service?.stopScanning()
+        disconnectActiveDevices()
+        service.stopScanning()
     }
 
-    private func disconnectSelectedDeviceIfNeeded() {
-        selectedDevice?.disconnect()
+    private func performWhileActive(_ operation: () -> Void) {
+        guard !didRequestTeardown else { return }
+        operation()
+    }
+
+    private var devicesToDisconnectOnTeardown: [DeviceModel] {
+        var devices = service.devices
+        if let selectedDevice, !devices.contains(where: { $0.id == selectedDevice.id }) {
+            devices.append(selectedDevice)
+        }
+        return devices
+    }
+
+    private func disconnectActiveDevices() {
+        for device in devicesToDisconnectOnTeardown where device.connectionState != .disconnected {
+            device.disconnect()
+        }
     }
 
     // MARK: - Device selection
 
     func select(_ device: DeviceModel) {
-        selectedDeviceID = device.id
-        selectedDevice = device
-        applyPreferencesFromSelectedDevice()
-        connectSelectedDeviceIfNeeded()
+        performWhileActive {
+            selectedDeviceID = device.id
+            selectedDevice = device
+            applyPreferencesFromSelectedDevice()
+            connectSelectedDeviceIfNeeded()
+        }
     }
 
     private func autoSelectDevice() {
@@ -138,14 +159,16 @@ final class ShareExtensionViewModel {
     }
 
     func devicesDidChange() {
-        if let id = selectedDeviceID {
-            selectedDevice = devices.first { $0.id == id }
+        performWhileActive {
+            if let id = selectedDeviceID {
+                selectedDevice = devices.first { $0.id == id }
+            }
+            if selectedDevice == nil {
+                autoSelectDevice()
+                applyPreferencesFromSelectedDevice()
+            }
+            connectSelectedDeviceIfNeeded()
         }
-        if selectedDevice == nil {
-            autoSelectDevice()
-            applyPreferencesFromSelectedDevice()
-        }
-        connectSelectedDeviceIfNeeded()
     }
 
     private func connectSelectedDeviceIfNeeded() {
@@ -161,29 +184,31 @@ final class ShareExtensionViewModel {
     // MARK: - Sending
 
     func send() {
-        guard canSend, let device = selectedDevice else { return }
-        let total = text.count
-        guard total > 0 else { return }
+        performWhileActive {
+            guard canSend, let device = selectedDevice else { return }
+            let total = text.count
+            guard total > 0 else { return }
 
-        phase = .sending(sent: 0, total: total)
-        log.info("Sending \(total) characters via Share Extension")
+            phase = .sending(sent: 0, total: total)
+            log.info("Sending \(total) characters via Share Extension")
 
-        sendTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await device.sendText(text, layout: selectedLayout, targetOS: selectedOS) { sent, total in
-                    if case .sending = self.phase {
-                        self.phase = .sending(sent: sent, total: total)
+            sendTask = Task { [weak self] in
+                guard let self else { return }
+                do {
+                    try await device.sendText(text, layout: selectedLayout, targetOS: selectedOS) { sent, total in
+                        if case .sending = self.phase {
+                            self.phase = .sending(sent: sent, total: total)
+                        }
                     }
+                    self.phase = .sent
+                } catch is CancellationError {
+                    self.phase = .input
+                } catch {
+                    self.log.error("Share Extension send failed: \(error.localizedDescription)")
+                    self.phase = .input
                 }
-                self.phase = .sent
-            } catch is CancellationError {
-                self.phase = .input
-            } catch {
-                self.log.error("Share Extension send failed: \(error.localizedDescription)")
-                self.phase = .input
+                self.sendTask = nil
             }
-            self.sendTask = nil
         }
     }
 
@@ -207,24 +232,4 @@ final class ShareExtensionViewModel {
         guard persistsPreferences else { return }
         selectedDevice?.saveTextEntryPreferences(layout: selectedLayout, targetOS: selectedOS)
     }
-
-#if DEBUG
-    /// Preview-only initializer: injects a device and phase without touching `CSManager`.
-    init(
-        previewText: String,
-        device: DeviceModel?,
-        phase: Phase = .input,
-        layout: CSKeyboardLayout = .usQWERTY,
-        targetOS: CSTypingOS = .windows
-    ) {
-        self.text = previewText
-        self.service = nil
-        self.selectedLayout = layout
-        self.selectedOS = targetOS
-        self.previewDevices = device.map { [$0] } ?? []
-        self.selectedDeviceID = device?.id
-        self.selectedDevice = device
-        self.phase = phase
-    }
-#endif
 }

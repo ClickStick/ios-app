@@ -14,11 +14,11 @@ final class ShareViewController: UIViewController {
     private let log = Logger(subsystem: "io.clickstick", category: "ShareExtension")
     private var viewModel: ShareExtensionViewModel?
     private var hostingController: UIHostingController<ShareExtensionView>?
-    private var didClearAncestorBackgrounds = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
+        view.isOpaque = false
 
         extractSharedText { [weak self] text in
             guard let self else { return }
@@ -34,15 +34,23 @@ final class ShareViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        guard !didClearAncestorBackgrounds else { return }
-        // iOS may present the extension inside a container that draws an opaque background.
-        // Clearing the ancestor chain once lets the system dimming + host show through.
-        didClearAncestorBackgrounds = true
-        var ancestor = view.superview
-        while let current = ancestor {
-            current.backgroundColor = .clear
-            ancestor = current.superview
+        clearPresentationBackgrounds()
+    }
+
+    private func clearPresentationBackgrounds() {
+        // iOS may present the extension inside a UIKit-owned container that draws an
+        // opaque background. On iOS 26 this can include a private `UIDropShadowView`
+        // wrapper; clearing `isOpaque` as well as the background mirrors this workaround:
+        // https://stackoverflow.com/a/79811577
+        var current: UIView? = view
+        while let presentationView = current {
+            presentationView.backgroundColor = .clear
+            presentationView.isOpaque = false
+            current = presentationView.superview
         }
+
+        view.window?.backgroundColor = .clear
+        view.window?.isOpaque = false
     }
 
     // MARK: - Text extraction
@@ -106,11 +114,11 @@ final class ShareViewController: UIViewController {
 
         let hosting = UIHostingController(rootView: rootView)
         hosting.view.backgroundColor = .clear
+        hosting.view.isOpaque = false
         self.hostingController = hosting
 
-        // With NSExtensionActionWantsFullScreenPresentation = YES the extension is
-        // presented full screen, so our view fills the whole screen and the SwiftUI
-        // layer draws its own dimmed backdrop + bottom card (matching the design).
+        // The extension is hosted by UIKit, so our SwiftUI hierarchy must fill the
+        // provided container while the presentation backgrounds above stay clear.
         addChild(hosting)
         view.addSubview(hosting.view)
         hosting.view.translatesAutoresizingMaskIntoConstraints = false

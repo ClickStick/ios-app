@@ -112,9 +112,12 @@ final class ClickStickService: CSManagerDelegate {
     /// Resumes scanning and reconnects any devices that were connected before backgrounding.
     /// Reconnection completes asynchronously as scanning rediscovers each peripheral.
     func handleWillEnterForeground() {
+        let shouldResumeScanning = shouldResumeScanningOnForeground
+        shouldResumeScanningOnForeground = false
+
         let needsReconnect = !pendingReconnectDeviceIDs.isEmpty
-        if shouldResumeScanningOnForeground || needsReconnect {
-            didAutoStartScanForReconnect = needsReconnect && !shouldResumeScanningOnForeground && !isScanning
+        if shouldResumeScanning || needsReconnect {
+            didAutoStartScanForReconnect = needsReconnect && !shouldResumeScanning && !isScanning
             startScanning()
         }
         reconnectPendingDevicesIfPossible()

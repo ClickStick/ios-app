@@ -54,6 +54,22 @@ struct ClickStickServiceTests {
     }
 
     @Test
+    func foregroundResumeScanningIsConsumedOnce() {
+        let manager = MockManager()
+        let service = ClickStickService(manager: manager)
+
+        service.startScanning()
+        service.handleEnteredBackground()
+        service.handleWillEnterForeground()
+        service.stopScanning()
+        service.handleWillEnterForeground()
+
+        #expect(!service.isScanning)
+        #expect(manager.startScanningCallCount == 2)
+        #expect(manager.stopScanningCallCount == 2)
+    }
+
+    @Test
     func stopScanningSetsStateAndForwardsCall() {
         let manager = MockManager()
         let service = ClickStickService(manager: manager)

@@ -5,7 +5,7 @@ import ClickStickKit
 import SwiftUI
 
 struct ShareExtensionView: View {
-    @Bindable var viewModel: ShareExtensionViewModel
+    let viewModel: ShareExtensionViewModel
     let onCancel: () -> Void
     let onComplete: () -> Void
     let onAddDevice: () -> Void
@@ -40,11 +40,17 @@ struct ShareExtensionView: View {
     @ViewBuilder private var cardContent: some View {
         switch viewModel.phase {
         case .input:
-            inputContent.transition(cardTransition)
+            ShareInputCard(viewModel: viewModel, onCancel: onCancel, onAddDevice: onAddDevice)
+                .transition(cardTransition)
         case let .sending(sent, total):
-            sendingContent(sent: sent, total: total).transition(cardTransition)
+            // Narrow inputs (just `sent`/`total`) so this card's invalidation
+            // boundary doesn't pull in the rest of `viewModel` — per-character
+            // progress updates only re-evaluate this small view.
+            ShareSendingCard(sent: sent, total: total, onCancel: viewModel.cancelSending)
+                .transition(cardTransition)
         case .sent:
-            sentContent.transition(cardTransition)
+            ShareSentCard(deviceName: viewModel.selectedDevice?.displayName ?? "", onComplete: onComplete)
+                .transition(cardTransition)
         }
     }
 
@@ -54,34 +60,45 @@ struct ShareExtensionView: View {
     private var cardTransition: AnyTransition {
         .scale.combined(with: .opacity)
     }
+}
 
-    // MARK: - Input
+// MARK: - Input
 
-    private var inputContent: some View {
+private struct ShareInputCard: View {
+    let viewModel: ShareExtensionViewModel
+    let onCancel: () -> Void
+    let onAddDevice: () -> Void
+
+    var body: some View {
         VStack(spacing: 0) {
             Text("Send to ClickStick", comment: "Share extension title")
                 .font(.title2.bold())
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity)
 
-            deviceCard
+            DeviceCard(viewModel: viewModel, onAddDevice: onAddDevice)
                 .padding(.top, 32)
 
-            textCard
+            TextCard(text: viewModel.text)
                 .padding(.top, 16)
 
-            controlsRow
+            ControlsRow(viewModel: viewModel)
                 .padding(.top, 16)
 
-            buttonsRow
+            ButtonsRow(viewModel: viewModel, onCancel: onCancel)
                 .padding(.top, 24)
         }
         .padding(.horizontal, 20)
         .padding(.top, 24)
         .padding(.bottom, 20)
     }
+}
 
-    private var deviceCard: some View {
+private struct DeviceCard: View {
+    let viewModel: ShareExtensionViewModel
+    let onAddDevice: () -> Void
+
+    var body: some View {
         Menu {
             ForEach(viewModel.devices) { device in
                 Button {
@@ -131,9 +148,13 @@ struct ShareExtensionView: View {
         viewModel.selectedDevice?.displayName
             ?? String(localized: "Select device", comment: "Share extension device picker placeholder")
     }
+}
 
-    private var textCard: some View {
-        Text(viewModel.text)
+private struct TextCard: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
             .font(.body)
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -141,8 +162,12 @@ struct ShareExtensionView: View {
             .frame(height: 115)
             .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color.cardFill))
     }
+}
 
-    private var controlsRow: some View {
+private struct ControlsRow: View {
+    let viewModel: ShareExtensionViewModel
+
+    var body: some View {
         HStack(spacing: 16) {
             DropdownPill(title: viewModel.selectedLayout.title) {
                 ForEach(CSKeyboardLayout.allCases, id: \.self) { layout in
@@ -156,8 +181,13 @@ struct ShareExtensionView: View {
             }
         }
     }
+}
 
-    private var buttonsRow: some View {
+private struct ButtonsRow: View {
+    let viewModel: ShareExtensionViewModel
+    let onCancel: () -> Void
+
+    var body: some View {
         HStack(spacing: 16) {
             Button { onCancel() } label: {
                 Text("Cancel", comment: "Share extension cancel button")
@@ -171,10 +201,16 @@ struct ShareExtensionView: View {
             .disabled(!viewModel.canSend)
         }
     }
+}
 
-    // MARK: - Sending
+// MARK: - Sending
 
-    private func sendingContent(sent: Int, total: Int) -> some View {
+private struct ShareSendingCard: View {
+    let sent: Int
+    let total: Int
+    let onCancel: () -> Void
+
+    var body: some View {
         VStack(spacing: 24) {
             Text("Sending...", comment: "Share extension sending title")
                 .font(.title.bold())
@@ -188,7 +224,7 @@ struct ShareExtensionView: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
 
-            Button { viewModel.cancelSending() } label: {
+            Button { onCancel() } label: {
                 Text("Cancel", comment: "Share extension cancel button")
             }
             .buttonStyle(AppSecondaryButtonStyle())
@@ -197,10 +233,15 @@ struct ShareExtensionView: View {
         .padding(.top, 36)
         .padding(.bottom, 24)
     }
+}
 
-    // MARK: - Sent
+// MARK: - Sent
 
-    private var sentContent: some View {
+private struct ShareSentCard: View {
+    let deviceName: String
+    let onComplete: () -> Void
+
+    var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 56))
@@ -211,7 +252,7 @@ struct ShareExtensionView: View {
                 .font(.title.bold())
                 .foregroundStyle(.primary)
 
-            Text("Text delivered to \(viewModel.selectedDevice?.displayName ?? "")", comment: "Share extension sent subtitle")
+            Text("Text delivered to \(deviceName)", comment: "Share extension sent subtitle")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

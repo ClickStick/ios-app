@@ -51,6 +51,12 @@ struct ShareExtensionView: View {
         case .sent:
             ShareSentCard(deviceName: viewModel.selectedDevice?.displayName ?? "", onComplete: onComplete)
                 .transition(cardTransition)
+        case .connectionLost:
+            ShareConnectionLostCard(
+                onClose: viewModel.dismissConnectionLost,
+                onTryAgain: viewModel.retryAfterConnectionLost
+            )
+            .transition(cardTransition)
         }
     }
 
@@ -269,6 +275,59 @@ private struct ShareSentCard: View {
     }
 }
 
+// MARK: - Connection lost
+
+private struct ShareConnectionLostCard: View {
+    let onClose: () -> Void
+    let onTryAgain: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.circle")
+                .font(.largeTitle)
+                .foregroundStyle(Color(uiColor: .systemRed))
+                .padding(20)
+                .background(Circle().fill(Color(uiColor: .systemRed).opacity(0.08)))
+                .accessibilityHidden(true)
+
+            VStack(spacing: 8) {
+                Text("Connection lost", comment: "Share extension connection lost title")
+                    .font(.title.bold())
+                    .multilineTextAlignment(.center)
+
+                Text("Bluetooth disconnected.\nCheck your device and try again.", comment: "Share extension connection lost message")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 16) {
+                    Button("Close", action: onClose)
+                        .buttonStyle(AppSecondaryButtonStyle())
+
+                    Button("Try again", action: onTryAgain)
+                        .buttonStyle(AppPrimaryButtonStyle())
+                }
+
+                VStack(spacing: 12) {
+                    Button("Try again", action: onTryAgain)
+                        .buttonStyle(AppPrimaryButtonStyle())
+
+                    Button("Close", action: onClose)
+                        .buttonStyle(AppSecondaryButtonStyle())
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .contain)
+        .padding(.horizontal, 24)
+        .padding(.top, 36)
+        .padding(.bottom, 24)
+    }
+}
+
 // MARK: - Device status line
 
 private struct DeviceStatusLine: View {
@@ -342,6 +401,7 @@ private extension ShareExtensionViewModel.Phase {
         case .input: 0
         case .sending: 1
         case .sent: 2
+        case .connectionLost: 3
         }
     }
 }

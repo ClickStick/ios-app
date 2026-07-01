@@ -66,6 +66,7 @@
       }
     },
     "%lld of %lld characters" : {
+      "comment" : "Share extension send progress",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -102,6 +103,9 @@
     "Available" : {
 
     },
+    "Bluetooth disconnected.\nCheck your device and try again." : {
+      "comment" : "Share extension connection lost message"
+    },
     "Camera Access Required" : {
       "comment" : "Camera permission denied title"
     },
@@ -112,7 +116,7 @@
       "comment" : "Accessibility label"
     },
     "Cancel" : {
-      "comment" : "Cancel send button"
+      "comment" : "Share extension cancel button"
     },
     "Cancel add device" : {
 
@@ -163,7 +167,7 @@
       "comment" : "Accessibility hint"
     },
     "Connection lost" : {
-
+      "comment" : "Share extension connection lost title"
     },
     "Continue" : {
 
@@ -397,11 +401,17 @@
     "Select a Device" : {
 
     },
+    "Select device" : {
+      "comment" : "Share extension device picker placeholder"
+    },
     "Select your device carefully. Connect only to a device you recognize and trust." : {
 
     },
     "Selected" : {
       "comment" : "Selected tab accessibility value"
+    },
+    "Send" : {
+      "comment" : "Share extension send button"
     },
     "Send anyway" : {
 
@@ -409,17 +419,20 @@
     "Send text" : {
       "comment" : "Header send button accessibility"
     },
+    "Send to ClickStick" : {
+      "comment" : "Share extension title"
+    },
     "Sending text" : {
       "comment" : "Header send button sending accessibility\nSend progress accessibility"
     },
     "Sending..." : {
-      "comment" : "Sending in progress"
+      "comment" : "Share extension sending title"
     },
     "Sent to %@" : {
 
     },
     "Sent!" : {
-
+      "comment" : "Share extension sent title"
     },
     "Settings" : {
 
@@ -478,6 +491,9 @@
     },
     "Terms of Use" : {
 
+    },
+    "Text delivered to %@" : {
+      "comment" : "Share extension sent subtitle"
     },
     "Text Entry" : {
       "comment" : "Tab title"

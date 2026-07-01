@@ -72,6 +72,7 @@
 			membershipExceptions = (
 				Assets.xcassets,
 				Features/DeviceList/Models/DeviceModel.swift,
+				Localizable.xcstrings,
 				"Shared/ClickStickKit+Localization.swift",
 				Shared/Services/ClickStickService.swift,
 				Shared/Services/CSManaging.swift,

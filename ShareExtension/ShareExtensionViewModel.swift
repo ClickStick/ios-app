@@ -22,6 +22,7 @@ final class ShareExtensionViewModel {
         case input
         case sending(sent: Int, total: Int)
         case sent
+        case connectionLost
     }
 
     private let log = Logger(subsystem: "io.clickstick", category: "ShareExtensionViewModel")
@@ -205,7 +206,7 @@ final class ShareExtensionViewModel {
                     self.phase = .input
                 } catch {
                     self.log.error("Share Extension send failed: \(error.localizedDescription)")
-                    self.phase = .input
+                    self.phase = .connectionLost
                 }
                 self.sendTask = nil
             }
@@ -216,6 +217,15 @@ final class ShareExtensionViewModel {
         sendTask?.cancel()
         sendTask = nil
         phase = .input
+    }
+
+    func dismissConnectionLost() {
+        phase = .input
+    }
+
+    func retryAfterConnectionLost() {
+        phase = .input
+        connectSelectedDeviceIfNeeded()
     }
 
     // MARK: - Preferences

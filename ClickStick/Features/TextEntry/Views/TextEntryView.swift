@@ -6,24 +6,40 @@ import SwiftUI
 
 struct TextEntryView: View {
     @Bindable var viewModel: TextEntryViewModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var unsupportedSheetHeight: CGFloat = .zero
     @State private var progressSheetHeight: CGFloat = .zero
     @State private var shouldSendAfterUnsupportedSheetDismisses = false
+    // Wide-layout editor height. `@ScaledMetric` scales it with Dynamic Type so the
+    // inline controls row (semantic fonts) doesn't crowd the text at large sizes.
+    @ScaledMetric private var editorHeight: CGFloat = 502
 
     var body: some View {
-        VStack(spacing: 12) {
+        let usesWideLayout = AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass)
+
+        VStack(spacing: usesWideLayout ? 16 : 12) {
+            if usesWideLayout {
+                DeviceNamePill(name: viewModel.deviceName)
+            }
+
             TextEditorCard(
                 text: $viewModel.text,
                 characterCount: viewModel.characterCount,
                 inlineUnsupportedMessage: viewModel.inlineUnsupportedMessage,
-                borderColor: borderColor
+                borderColor: borderColor,
+                borderLineWidth: usesWideLayout ? 1 : 2
             ) {
                 controls
             }
-            .padding(.top, 2)
+            // A max (not fixed) height so the card renders at `editorHeight` when
+            // there's room but still compresses when the keyboard shrinks the safe
+            // area — a fixed height would refuse to shrink and get clipped.
+            .frame(maxHeight: usesWideLayout ? editorHeight : nil)
+            .padding(.top, usesWideLayout ? 0 : 2)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 24)
+        .padding(.top, usesWideLayout ? 10 : 0)
         .background(Color.groupedBackground.ignoresSafeArea())
         .overlay(alignment: .center) {
             if viewModel.showSentToast {
@@ -69,6 +85,15 @@ struct TextEntryView: View {
                 }
             } label: {
                 menuPillLabel(viewModel.selectedOS.title)
+            }
+
+            // On iPad the send button lives here, next to the pickers, instead of the
+            // navigation bar (matches Figma).
+            if AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass) {
+                Spacer(minLength: 8)
+                SendButton(canSend: viewModel.canSend, isSending: viewModel.isSending) {
+                    viewModel.requestSend()
+                }
             }
         }
     }
@@ -138,6 +163,7 @@ private struct TextEditorCard<Controls: View>: View {
     let characterCount: Int
     let inlineUnsupportedMessage: String?
     let borderColor: Color
+    let borderLineWidth: CGFloat
     @ViewBuilder let controls: Controls
 
     var body: some View {
@@ -159,14 +185,16 @@ private struct TextEditorCard<Controls: View>: View {
 
                 controls
                     .padding(.leading, 16)
+                    .padding(.trailing, 16)
                     .padding(.bottom, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .overlay {
                 RoundedRectangle(cornerRadius: 24)
-                    .stroke(borderColor, lineWidth: 2)
+                    .stroke(borderColor, lineWidth: borderLineWidth)
             }
             .accessibilityLabel(String(localized: "Text to send", comment: "Text editor accessibility label"))
             .accessibilityValue(text.isEmpty
@@ -181,5 +209,32 @@ private struct TextEditorCard<Controls: View>: View {
                     .padding(.top, 4)
             }
         }
+    }
+}
+
+// MARK: - Device Name Pill
+
+/// Outlined capsule showing the selected device name above the editor in the wide
+/// (iPad / Catalyst) layout, where the navigation bar no longer carries the title.
+private struct DeviceNamePill: View {
+    let name: String
+
+    var body: some View {
+        Text(name)
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(Color.groupedBackground)
+            )
+            .overlay {
+                Capsule(style: .continuous)
+                    .stroke(Color(uiColor: .separator), lineWidth: 1)
+            }
+            .accessibilityLabel(String(localized: "Selected device", comment: "Selected device label accessibility"))
+            .accessibilityValue(name)
     }
 }

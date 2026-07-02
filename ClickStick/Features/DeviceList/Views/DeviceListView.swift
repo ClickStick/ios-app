@@ -83,6 +83,9 @@ struct DeviceListView: View {
                 .appHiddenSharedToolbarBackground()
             }
         }
+        // Remove the sidebar collapse button NavigationSplitView auto-injects on iPad —
+        // it isn't in the design. No-op on iPhone (NavigationStack has no sidebar toggle).
+        .toolbar(removing: .sidebarToggle)
         .sheet(isPresented: $isShowingSettings) {
             SettingsView()
         }

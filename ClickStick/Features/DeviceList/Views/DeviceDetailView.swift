@@ -7,6 +7,7 @@ import SwiftUI
 struct DeviceDetailView: View {
     let device: DeviceModel
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var textEntryViewModel: TextEntryViewModel
     @State private var mouseViewModel: MouseViewModel
@@ -49,15 +50,17 @@ struct DeviceDetailView: View {
         let canSend = textEntryViewModel.canSend
         let isSending = textEntryViewModel.isSending
 
-        return selectedTabContent
+        let usesWideLayout = AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass)
+
+        return content
             .background(Color.groupedBackground.ignoresSafeArea())
             .tint(.accentBlue)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                FloatingTabBar(items: tabBarItems, selection: $selectedTab)
-                    .padding(.bottom, 12)
-            }
             .navigationTitle(device.displayName)
             .navigationBarTitleDisplayMode(.inline)
+            // On iPad the title moves to the pill above the editor and the send button is
+            // inline, so the nav bar is empty — hide it entirely instead of leaving an empty
+            // inline bar reserving ~44pt of space above the tab bar (doesn't match Figma).
+            .toolbar(usesWideLayout ? .hidden : .automatic, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     primaryToolbarAction(canSend: canSend, isSending: isSending)
@@ -85,8 +88,12 @@ struct DeviceDetailView: View {
     private func primaryToolbarAction(canSend: Bool, isSending: Bool) -> some View {
         switch selectedTab {
         case .textEntry:
-            SendToolbarButton(canSend: canSend, isSending: isSending) {
-                textEntryViewModel.requestSend()
+            // On iPad the send button lives inline in the text entry card, next to the
+            // layout/OS pickers, instead of the navigation bar (matches Figma).
+            if !AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass) {
+                SendButton(canSend: canSend, isSending: isSending) {
+                    textEntryViewModel.requestSend()
+                }
             }
         case .snippets:
             Button {} label: {
@@ -99,9 +106,37 @@ struct DeviceDetailView: View {
         }
     }
 
+    /// On iPad the tab bar is the system-default floating top control (via `TabView`).
+    /// On iPhone it stays the custom bottom `FloatingTabBar` to match the iPhone design.
+    @ViewBuilder
+    private var content: some View {
+        if AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass) {
+            TabView(selection: $selectedTab) {
+                ForEach(DeviceFeatureTab.allCases) { tab in
+                    Tab(tab.localizedTitle, systemImage: tab.icon, value: tab) {
+                        tabContent(for: tab)
+                    }
+                    .defaultVisibility(.visible, for: .tabBar)
+                }
+            }
+            .tabViewStyle(.tabBarOnly)
+        } else {
+            selectedTabContent
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    FloatingTabBar(items: tabBarItems, selection: $selectedTab)
+                        .padding(.bottom, 12)
+                }
+        }
+    }
+
     @ViewBuilder
     private var selectedTabContent: some View {
-        switch selectedTab {
+        tabContent(for: selectedTab)
+    }
+
+    @ViewBuilder
+    private func tabContent(for tab: DeviceFeatureTab) -> some View {
+        switch tab {
         case .textEntry:
             TextEntryView(viewModel: textEntryViewModel)
         case .snippets:
@@ -173,79 +208,6 @@ struct DeviceDetailView: View {
     private func retryConnection() {
         dismissConnectionLost()
         device.connect()
-    }
-}
-
-/// Primary "send" action in the navigation bar. Takes plain `canSend`/`isSending` values
-/// (read in `DeviceDetailView.body`) rather than the view model, because toolbar content
-/// only re-evaluates when the owning body does.
-private struct SendToolbarButton: View {
-    let canSend: Bool
-    let isSending: Bool
-    let action: () -> Void
-    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
-
-    var body: some View {
-        Button {
-            action()
-        } label: {
-            ZStack {
-                if isSending {
-                    SendButtonActivityIndicator(isAnimated: !accessibilityReduceMotion)
-                } else {
-                    Image(systemName: "arrow.up")
-                }
-            }
-            .frame(width: 22, height: 22)
-            .accessibilityHidden(true)
-        }
-        .buttonStyle(CircularToolbarButtonStyle(role: .prominent))
-        .disabled(!canSend)
-        .accessibilityLabel(accessibilityLabel)
-    }
-
-    private var accessibilityLabel: String {
-        if isSending {
-            String(localized: "Sending text", comment: "Header send button sending accessibility")
-        } else {
-            String(localized: "Send text", comment: "Header send button accessibility")
-        }
-    }
-}
-
-private struct SendButtonActivityIndicator: View {
-    let isAnimated: Bool
-
-    var body: some View {
-        TimelineView(.animation) { timeline in
-            Canvas { context, size in
-                let lineWidth: CGFloat = 2
-                let radius = min(size.width, size.height) / 2 - lineWidth / 2
-                let center = CGPoint(x: size.width / 2, y: size.height / 2)
-                let rotation = isAnimated ? rotationAngle(at: timeline.date) : 0
-
-                var path = Path()
-                path.addArc(
-                    center: center,
-                    radius: radius,
-                    startAngle: .degrees(rotation - 135),
-                    endAngle: .degrees(rotation + 135),
-                    clockwise: false
-                )
-                context.stroke(
-                    path,
-                    with: .color(.white),
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                )
-            }
-        }
-        .frame(width: 22, height: 22)
-    }
-
-    private func rotationAngle(at date: Date) -> Double {
-        let duration = 0.8
-        let progress = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: duration) / duration
-        return progress * 360
     }
 }
 
@@ -341,5 +303,17 @@ private struct SendButtonActivityIndicator: View {
 #Preview("Connection Lost") {
     NavigationStack {
         DeviceDetailView(device: .preview, showsConnectionLost: true)
+    }
+}
+
+// Use the device picker at the bottom of the Canvas to preview this on iPad —
+// `.previewDevice(...)` is ignored by the #Preview macro.
+#Preview("iPad Text Entry") {
+    NavigationSplitView {
+        Text("Sidebar")
+    } detail: {
+        NavigationStack {
+            DeviceDetailView(device: .preview, previewText: "admin@company.local")
+        }
     }
 }

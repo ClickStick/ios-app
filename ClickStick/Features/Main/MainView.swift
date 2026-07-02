@@ -1,6 +1,7 @@
 //  ClickStick Companion app
 //  Copyright © 2026 KeePassium Labs <info@keepassium.com>
 
+import ClickStickKit
 import SwiftUI
 import UIKit
 
@@ -66,7 +67,7 @@ struct MainView: View {
 
     @ViewBuilder
     private var content: some View {
-        if horizontalSizeClass == .regular {
+        if AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass) {
             splitViewContent
         } else {
             stackContent
@@ -201,9 +202,80 @@ private struct DeviceAvailabilitySnapshot: Equatable {
 
 // MARK: - Preview
 
+#if DEBUG
+@MainActor
+private enum MainViewPreviewFactory {
+    static func populated() -> DeviceListViewModel {
+        let devices: [CSDevice] = [
+            .makePreview(name: "ClickStick 9F8C", state: .connected),
+            .makePreview(name: "TV Room", state: .available),
+            .makePreview(name: "ClickStick A2A1", state: .weakSignal),
+            .makePreview(name: "Home Router", state: .outOfRange),
+            .makePreview(name: "ClickStick 107C", state: .outOfRange)
+        ]
+        let service = ClickStickService(manager: PreviewManager(devices: devices))
+        let viewModel = DeviceListViewModel(service: service, urlOpener: URLOpener())
+        viewModel.hasShownWelcome = true
+        viewModel.hasDismissedDemoPrompt = true
+
+        if let compromised = viewModel.devices.first(where: { $0.displayName == "ClickStick 107C" }) {
+            compromised.deviceDidDetectTampering(compromised.device)
+        }
+        return viewModel
+    }
+
+    private final class PreviewManager: CSManaging {
+        var isDemoMode: Bool = false
+        weak var delegate: CSManagerDelegate?
+        private let devices: [CSDevice]
+
+        init(devices: [CSDevice]) {
+            self.devices = devices
+        }
+
+        func startScanning() {}
+        func stopScanning() {}
+        func knownDevices() -> [CSDevice] { devices }
+    }
+}
+
+@MainActor
+private struct MainViewIPadPreview: View {
+    private let viewModel: DeviceListViewModel
+    private let router: AppRouter
+    private let selectedDevice: DeviceModel
+
+    init() {
+        let viewModel = MainViewPreviewFactory.populated()
+        let router = AppRouter()
+        let selectedDevice = viewModel.connectedDevices.first ?? viewModel.devices[0]
+        router.selectedDeviceID = selectedDevice.id
+        self.viewModel = viewModel
+        self.router = router
+        self.selectedDevice = selectedDevice
+    }
+
+    var body: some View {
+        NavigationSplitView {
+            DeviceListView(viewModel: viewModel)
+        } detail: {
+            DeviceDetailView(device: selectedDevice, previewText: "admin@company.local")
+        }
+        .navigationSplitViewStyle(.balanced)
+        .environment(\.appRouter, router)
+        .environment(\.horizontalSizeClass, .regular)
+        .frame(width: 744, height: 1133)
+    }
+}
+#endif
+
 #Preview {
     MainView(viewModel: DeviceListViewModel(
         service: ClickStickService(),
         urlOpener: URLOpener()
     ))
+}
+
+#Preview("iPad Device Detail") {
+    MainViewIPadPreview()
 }

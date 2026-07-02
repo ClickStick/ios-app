@@ -410,6 +410,9 @@
     "Selected" : {
       "comment" : "Selected tab accessibility value"
     },
+    "Selected device" : {
+      "comment" : "Selected device label accessibility"
+    },
     "Send" : {
       "comment" : "Share extension send button"
     },

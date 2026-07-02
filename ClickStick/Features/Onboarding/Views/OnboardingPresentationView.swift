@@ -10,9 +10,9 @@ struct OnboardingPresentationView: View {
     let onGetClickStick: () -> Void
 
     var body: some View {
-        if horizontalSizeClass == .regular {
+        if AppLayout.usesWideLayout(horizontalSizeClass: horizontalSizeClass) {
             onboardingView
-                .frame(maxWidth: 480)
+                .frame(maxWidth: 480, maxHeight: 750)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.black.opacity(0.4).ignoresSafeArea())

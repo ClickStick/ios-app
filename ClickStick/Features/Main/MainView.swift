@@ -40,7 +40,6 @@ struct MainView: View {
             if viewModel.hasSavedDevices && !viewModel.isScanning {
                 viewModel.startScanning()
             }
-            resolvePendingSendTextRequest()
             autoSelectLastDeviceIfNeeded()
         }
         .onChange(of: deviceAvailabilitySnapshots) { _, _ in
@@ -57,7 +56,7 @@ struct MainView: View {
                 if navigationPath.last != id {
                     navigationPath = [id]
                 }
-                markPendingSendTextReadyForManualSelection()
+                router.markPendingSendTextReadyForSelectedDevice()
             } else if !navigationPath.isEmpty {
                 navigationPath = []
             }
@@ -144,15 +143,10 @@ struct MainView: View {
             return
         }
 
-        guard let device = viewModel.device(for: uuid), device.isKnownDevice else {
-            // The manager may not have rediscovered the saved peripheral yet. Keep this
-            // eligible so discovery can auto-select once scanning finds it.
-            return
-        }
-
-        guard device.isConnectable || device.isConnecting || device.isConnected else {
-            // Saved devices are shown immediately as not in range, but we can only
-            // auto-connect once BLE scanning discovers the actual peripheral.
+        guard let device = readyDevice(for: uuid) else {
+            // The manager may not have rediscovered the saved peripheral yet, or it's shown
+            // immediately as not in range. Keep this eligible so auto-select can retry once
+            // BLE scanning discovers the actual peripheral.
             return
         }
 
@@ -170,7 +164,7 @@ struct MainView: View {
         }
 
         if let deviceID = request.deviceID {
-            if selectReadyDeviceForSendText(deviceID, request: request) {
+            if selectReadyDeviceForSendText(deviceID) {
                 return
             }
             router.deselectDevice()
@@ -183,28 +177,39 @@ struct MainView: View {
             return
         }
 
-        if !selectReadyDeviceForSendText(lastDeviceID, request: request) {
+        if !selectReadyDeviceForSendText(lastDeviceID) {
             router.deselectDevice()
         }
     }
 
-    private func selectReadyDeviceForSendText(_ deviceID: UUID, request: PendingSendTextRequest) -> Bool {
-        guard let device = viewModel.device(for: deviceID),
-              device.isKnownDevice,
-              device.isConnectable || device.isConnecting || device.isConnected else {
+    private func selectReadyDeviceForSendText(_ deviceID: UUID) -> Bool {
+        guard let device = readyDevice(for: deviceID),
+              viewModel.connectDevice(device) else {
             return false
         }
 
-        guard viewModel.connectDevice(device) else { return false }
-        router.selectedDeviceID = device.id
-        router.pendingSendTextRequest = request.readyForSelectedDevice()
+        if router.selectedDeviceID == device.id {
+            // Already selected, so the onChange(of: router.selectedDeviceID) handler below
+            // won't fire to mark the request ready -- do it directly.
+            router.markPendingSendTextReadyForSelectedDevice()
+        } else {
+            // Marking the request ready happens as a side effect of the onChange(of:
+            // router.selectedDeviceID) handler below. Writing both properties here would
+            // double up: this assignment already triggers that handler synchronously, which
+            // marks the request ready itself, before this function could do it again.
+            router.selectedDeviceID = device.id
+        }
         return true
     }
 
-    private func markPendingSendTextReadyForManualSelection() {
-        guard let request = router.pendingSendTextRequest,
-              !request.isReadyForSelectedDevice else { return }
-        router.pendingSendTextRequest = request.readyForSelectedDevice()
+    /// A known device that BLE scanning has discovered and that can be connected to or is already connecting/connected.
+    private func readyDevice(for deviceID: UUID) -> DeviceModel? {
+        guard let device = viewModel.device(for: deviceID),
+              device.isKnownDevice,
+              device.isConnectable || device.isConnecting || device.isConnected else {
+            return nil
+        }
+        return device
     }
 
     @ViewBuilder

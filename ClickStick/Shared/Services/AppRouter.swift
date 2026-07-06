@@ -35,6 +35,7 @@ final class AppRouter {
     }
 
     func deselectDevice() {
+        guard selectedDeviceID != nil else { return }
         selectedDeviceID = nil
     }
 
@@ -49,12 +50,24 @@ final class AppRouter {
     func markPendingSendTextReadyForSelectedDevice() {
         guard let request = pendingSendTextRequest,
               !request.isReadyForSelectedDevice else { return }
-        pendingSendTextRequest = request.readyForSelectedDevice()
+        // Deferred to the next run loop turn so this reaction doesn't nest another write to
+        // pendingSendTextRequest inside the SwiftUI update pass that's already processing the
+        // change that triggered it (e.g. selecting an already-connected device synchronously
+        // resolves a deep link in one pass) -- that reentrancy is what SwiftUI's "tried to
+        // update multiple times per frame" warning flags.
+        Task { [weak self] in
+            guard let self, self.pendingSendTextRequest?.id == request.id else { return }
+            self.pendingSendTextRequest = request.readyForSelectedDevice()
+        }
     }
 
     func consumeSendTextRequest(_ request: PendingSendTextRequest) {
         guard pendingSendTextRequest?.id == request.id else { return }
-        pendingSendTextRequest = nil
+        // See markPendingSendTextReadyForSelectedDevice() -- same reentrancy concern.
+        Task { [weak self] in
+            guard let self, self.pendingSendTextRequest?.id == request.id else { return }
+            self.pendingSendTextRequest = nil
+        }
     }
 
 }

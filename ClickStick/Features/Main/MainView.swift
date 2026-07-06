@@ -164,28 +164,22 @@ struct MainView: View {
         }
 
         if let deviceID = request.deviceID {
-            if selectReadyDeviceForSendText(deviceID) {
-                return
-            }
-            router.deselectDevice()
+            selectReadyDeviceForSendText(deviceID)
             return
         }
 
         guard autoSelectLastDevice,
               let lastDeviceID = UUID(uuidString: lastSelectedDeviceID) else {
-            router.deselectDevice()
             return
         }
 
-        if !selectReadyDeviceForSendText(lastDeviceID) {
-            router.deselectDevice()
-        }
+        selectReadyDeviceForSendText(lastDeviceID)
     }
 
-    private func selectReadyDeviceForSendText(_ deviceID: UUID) -> Bool {
+    private func selectReadyDeviceForSendText(_ deviceID: UUID) {
         guard let device = readyDevice(for: deviceID),
               viewModel.connectDevice(device) else {
-            return false
+            return
         }
 
         if router.selectedDeviceID == device.id {
@@ -199,7 +193,6 @@ struct MainView: View {
             // marks the request ready itself, before this function could do it again.
             router.selectedDeviceID = device.id
         }
-        return true
     }
 
     /// A known device that BLE scanning has discovered and that can be connected to or is already connecting/connected.

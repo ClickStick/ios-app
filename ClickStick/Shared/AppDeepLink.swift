@@ -120,15 +120,25 @@ struct PendingSendTextRequest: Identifiable, Equatable {
 
 private extension [URLQueryItem] {
     func value(for name: String) -> String? {
-        guard let value = first(where: { $0.name == name })?.value else { return nil }
-        // URLComponents decodes query values once. Some external launch paths (notably
-        // Simulator/open-url handoff) can deliver already-escaped query values as escaped
-        // again, so decode one more time when possible.
-        return value.removingPercentEncoding ?? value
+        first(where: { $0.name == name })?.value
     }
 
     func urlValue(for name: String) -> URL? {
-        value(for: name).flatMap(URL.init(string:))
+        guard let string = value(for: name) else { return nil }
+        // URLComponents decodes query values once. Some external launch paths (notably
+        // Simulator/open-url handoff) can deliver already-escaped callback URLs as escaped
+        // again, so if the singly-decoded string doesn't parse as a usable URL, try one more
+        // decode pass. Unlike free-text values, a URL either parses into something meaningful
+        // or it doesn't, so this can't silently corrupt a value the way blindly re-decoding
+        // arbitrary text could.
+        return callbackURL(from: string) ?? string.removingPercentEncoding.flatMap(callbackURL(from:))
+    }
+
+    private func callbackURL(from string: String) -> URL? {
+        guard let url = URL(string: string),
+              let scheme = url.scheme?.nilIfEmpty,
+              scheme.caseInsensitiveCompare("file") != .orderedSame else { return nil }
+        return url
     }
 }
 

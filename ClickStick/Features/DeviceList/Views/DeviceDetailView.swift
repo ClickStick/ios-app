@@ -7,6 +7,7 @@ import SwiftUI
 struct DeviceDetailView: View {
     let device: DeviceModel
 
+    @Environment(\.appRouter) private var router
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var textEntryViewModel: TextEntryViewModel
@@ -16,6 +17,7 @@ struct DeviceDetailView: View {
 
     init(
         device: DeviceModel,
+        urlOpener: (any URLOpening)? = nil,
         initialTab: DeviceFeatureTab = .textEntry,
         showsConnectionLost: Bool = false,
         previewText: String? = nil,
@@ -25,7 +27,7 @@ struct DeviceDetailView: View {
         previewPresentsTextEntrySheets: Bool = false
     ) {
         self.device = device
-        let textEntryViewModel = TextEntryViewModel(device: device)
+        let textEntryViewModel = TextEntryViewModel(device: device, urlOpener: urlOpener)
 #if DEBUG
         if previewText != nil || previewIsSending || previewIsToastVisible || previewProgress != nil || previewPresentsTextEntrySheets {
             textEntryViewModel.configureForPreview(
@@ -66,6 +68,9 @@ struct DeviceDetailView: View {
                     primaryToolbarAction(canSend: canSend, isSending: isSending)
                 }
                 .appHiddenSharedToolbarBackground()
+            }
+            .onChange(of: router.pendingSendTextRequest, initial: true) { _, request in
+                applyPendingSendTextRequest(request)
             }
             .onChange(of: device.connectionState) { oldState, newState in
                 handleConnectionStateChange(from: oldState, to: newState)
@@ -208,6 +213,16 @@ struct DeviceDetailView: View {
     private func retryConnection() {
         dismissConnectionLost()
         device.connect()
+    }
+
+    private func applyPendingSendTextRequest(_ request: PendingSendTextRequest?) {
+        guard let request,
+              request.isReadyForSelectedDevice,
+              router.selectedDeviceID == device.id else { return }
+
+        selectedTab = .textEntry
+        textEntryViewModel.configureForSendTextDeepLink(text: request.text, callback: request.callback)
+        router.consumeSendTextRequest(request)
     }
 }
 

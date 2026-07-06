@@ -7,6 +7,7 @@ import Observation
 import os.log
 
 protocol TextSendingDevice: AnyObject {
+    var id: UUID { get }
     var displayName: String { get }
     var isConnected: Bool { get }
 

@@ -26,12 +26,15 @@ struct AppDeepLinkTests {
     }
 
     @Test
-    func parsesDoubleEscapedSendTextValues() throws {
+    func parsesDoubleEscapedSendTextCallbackURL() throws {
+        // Only callback URLs get a second decode pass -- unlike free text, a URL either
+        // resolves into something usable or it doesn't, so re-decoding it can't silently
+        // corrupt user-entered content the way it would for the "text" field.
         let url = try #require(URL(string: "clickstick://x-callback-url/send-text?text=hello%2520world&x-success=sourceapp%253A%252F%252Fdone"))
 
         #expect(AppDeepLink(url: url) == .sendText(SendTextDeepLink(
             deviceID: nil,
-            text: "hello world",
+            text: "hello%20world",
             callback: SendTextCallback(success: try #require(URL(string: "sourceapp://done")))
         )))
     }

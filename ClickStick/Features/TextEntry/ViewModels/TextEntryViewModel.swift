@@ -232,36 +232,31 @@ final class TextEntryViewModel {
         guard let callback = sendTextCallback else { return }
         sendTextCallback = nil
         guard let url = callback.success else { return }
-        urlOpener?.open(callbackURL(
-            baseURL: url,
-            queryItems: [
-                URLQueryItem(name: "x-source", value: "ClickStick"),
-                URLQueryItem(name: "device", value: device.id.uuidString)
-            ]
-        ), completion: nil)
+        openCallback(url, extraQueryItems: [])
     }
 
     private func openErrorCallbackIfNeeded(code: String, message: String) {
         guard let callback = sendTextCallback,
               let url = callback.error else { return }
         sendTextCallback = nil
-        urlOpener?.open(callbackURL(
-            baseURL: url,
-            queryItems: [
-                URLQueryItem(name: "x-source", value: "ClickStick"),
-                URLQueryItem(name: "device", value: device.id.uuidString),
-                URLQueryItem(name: "errorCode", value: code),
-                URLQueryItem(name: "errorMessage", value: message)
-            ]
-        ), completion: nil)
+        openCallback(url, extraQueryItems: [
+            URLQueryItem(name: "errorCode", value: code),
+            URLQueryItem(name: "errorMessage", value: message)
+        ])
     }
 
-    private func callbackURL(baseURL: URL, queryItems: [URLQueryItem]) -> URL {
+    private func openCallback(_ baseURL: URL, extraQueryItems: [URLQueryItem]) {
+        let queryItems = [
+            URLQueryItem(name: "x-source", value: "ClickStick"),
+            URLQueryItem(name: "device", value: device.id.uuidString)
+        ] + extraQueryItems
+
         guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-            return baseURL
+            urlOpener?.open(baseURL, completion: nil)
+            return
         }
         components.queryItems = (components.queryItems ?? []) + queryItems
-        return components.url ?? baseURL
+        urlOpener?.open(components.url ?? baseURL, completion: nil)
     }
 
     private func flashSentToast() {

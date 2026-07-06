@@ -9,6 +9,7 @@ iOS companion app for [ClickStick](https://clickstick.io) -- a USB HID dongle th
 - **Mouse Control**: Touchpad-style gestures for cursor movement, clicks (left/right), and scrolling.
 - **Onboarding and Demo Mode**: First-run onboarding can start hardware pairing or enable demo devices for exploring without hardware.
 - **Share Extension**: Placeholder extension target retained for future redesign.
+- **Deep Links**: Other apps can open ClickStick to prefill text for manual sending.
 - **Settings**: Auto-select the last used device and keep the screen awake while connected.
 - **Accessibility**: VoiceOver, Dynamic Type, and Voice Control-friendly UI patterns.
 
@@ -29,6 +30,50 @@ iOS companion app for [ClickStick](https://clickstick.io) -- a USB HID dongle th
 | `Tests/` | Unit tests (Swift Testing) |
 
 The app follows a SwiftUI + `@Observable` ViewModel architecture. Device features (text entry, snippets placeholder, touchpad) are presented as tabs within the device detail view. BLE and protocol logic stays in `ClickStickKit`; the app layer handles UI, onboarding, settings, navigation, and share-extension placeholder flow.
+
+## Deep Links
+
+ClickStick registers the `clickstick://` URL scheme.
+
+### Add a device
+
+Open the add-device flow:
+
+```text
+clickstick://add-device
+```
+
+### Send text
+
+Other apps can prefill the Text Entry screen using the x-callback-url style action:
+
+```text
+clickstick://x-callback-url/send-text?text=hello%20world
+```
+
+Supported query parameters:
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `text` | Yes | Text to prefill. URL-encode the value. |
+| `device` | No | ClickStick device UUID. If provided and the device is ready, ClickStick connects/selects it. |
+| `x-success` | No | Callback URL opened after the user taps Send and the send succeeds. |
+| `x-error` | No | Callback URL opened after a user-initiated send fails. Receives `errorCode` and `errorMessage`. |
+| `x-source` | No | Friendly source app name, accepted for x-callback-url compatibility. |
+| `x-cancel` | No | Accepted for x-callback-url compatibility; currently not invoked because there is no explicit cancel action in the main app flow. |
+
+Example with callbacks:
+
+```text
+clickstick://x-callback-url/send-text?text=hello%20world&x-success=sourceapp%3A%2F%2Fdone&x-error=sourceapp%3A%2F%2Ferror
+```
+
+Behavior:
+
+- ClickStick never sends deep-linked text automatically. The user must tap **Send**.
+- If `device` is provided and ready, ClickStick connects/selects that device and opens Text Entry.
+- If `device` is omitted and **Auto-select last device** is enabled, ClickStick tries the last-used device.
+- Otherwise, ClickStick stays on the Devices list; once the user selects a device, Text Entry opens with the text prefilled.
 
 ## Demo Mode
 

@@ -13,6 +13,7 @@ final class AppRouter {
 
     var selectedDeviceID: UUID?
     var presentedSheet: Sheet?
+    var pendingSendTextRequest: PendingSendTextRequest?
 
     // MARK: - Sheet Types
 
@@ -39,6 +40,21 @@ final class AppRouter {
 
     func showDeviceSetup(for device: DeviceModel) {
         presentedSheet = .deviceSetup(device)
+    }
+
+    func queueSendText(_ request: PendingSendTextRequest) {
+        pendingSendTextRequest = request
+    }
+
+    func markPendingSendTextReadyForSelectedDevice() {
+        guard let request = pendingSendTextRequest,
+              !request.isReadyForSelectedDevice else { return }
+        pendingSendTextRequest = request.readyForSelectedDevice()
+    }
+
+    func consumeSendTextRequest(_ request: PendingSendTextRequest) {
+        guard pendingSendTextRequest?.id == request.id else { return }
+        pendingSendTextRequest = nil
     }
 
 }

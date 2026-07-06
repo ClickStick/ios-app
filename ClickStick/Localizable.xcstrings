@@ -196,6 +196,9 @@
     "Device Information" : {
 
     },
+    "Device is not connected" : {
+      "comment" : "Deep link send-text callback error"
+    },
     "Device Name" : {
       "comment" : "Label"
     },

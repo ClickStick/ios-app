@@ -23,6 +23,7 @@ final class TextEntryViewModel {
     // MARK: - Dependencies
 
     private let device: any TextSendingDevice
+    private let urlOpener: (any URLOpening)?
 
     // MARK: - Input
 
@@ -46,11 +47,13 @@ final class TextEntryViewModel {
     private var dismissProgressTask: Task<Void, Never>?
     private var dismissToastTask: Task<Void, Never>?
     private var persistsSelectionChanges = true
+    private var sendTextCallback: SendTextCallback?
 
     // MARK: - Initialization
 
-    init(device: any TextSendingDevice) {
+    init(device: any TextSendingDevice, urlOpener: (any URLOpening)? = nil) {
         self.device = device
+        self.urlOpener = urlOpener
         updateSelectionWithoutPersisting(
             layout: device.textEntryKeyboardLayout,
             targetOS: device.textEntryTargetOS
@@ -100,6 +103,11 @@ final class TextEntryViewModel {
         text = ""
     }
 
+    func configureForSendTextDeepLink(text: String, callback: SendTextCallback) {
+        self.text = text
+        sendTextCallback = callback
+    }
+
     /// Entry point for the header send button.
     func requestSend() {
         guard canSend else { return }
@@ -144,6 +152,10 @@ final class TextEntryViewModel {
         guard !isSending else { return }
         guard isConnected else {
             showConnectionLost = true
+            openErrorCallbackIfNeeded(
+                code: "connectionUnavailable",
+                message: String(localized: "Device is not connected", comment: "Deep link send-text callback error")
+            )
             return
         }
 
@@ -176,6 +188,7 @@ final class TextEntryViewModel {
                 isSending = false
                 progress = nil
                 showConnectionLost = true
+                openErrorCallbackIfNeeded(code: "sendFailed", message: error.localizedDescription)
             }
             sendTask = nil
         }
@@ -200,6 +213,7 @@ final class TextEntryViewModel {
     private func handleSendSuccess(showsSheet: Bool) {
         isSending = false
         text = ""
+        openSuccessCallbackIfNeeded()
         if showsSheet {
             progress = .sent
             dismissProgressTask?.cancel()
@@ -212,6 +226,42 @@ final class TextEntryViewModel {
         } else {
             flashSentToast()
         }
+    }
+
+    private func openSuccessCallbackIfNeeded() {
+        guard let callback = sendTextCallback else { return }
+        sendTextCallback = nil
+        guard let url = callback.success else { return }
+        urlOpener?.open(callbackURL(
+            baseURL: url,
+            queryItems: [
+                URLQueryItem(name: "x-source", value: "ClickStick"),
+                URLQueryItem(name: "device", value: device.id.uuidString)
+            ]
+        ), completion: nil)
+    }
+
+    private func openErrorCallbackIfNeeded(code: String, message: String) {
+        guard let callback = sendTextCallback,
+              let url = callback.error else { return }
+        sendTextCallback = nil
+        urlOpener?.open(callbackURL(
+            baseURL: url,
+            queryItems: [
+                URLQueryItem(name: "x-source", value: "ClickStick"),
+                URLQueryItem(name: "device", value: device.id.uuidString),
+                URLQueryItem(name: "errorCode", value: code),
+                URLQueryItem(name: "errorMessage", value: message)
+            ]
+        ), completion: nil)
+    }
+
+    private func callbackURL(baseURL: URL, queryItems: [URLQueryItem]) -> URL {
+        guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+            return baseURL
+        }
+        components.queryItems = (components.queryItems ?? []) + queryItems
+        return components.url ?? baseURL
     }
 
     private func flashSentToast() {

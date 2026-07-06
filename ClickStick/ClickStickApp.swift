@@ -71,6 +71,7 @@ struct ClickStickApp: App {
             if hasCompletedOnboarding {
                 MainView(
                     viewModel: deviceListViewModel,
+                    urlOpener: urlOpener,
                     startupAction: $pendingDeviceListStartupAction
                 )
                 .transition(.opacity)
@@ -92,6 +93,8 @@ struct ClickStickApp: App {
         switch deepLink {
         case .addDevice:
             openAddDeviceFlow()
+        case .sendText(let link):
+            openSendTextFlow(link)
         }
     }
 
@@ -102,6 +105,22 @@ struct ClickStickApp: App {
             pendingDeviceListStartupAction = .startAddDeviceScan
         } else {
             completeOnboarding(.addDevice)
+        }
+    }
+
+    private func openSendTextFlow(_ link: SendTextDeepLink) {
+        let request = link.pendingRequest
+        if hasCompletedOnboarding {
+            router.queueSendText(request)
+            return
+        }
+
+        isDemoModeEnabled = false
+        deviceListViewModel.completeOnboarding(enableDemoMode: false)
+        withAnimation(.easeInOut(duration: 0.35), completionCriteria: .logicallyComplete) {
+            hasCompletedOnboarding = true
+        } completion: {
+            router.queueSendText(request)
         }
     }
 

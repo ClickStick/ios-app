@@ -7,6 +7,7 @@ import UIKit
 
 struct MainView: View {
     @Bindable var viewModel: DeviceListViewModel
+    private let urlOpener: (any URLOpening)?
     @Binding private var deviceListStartupAction: DeviceListStartupAction?
     @Environment(\.appRouter) private var router
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -20,9 +21,11 @@ struct MainView: View {
 
     init(
         viewModel: DeviceListViewModel,
+        urlOpener: (any URLOpening)? = nil,
         startupAction: Binding<DeviceListStartupAction?> = .constant(nil)
     ) {
         self.viewModel = viewModel
+        self.urlOpener = urlOpener
         _deviceListStartupAction = startupAction
     }
 
@@ -37,10 +40,15 @@ struct MainView: View {
             if viewModel.hasSavedDevices && !viewModel.isScanning {
                 viewModel.startScanning()
             }
+            resolvePendingSendTextRequest()
             autoSelectLastDeviceIfNeeded()
         }
         .onChange(of: deviceAvailabilitySnapshots) { _, _ in
+            resolvePendingSendTextRequest()
             autoSelectLastDeviceIfNeeded()
+        }
+        .onChange(of: router.pendingSendTextRequest, initial: true) { _, _ in
+            resolvePendingSendTextRequest()
         }
         .onChange(of: router.selectedDeviceID) { _, id in
             // Remember the last device the user picked so we can restore it on launch.
@@ -49,6 +57,7 @@ struct MainView: View {
                 if navigationPath.last != id {
                     navigationPath = [id]
                 }
+                markPendingSendTextReadyForManualSelection()
             } else if !navigationPath.isEmpty {
                 navigationPath = []
             }
@@ -79,7 +88,7 @@ struct MainView: View {
             deviceList
                 .navigationDestination(for: UUID.self) { deviceID in
                     if let device = viewModel.device(for: deviceID) {
-                        DeviceDetailView(device: device)
+                        DeviceDetailView(device: device, urlOpener: urlOpener)
                     } else {
                         NoDeviceSelectedView()
                     }
@@ -107,7 +116,7 @@ struct MainView: View {
     private var selectedDeviceDetail: some View {
         if let selectedDeviceID = router.selectedDeviceID,
            let device = viewModel.device(for: selectedDeviceID) {
-            DeviceDetailView(device: device)
+            DeviceDetailView(device: device, urlOpener: urlOpener)
         } else {
             NoDeviceSelectedView()
         }
@@ -126,6 +135,7 @@ struct MainView: View {
 
     private func autoSelectLastDeviceIfNeeded() {
         guard !didAttemptAutoSelect else { return }
+        guard router.pendingSendTextRequest == nil else { return }
 
         guard autoSelectLastDevice,
               router.selectedDeviceID == nil,
@@ -149,6 +159,52 @@ struct MainView: View {
         didAttemptAutoSelect = true
         router.selectedDeviceID = uuid
         _ = viewModel.connectDevice(device)
+    }
+
+    private func resolvePendingSendTextRequest() {
+        guard let request = router.pendingSendTextRequest,
+              !request.isReadyForSelectedDevice else { return }
+
+        if !viewModel.isScanning {
+            viewModel.startScanning()
+        }
+
+        if let deviceID = request.deviceID {
+            if selectReadyDeviceForSendText(deviceID, request: request) {
+                return
+            }
+            router.deselectDevice()
+            return
+        }
+
+        guard autoSelectLastDevice,
+              let lastDeviceID = UUID(uuidString: lastSelectedDeviceID) else {
+            router.deselectDevice()
+            return
+        }
+
+        if !selectReadyDeviceForSendText(lastDeviceID, request: request) {
+            router.deselectDevice()
+        }
+    }
+
+    private func selectReadyDeviceForSendText(_ deviceID: UUID, request: PendingSendTextRequest) -> Bool {
+        guard let device = viewModel.device(for: deviceID),
+              device.isKnownDevice,
+              device.isConnectable || device.isConnecting || device.isConnected else {
+            return false
+        }
+
+        guard viewModel.connectDevice(device) else { return false }
+        router.selectedDeviceID = device.id
+        router.pendingSendTextRequest = request.readyForSelectedDevice()
+        return true
+    }
+
+    private func markPendingSendTextReadyForManualSelection() {
+        guard let request = router.pendingSendTextRequest,
+              !request.isReadyForSelectedDevice else { return }
+        router.pendingSendTextRequest = request.readyForSelectedDevice()
     }
 
     @ViewBuilder

@@ -24,41 +24,22 @@ public class CSDeviceSettingsManager {
         keychainAccessGroup = accessGroup
     }
 
-    /// Returns base query attributes including access group if configured
-    private static func baseQueryAttributes(for deviceUUID: UUID) -> [String: Any] {
-        var query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: deviceUUID.uuidString
-        ]
-        if let accessGroup = keychainAccessGroup {
-            query[kSecAttrAccessGroup as String] = accessGroup
-        }
-        return query
-    }
+    /// Shared keychain access group, exposed for code that needs to align with the same
+    /// app/extension configuration set via `configure(accessGroup:)`.
+    public static var accessGroup: String? { keychainAccessGroup }
 
-    /// Returns base query attributes for service-level operations
-    private static func baseServiceQueryAttributes() -> [String: Any] {
-        var query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService
-        ]
-        if let accessGroup = keychainAccessGroup {
-            query[kSecAttrAccessGroup as String] = accessGroup
-        }
-        return query
+    /// The keychain-backed store for device settings. Rebuilt per access so it always reflects
+    /// the access group configured at runtime. Accessibility is left at the keychain default to
+    /// preserve compatibility with items saved by earlier app versions.
+    private static var store: KeychainStore {
+        KeychainStore(service: keychainService, accessGroup: keychainAccessGroup)
     }
 
     // MARK: - Keychain Operations
 
     /// Returns true iff there are settings saved for this device.
     public static func hasSettings(for deviceUUID: UUID) -> Bool {
-        var query = baseQueryAttributes(for: deviceUUID)
-        query[kSecReturnData as String] = false
-        query[kSecMatchLimit as String] = kSecMatchLimitOne
-
-        let status = SecItemCopyMatching(query as CFDictionary, nil)
-        return status == errSecSuccess
+        store.has(account: deviceUUID.uuidString)
     }
 
     /// Loads device settings from the keychain
@@ -66,119 +47,33 @@ public class CSDeviceSettingsManager {
     /// - Returns: CSDeviceSettings instance loaded from keychain, or nil if not found
     /// - Throws: KeychainError if the operation fails
     public static func loadSettings(for deviceUUID: UUID) throws -> CSDeviceSettings? {
-        var query = baseQueryAttributes(for: deviceUUID)
-        query[kSecReturnData as String] = true
-        query[kSecMatchLimit as String] = kSecMatchLimitOne
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        switch status {
-        case errSecSuccess:
-            guard let data = result as? Data else {
-                throw KeychainError.invalidData
-            }
-            return try deserializeSettings(from: data)
-        case errSecItemNotFound:
-            return nil
-        default:
-            throw KeychainError.operationFailed(status)
-        }
+        try store.load(CSDeviceSettings.self, account: deviceUUID.uuidString)
     }
 
     /// Loads settings for all saved devices from the keychain.
     /// - Returns: All saved device settings, or an empty array if none exist.
     /// - Throws: KeychainError if the operation fails.
     public static func loadAllSettings() throws -> [CSDeviceSettings] {
-        var query = baseServiceQueryAttributes()
-        query[kSecReturnData as String] = true
-        query[kSecMatchLimit as String] = kSecMatchLimitAll
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        switch status {
-        case errSecSuccess:
-            if let dataItems = result as? [Data] {
-                return try dataItems.map { try deserializeSettings(from: $0) }
-            }
-            if let data = result as? Data {
-                return [try deserializeSettings(from: data)]
-            }
-            throw KeychainError.invalidData
-        case errSecItemNotFound:
-            return []
-        default:
-            throw KeychainError.operationFailed(status)
-        }
+        try store.loadAll(CSDeviceSettings.self)
     }
 
     /// Saves device settings to the keychain
     /// - Parameter settings: The CSDeviceSettings instance to save
     /// - Throws: KeychainError if the operation fails
     public static func saveSettings(_ settings: CSDeviceSettings) throws {
-        let data = try serializeSettings(settings)
-
-        let query = baseQueryAttributes(for: settings.deviceUUID)
-
-        // Check if item exists
-        var result: AnyObject?
-        let checkStatus = SecItemCopyMatching(query as CFDictionary, &result)
-
-        if checkStatus == errSecSuccess {
-            // Update existing item
-            let updateAttributes: [String: Any] = [
-                kSecValueData as String: data
-            ]
-
-            let status = SecItemUpdate(query as CFDictionary, updateAttributes as CFDictionary)
-            if status != errSecSuccess {
-                throw KeychainError.operationFailed(status)
-            }
-        } else if checkStatus == errSecItemNotFound {
-            // Add new item
-            var addQuery = query
-            addQuery[kSecValueData as String] = data
-
-            let status = SecItemAdd(addQuery as CFDictionary, nil)
-            if status != errSecSuccess {
-                throw KeychainError.operationFailed(status)
-            }
-        } else {
-            throw KeychainError.operationFailed(checkStatus)
-        }
+        try store.save(settings, account: settings.deviceUUID.uuidString)
     }
 
     /// Deletes device settings from the keychain
     /// - Parameter deviceUUID: The unique identifier for the device
     /// - Throws: KeychainError if the operation fails
     public static func deleteSettings(for deviceUUID: UUID) throws {
-        let query = baseQueryAttributes(for: deviceUUID)
-
-        let status = SecItemDelete(query as CFDictionary)
-        if status != errSecSuccess && status != errSecItemNotFound {
-            throw KeychainError.operationFailed(status)
-        }
+        try store.delete(account: deviceUUID.uuidString)
     }
 
     /// Deletes all the settings for all the devices from the keychain.
     /// - Throws: KeychainError if the operation fails
     public static func deleteAllSettings() throws {
-        let query = baseServiceQueryAttributes()
-
-        let status = SecItemDelete(query as CFDictionary)
-        if status != errSecSuccess && status != errSecItemNotFound {
-            throw KeychainError.operationFailed(status)
-        }
-    }
-
-    // MARK: - Serialization
-
-    private static func serializeSettings(_ settings: CSDeviceSettings) throws -> Data {
-        try JSONEncoder().encode(settings)
-    }
-
-    private static func deserializeSettings(from data: Data) throws -> CSDeviceSettings {
-        try JSONDecoder().decode(CSDeviceSettings.self, from: data)
+        try store.deleteAll()
     }
 }

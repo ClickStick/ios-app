@@ -21,10 +21,13 @@ final class CSPauseCommand: CSCommand {
         let delayBytes = Data(from: delayMillis.bigEndian)
 
         // Generate random dummy payload for traffic obfuscation
-        let maxPayloadSize = maxCommandSize
-            - 1 // CommandID
-            - MemoryLayout.size(ofValue: delayMillis) // delay
-        let dummyPayloadSize = Int.random(in: 0..<maxPayloadSize)
+        let maxPayloadSize = max(
+            0,
+            maxCommandSize
+                - 1 // CommandID
+                - MemoryLayout.size(ofValue: delayMillis) // delay
+        )
+        let dummyPayloadSize = maxPayloadSize > 0 ? Int.random(in: 0..<maxPayloadSize) : 0
         let dummyPayload = (0..<dummyPayloadSize).map { _ in UInt8.random(in: 0...0xFF) }
 
         var packet = Data(capacity: 1 + MemoryLayout.size(ofValue: delayMillis) + dummyPayloadSize)
@@ -36,7 +39,7 @@ final class CSPauseCommand: CSCommand {
             name: "PAUSE",
             packet: packet,
             attributes: [],
-            timeout: Self.baselineTimeout + delay,
+            timeout: Self.baselineTimeout + TimeInterval(delayMillis) / 1000,
             maxCommandSize: maxCommandSize,
             completion: completion
         )
@@ -60,17 +63,22 @@ final class CSPauseCommand: CSCommand {
     /// In case of error, returns `nil`.
     /// For mock/demo devices only.
     internal static func fromMockPacket(_ packet: Data) -> Self? {
-        let expectedSize = 1 + MemoryLayout<UInt16>.size
-        guard packet.count == expectedSize else {
-            log.error("Unexpected packet size: \(packet.count) instead of \(expectedSize) bytes")
+        // Command ID + 2 delay bytes. The real packet also carries a variable-length random
+        // obfuscation payload after the delay, so accept anything at least this long.
+        let headerSize = 1 + MemoryLayout<UInt16>.size
+        guard packet.count >= headerSize else {
+            log.error("Unexpected packet size: \(packet.count), expected at least \(headerSize) bytes")
             return nil
         }
-        guard packet.first == Self.commandID else {
+        // Normalize to a 0-based array in case `packet` is a slice with non-zero start index.
+        let bytes = Array(packet)
+        guard bytes.first == Self.commandID else {
             assertionFailure("Wrong command ID")
             return nil
         }
-        let intDelay: UInt16 = UInt16(packet[1]) | (UInt16(packet[2]) << 8)
-        return Self(delay: TimeInterval(intDelay) * 1000, maxCommandSize: expectedSize, completion: nil)
+        // Delay is stored big-endian in milliseconds (see `init`); trailing padding is ignored.
+        let delayMillis = (UInt16(bytes[1]) << 8) | UInt16(bytes[2])
+        return Self(delay: TimeInterval(delayMillis) / 1000, maxCommandSize: packet.count, completion: nil)
     }
 }
 

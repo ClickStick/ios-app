@@ -41,11 +41,11 @@ final class TextEntryViewModel {
     var progress: ProgressState?
     var isShowingUnsupportedPrompt: Bool = false
     var showConnectionLost: Bool = false
-    private(set) var showSentToast: Bool = false
+    private let toastTimer = SentToastTimer()
+    var showSentToast: Bool { toastTimer.isVisible }
 
     private var sendTask: Task<Void, Never>?
     private var dismissProgressTask: Task<Void, Never>?
-    private var dismissToastTask: Task<Void, Never>?
     private var persistsSelectionChanges = true
     private var sendTextCallback: SendTextCallback?
 
@@ -63,7 +63,7 @@ final class TextEntryViewModel {
     isolated deinit {
         sendTask?.cancel()
         dismissProgressTask?.cancel()
-        dismissToastTask?.cancel()
+        toastTimer.cancel()
     }
 
     // MARK: - Derived
@@ -224,7 +224,7 @@ final class TextEntryViewModel {
                 self.dismissProgressTask = nil
             }
         } else {
-            flashSentToast()
+            toastTimer.flash()
         }
     }
 
@@ -259,17 +259,6 @@ final class TextEntryViewModel {
         urlOpener?.open(components.url ?? baseURL, completion: nil)
     }
 
-    private func flashSentToast() {
-        showSentToast = true
-        dismissToastTask?.cancel()
-        dismissToastTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(1))
-            guard let self else { return }
-            self.showSentToast = false
-            self.dismissToastTask = nil
-        }
-    }
-
 #if DEBUG
     func configureForPreview(
         text: String = "",
@@ -282,7 +271,7 @@ final class TextEntryViewModel {
         updateSelectionWithoutPersisting(layout: .usQWERTY, targetOS: .windows)
         self.text = text
         self.isSending = isSending
-        self.showSentToast = isToastVisible
+        toastTimer.setVisibleForPreview(isToastVisible)
         self.progress = presentsSheets ? progress : nil
         self.showConnectionLost = presentsSheets && isConnectionLost
         self.isShowingUnsupportedPrompt = presentsSheets && progress == nil && !isConnectionLost && hasUnsupportedCharacters

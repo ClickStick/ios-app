@@ -32,6 +32,15 @@ struct CSDeviceStateTransitionTests {
         #expect(device.connectionState == .connectedAuthorized)
         #expect(device.sentPackets.count == 1)
     }
+
+    @Test
+    func pauseCommandParsesMinimalMockPacket() throws {
+        let packet = Data([CSPauseCommand.commandID, 0x03, 0xE8]) // 1000 ms, no padding
+
+        let command = CSPauseCommand.fromMockPacket(packet)
+
+        #expect(command != nil)
+    }
 }
 
 private final class TestDevice: CSDevice {

@@ -43,7 +43,7 @@ struct TextEntryView: View {
         .background(Color.groupedBackground.ignoresSafeArea())
         .overlay(alignment: .center) {
             if viewModel.showSentToast {
-                sentToast
+                SentToastView(deviceName: viewModel.deviceName)
                     .transition(.scale.combined(with: .opacity))
             }
         }
@@ -109,16 +109,6 @@ struct TextEntryView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(Capsule(style: .continuous).fill(Color(uiColor: .systemGray5)))
-    }
-
-    private var sentToast: some View {
-        Label("Sent to \(viewModel.deviceName)", systemImage: "checkmark.circle")
-            .font(.body.weight(.bold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(Capsule(style: .continuous).fill(Color.black))
-            .accessibilityElement(children: .combine)
     }
 
     private var unsupportedCharactersSheet: some View {

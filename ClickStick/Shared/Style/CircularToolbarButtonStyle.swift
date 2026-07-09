@@ -50,3 +50,22 @@ extension ToolbarContent {
         }
     }
 }
+
+extension View {
+    /// A leading circular chevron button that calls `dismiss`. Used by pushed detail screens
+    /// (e.g. the snippet editor's key pickers) that hide the default back button.
+    func dismissBackButtonToolbar(dismiss: @escaping () -> Void) -> some View {
+        toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .buttonStyle(CircularToolbarButtonStyle(role: .neutral))
+                .accessibilityLabel(String(localized: "Back", comment: "Back button accessibility"))
+            }
+            .appHiddenSharedToolbarBackground()
+        }
+    }
+}

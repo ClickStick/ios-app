@@ -12,6 +12,7 @@ struct DeviceDetailView: View {
     @State private var selectedTab: DeviceFeatureTab = .textEntry
     @State private var textEntryViewModel: TextEntryViewModel
     @State private var mouseViewModel: MouseViewModel
+    @State private var snippetsViewModel: SnippetsViewModel
     @State private var showConnectionLost = false
     @State private var connectionLostSheetHeight: CGFloat = .zero
 
@@ -42,6 +43,7 @@ struct DeviceDetailView: View {
         _selectedTab = State(initialValue: initialTab)
         _textEntryViewModel = State(initialValue: textEntryViewModel)
         _mouseViewModel = State(initialValue: MouseViewModel(device: device))
+        _snippetsViewModel = State(initialValue: SnippetsViewModel(device: device))
         _showConnectionLost = State(initialValue: showsConnectionLost)
     }
 
@@ -80,6 +82,11 @@ struct DeviceDetailView: View {
                     showConnectionLost = true
                 }
             }
+            .onChange(of: snippetsViewModel.showConnectionLost) { _, isConnectionLost in
+                if isConnectionLost && !device.didDisconnectIntentionally {
+                    showConnectionLost = true
+                }
+            }
             .sheet(isPresented: $showConnectionLost, onDismiss: dismissConnectionLost) {
                 connectionLostSheet
                     .measureHeight($connectionLostSheetHeight)
@@ -101,7 +108,9 @@ struct DeviceDetailView: View {
                 }
             }
         case .snippets:
-            Button {} label: {
+            Button {
+                snippetsViewModel.startNewSnippet()
+            } label: {
                 Image(systemName: "plus")
             }
             .buttonStyle(CircularToolbarButtonStyle(role: .prominent))
@@ -145,7 +154,7 @@ struct DeviceDetailView: View {
         case .textEntry:
             TextEntryView(viewModel: textEntryViewModel)
         case .snippets:
-            snippetsPlaceholder
+            SnippetsListView(viewModel: snippetsViewModel)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
         case .mouse:
             MouseView(viewModel: mouseViewModel)
@@ -174,22 +183,6 @@ struct DeviceDetailView: View {
         )
     }
 
-    private var snippetsPlaceholder: some View {
-        VStack(spacing: 12) {
-            Text("No snippets yet")
-                .font(.title2.bold())
-                .foregroundStyle(.primary)
-            Text("Tap + to create your first snippet")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-        }
-        .multilineTextAlignment(.center)
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.groupedBackground)
-        .accessibilityElement(children: .combine)
-    }
-
     private func handleConnectionStateChange(
         from oldState: CSDevice.ConnectionState,
         to newState: CSDevice.ConnectionState
@@ -208,6 +201,7 @@ struct DeviceDetailView: View {
     private func dismissConnectionLost() {
         showConnectionLost = false
         textEntryViewModel.dismissConnectionLost()
+        snippetsViewModel.dismissConnectionLost()
     }
 
     private func retryConnection() {

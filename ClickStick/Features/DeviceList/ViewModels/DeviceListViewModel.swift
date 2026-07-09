@@ -83,7 +83,8 @@ final class DeviceListViewModel {
     }
 
     func prepareDeviceForSetup(_ device: DeviceModel) {
-        // Clear old settings before showing setup
+        // Clear old settings before showing setup for a re-paired device. Snippets are shared
+        // across all devices, so they are not device-specific state to clear here.
         try? CSDeviceSettingsManager.deleteSettings(for: device.id)
         device.refreshSettingsCache()
     }
@@ -155,6 +156,7 @@ final class DeviceListViewModel {
     }
 
     /// Forgets a device. Returns true if the device was the currently selected one.
+    /// Snippets are shared across all devices and are not cleared when a single device is forgotten.
     func forgetDevice(_ device: DeviceModel, selectedDeviceID: UUID?) -> Bool {
         do {
             try CSDeviceSettingsManager.deleteSettings(for: device.id)

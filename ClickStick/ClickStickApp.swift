@@ -37,6 +37,7 @@ struct ClickStickApp: App {
 
     private static func clearStaleDeviceSettingsOnFreshInstall() {
         guard !UserDefaults.standard.bool(forKey: hasLaunchedSinceInstallKey) else { return }
+        try? SnippetStore().deleteAll()
         try? CSDeviceSettingsManager.deleteAllSettings()
         UserDefaults.standard.set(true, forKey: hasLaunchedSinceInstallKey)
     }

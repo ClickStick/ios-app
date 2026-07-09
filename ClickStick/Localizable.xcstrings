@@ -4,6 +4,17 @@
     "" : {
 
     },
+    "%@ can't be typed with %@. Edit the snippet or change the keyboard layout in Text Entry." : {
+      "comment" : "Snippet unsupported characters sheet message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ can't be typed with %2$@. Edit the snippet or change the keyboard layout in Text Entry."
+          }
+        }
+      }
+    },
     "%@ can't be typed with %@. They will be skipped." : {
       "comment" : "Unsupported characters sheet message",
       "localizations" : {
@@ -76,7 +87,22 @@
         }
       }
     },
+    "%lld seconds" : {
+      "comment" : "Delay value accessibility"
+    },
+    "%llds" : {
+
+    },
+    "1s" : {
+
+    },
+    "10s" : {
+
+    },
     "Add and pair a nearby device." : {
+
+    },
+    "Add delay" : {
 
     },
     "Add device" : {
@@ -102,6 +128,9 @@
     },
     "Available" : {
 
+    },
+    "Back" : {
+      "comment" : "Back button accessibility"
     },
     "Bluetooth disconnected.\nCheck your device and try again." : {
       "comment" : "Share extension connection lost message"
@@ -135,6 +164,9 @@
     },
     "Choose how you'd like to begin. You can always switch modes later." : {
 
+    },
+    "Choose icon" : {
+      "comment" : "Choose icon button accessibility"
     },
     "ClickStick is a USB dongle that works as a keyboard controlled by your phone. No drivers required." : {
 
@@ -184,6 +216,18 @@
     "Create snippet" : {
       "comment" : "Create snippet button accessibility"
     },
+    "Cursor" : {
+      "comment" : "Cursor keys chip"
+    },
+    "Default" : {
+
+    },
+    "Delay" : {
+      "comment" : "Delay chip"
+    },
+    "Delete" : {
+
+    },
     "Demo device" : {
       "comment" : "Device type"
     },
@@ -226,11 +270,35 @@
     "Double-tap to view device options" : {
       "comment" : "Accessibility hint"
     },
+    "Down" : {
+      "comment" : "Cursor key"
+    },
     "Drag with one finger to move cursor, two fingers to scroll, tap to click, two-finger tap for right click" : {
       "comment" : "Accessibility hint"
     },
+    "e.g. Work Server, Netflix Login" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit snippet" : {
+
+    },
+    "Edit Snippet" : {
+
+    },
+    "Email" : {
+
+    },
     "Empty" : {
       "comment" : "Empty text field value"
+    },
+    "End" : {
+      "comment" : "Cursor key"
+    },
+    "Enter" : {
+      "comment" : "Snippet key chip"
     },
     "Enter 32-character hex key" : {
       "comment" : "Placeholder"
@@ -256,14 +324,26 @@
     "Explore Demo Mode" : {
 
     },
+    "F%lld" : {
+
+    },
+    "Favorites" : {
+
+    },
     "Find the QR code" : {
 
     },
     "Flashlight Error" : {
 
     },
+    "Fn" : {
+      "comment" : "Function keys chip"
+    },
     "Forget Device" : {
       "comment" : "Context menu action"
+    },
+    "Function keys" : {
+
     },
     "General" : {
 
@@ -279,6 +359,9 @@
     },
     "Help article" : {
 
+    },
+    "Home" : {
+      "comment" : "Cursor key"
     },
     "How does ClickStick work?" : {
 
@@ -298,6 +381,12 @@
     "Keep screen on" : {
 
     },
+    "Keys" : {
+
+    },
+    "Left" : {
+      "comment" : "Cursor key"
+    },
     "Left click" : {
 
     },
@@ -310,6 +399,9 @@
     "Linux" : {
       "comment" : "Target OS"
     },
+    "Login" : {
+
+    },
     "Looking for nearby devices..." : {
 
     },
@@ -317,6 +409,21 @@
       "comment" : "Target OS"
     },
     "Make sure your ClickStick is plugged in and Bluetooth is on" : {
+
+    },
+    "Media" : {
+
+    },
+    "More actions" : {
+      "comment" : "Snippet row menu accessibility"
+    },
+    "Name" : {
+
+    },
+    "Network" : {
+
+    },
+    "New Snippet" : {
 
     },
     "No devices found" : {
@@ -356,6 +463,9 @@
     "Out of range" : {
       "comment" : "Device row status"
     },
+    "Password" : {
+
+    },
     "Point the camera at the QR code on your ClickStick's screen" : {
       "comment" : "Accessibility hint"
     },
@@ -371,11 +481,20 @@
     "Remove device" : {
 
     },
+    "Right" : {
+      "comment" : "Cursor key"
+    },
     "Right click" : {
 
     },
     "RIGHT CLICK" : {
 
+    },
+    "Run snippet" : {
+      "comment" : "Run snippet button accessibility"
+    },
+    "Save snippet" : {
+      "comment" : "Save snippet button accessibility"
     },
     "Saved device" : {
       "comment" : "Device type"
@@ -396,6 +515,9 @@
       "comment" : "QR scanner error title"
     },
     "Scanning paused" : {
+
+    },
+    "Scripts" : {
 
     },
     "Security warning" : {
@@ -440,6 +562,9 @@
     "Sent!" : {
       "comment" : "Share extension sent title"
     },
+    "Server" : {
+
+    },
     "Settings" : {
 
     },
@@ -464,11 +589,20 @@
     "Signal unknown" : {
 
     },
+    "Snippet content" : {
+
+    },
     "Snippets" : {
       "comment" : "Tab title"
     },
+    "Snippets Error" : {
+      "comment" : "Snippet storage error title"
+    },
     "Snippets mode" : {
       "comment" : "Accessibility label"
+    },
+    "Some characters can't be typed with the selected layout." : {
+
     },
     "Stop" : {
 
@@ -483,7 +617,13 @@
         }
       }
     },
+    "Tab" : {
+      "comment" : "Snippet key chip"
+    },
     "Tap + to create your first snippet" : {
+
+    },
+    "Tap a key to insert it into your snippet" : {
 
     },
     "Tap Scan again to search for devices" : {
@@ -543,8 +683,17 @@
     "Type or paste text to send..." : {
 
     },
+    "Type text and use the toolbar to insert keys or delays." : {
+
+    },
+    "Type your text here, then add special keys below" : {
+      "comment" : "Snippet content placeholder"
+    },
     "Unsupported characters" : {
 
+    },
+    "Up" : {
+      "comment" : "Cursor key"
     },
     "Verifying device" : {
 
@@ -566,6 +715,9 @@
     },
     "Windows" : {
       "comment" : "Target OS"
+    },
+    "Work" : {
+
     }
   },
   "version" : "1.1"

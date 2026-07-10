@@ -78,7 +78,7 @@ class TouchpadView: UIView {
         layer.shadowRadius = 18
 
         innerShadowLayer.fillColor = UIColor.clear.cgColor
-        innerShadowLayer.strokeColor = UIColor.white.withAlphaComponent(0.72).cgColor
+        innerShadowLayer.strokeColor = UIColor.touchpadInnerHighlight.cgColor
         innerShadowLayer.lineWidth = 2
         layer.addSublayer(innerShadowLayer)
 
@@ -109,6 +109,7 @@ class TouchpadView: UIView {
 
     private func updateColors() {
         layer.borderColor = UIColor.touchpadStroke.cgColor
+        innerShadowLayer.strokeColor = UIColor.touchpadInnerHighlight.cgColor
         crosshairLayer.strokeColor = accentBlue.withAlphaComponent(0.3).cgColor
         gradientLayer?.colors = touchpadGradientColors
     }
@@ -321,25 +322,25 @@ class TouchpadView: UIView {
 extension UIColor {
     static let touchpadSurfaceFill = UIColor { traitCollection in
         if traitCollection.userInterfaceStyle == .dark {
-            UIColor(red: 28 / 255, green: 28 / 255, blue: 30 / 255, alpha: 1)
+            UIColor(red: 45 / 255, green: 45 / 255, blue: 47 / 255, alpha: 1)
         } else {
-            UIColor(red: 244 / 255, green: 246 / 255, blue: 250 / 255, alpha: 1)
-        }
-    }
-
-    static let touchpadButtonFill = UIColor { traitCollection in
-        if traitCollection.userInterfaceStyle == .dark {
-            UIColor(red: 36 / 255, green: 36 / 255, blue: 38 / 255, alpha: 1)
-        } else {
-            UIColor(red: 247 / 255, green: 248 / 255, blue: 251 / 255, alpha: 1)
+            UIColor(red: 232 / 255, green: 232 / 255, blue: 237 / 255, alpha: 1)
         }
     }
 
     static let touchpadStroke = UIColor { traitCollection in
         if traitCollection.userInterfaceStyle == .dark {
-            UIColor.white.withAlphaComponent(0.16)
+            UIColor(red: 58 / 255, green: 63 / 255, blue: 74 / 255, alpha: 1)
         } else {
             UIColor(red: 204 / 255, green: 214 / 255, blue: 224 / 255, alpha: 1)
+        }
+    }
+
+    static let touchpadInnerHighlight = UIColor { traitCollection in
+        if traitCollection.userInterfaceStyle == .dark {
+            UIColor.white.withAlphaComponent(0.04)
+        } else {
+            UIColor.white.withAlphaComponent(0.52)
         }
     }
 }

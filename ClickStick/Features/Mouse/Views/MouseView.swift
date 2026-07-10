@@ -40,7 +40,7 @@ struct MouseView: View {
             } label: {
                 Text("LEFT CLICK")
             }
-            .buttonStyle(TouchpadClickButtonStyle())
+            .buttonStyle(touchpadClickButtonStyle)
             .accessibilityLabel("Left click")
             .accessibilityHint("Double-tap to perform a left click")
 
@@ -49,10 +49,16 @@ struct MouseView: View {
             } label: {
                 Text("RIGHT CLICK")
             }
-            .buttonStyle(TouchpadClickButtonStyle())
+            .buttonStyle(touchpadClickButtonStyle)
             .accessibilityLabel("Right click")
             .accessibilityHint("Double-tap to perform a right click")
         }
+    }
+
+    // Applied directly via `.buttonStyle` (not through a wrapper's makeBody) so that
+    // RaisedKeyButtonStyle's @Environment(\.colorScheme) is injected and dark mode renders.
+    private var touchpadClickButtonStyle: RaisedKeyButtonStyle {
+        RaisedKeyButtonStyle(height: 58, cornerRadius: 22)
     }
 }
 

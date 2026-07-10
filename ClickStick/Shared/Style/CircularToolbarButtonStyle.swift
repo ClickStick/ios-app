@@ -10,6 +10,7 @@ struct CircularToolbarButtonStyle: ButtonStyle {
     }
 
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.colorScheme) private var colorScheme
     var role: Role = .prominent
     var diameter: CGFloat = 36
 
@@ -18,18 +19,55 @@ struct CircularToolbarButtonStyle: ButtonStyle {
             .font(.system(size: 17, weight: .semibold))
             .foregroundStyle(foreground)
             .frame(width: diameter, height: diameter)
-            .background(Circle().fill(fill))
+            .background(buttonBackground)
+            .overlay { buttonBorder }
             .contentShape(Circle())
             .opacity(configuration.isPressed ? 0.6 : 1)
             .animation(.easeInOut(duration: 0.15), value: isEnabled)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 
-    private var fill: Color {
+    @ViewBuilder
+    private var buttonBackground: some View {
         switch role {
-        case .prominent: isEnabled ? .accentBlue : .accentBlue.opacity(0.4)
-        case .neutral: .cardBackground
+        case .prominent:
+            Circle().fill(isEnabled ? Color.accentBlue : Color.accentBlue.opacity(0.4))
+        case .neutral:
+            Circle()
+                .fill(neutralFill)
+                .shadow(color: neutralShadowColor, radius: colorScheme == .dark ? 10 : 16, y: colorScheme == .dark ? 6 : 8)
         }
+    }
+
+    @ViewBuilder
+    private var buttonBorder: some View {
+        if case .neutral = role {
+            Circle()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: neutralBorderColors,
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 1
+                )
+        }
+    }
+
+    private var neutralFill: Color {
+        colorScheme == .dark
+            ? Color(red: 18 / 255, green: 18 / 255, blue: 20 / 255)
+            : .white
+    }
+
+    private var neutralBorderColors: [Color] {
+        colorScheme == .dark
+            ? [.white.opacity(0.32), .white.opacity(0.06)]
+            : [.white.opacity(0.95), .white.opacity(0.18)]
+    }
+
+    private var neutralShadowColor: Color {
+        colorScheme == .dark ? .black.opacity(0.28) : .black.opacity(0.08)
     }
 
     private var foreground: Color {

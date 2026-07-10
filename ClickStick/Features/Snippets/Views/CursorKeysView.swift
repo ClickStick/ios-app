@@ -7,59 +7,18 @@ import SwiftUI
 struct CursorKeysView: View {
     let onSelect: (CursorKey) -> Void
 
-    @Environment(\.dismiss) private var dismiss
-
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
-
     var body: some View {
-        VStack(spacing: 20) {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(CursorKey.allCases) { key in
-                    Button {
-                        onSelect(key)
-                        dismiss()
-                    } label: {
-                        keyLabel(key)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 64)
-                            .background(
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .fill(Color.cardBackground)
-                                    .shadow(color: Color.black.opacity(0.06), radius: 6, y: 3)
-                            )
-                    }
-                    .buttonStyle(.plain)
+        KeyGridView(items: CursorKey.allCases, title: "Cursor", onSelect: onSelect) { key in
+            if let systemImage = key.systemImage {
+                Image(systemName: systemImage)
+                    .font(.system(size: 29, weight: .regular))
+                    .foregroundStyle(.primary)
                     .accessibilityLabel(Text(key.title))
-                }
+            } else {
+                Text(key.title.uppercased())
+                    .font(.system(size: 20, weight: .regular))
+                    .foregroundStyle(.primary)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 24)
-
-            Text("Tap a key to insert it into your snippet")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.groupedBackground.ignoresSafeArea())
-        .navigationTitle("Cursor")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .dismissBackButtonToolbar(dismiss: { dismiss() })
-    }
-
-    @ViewBuilder
-    private func keyLabel(_ key: CursorKey) -> some View {
-        if let systemImage = key.systemImage {
-            Image(systemName: systemImage)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.primary)
-        } else {
-            Text(key.title.uppercased())
-                .font(.title3)
-                .foregroundStyle(.primary)
         }
     }
 }
